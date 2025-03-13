@@ -1,4 +1,4 @@
-cabal-version:      3.0
+cabal-version:      3.14
 -- The cabal-version field refers to the version of the .cabal specification,
 -- and can be different from the cabal-install (the tool) version and the
 -- Cabal (the library) version you are using. As such, the Cabal (the library)
@@ -22,12 +22,6 @@ name:               Bandaged-Cube-TFG
 --                  | | | +--- code changes with no API change
 version:            0.1.0.0
 
--- A short (one-line) description of the package.
-synopsis:           Bandaged Cubes
-
--- A longer description of the package.
--- description:
-
 -- The license under which the package is released.
 license:            BSD-3-Clause
 
@@ -40,8 +34,6 @@ author:             Alejandro Soriano
 -- An email address to which users can send suggestions, bug reports, and patches.
 maintainer:         alejandro.scompta@alumnos.upm.es
 
--- A copyright notice.
--- copyright:
 category:           Math
 build-type:         Simple
 
@@ -54,24 +46,63 @@ extra-doc-files:    CHANGELOG.md
 common warnings
     ghc-options: -Wall
 
+common common-exec-test
+    -- Other library packages from which modules are imported.
+    build-depends:    base ^>=4.21.0.0, 
+                    groups >= 0.5,
+                    containers >= 0.7,
+                    vector >= 0.13
+    --Here, add the packages imported
+
+--   base >=4.21.0.0, groups >= 0.5, containers >= 0.7
+
+    other-modules: Cube, Utils
+
+
+    -- Base language which the package is written in.
+    default-language: Haskell2010
+
+
+
 executable Bandaged-Cube-TFG
     -- Import common warning flags.
-    import:           warnings
+    import:           warnings, common-exec-test
 
     -- .hs or .lhs file containing the Main module.
     main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
-    -- other-modules:
+--    other-modules: 
+    --Here, add the modules imported that do not import the test suite
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
 
-    -- Other library packages from which modules are imported.
-    build-depends:    base ^>=4.21.0.0
 
     -- Directories containing source files.
-    hs-source-dirs:   src-exe
+    hs-source-dirs:   src-exe, src-exe/Data, src-exe/Search_Engine
 
-    -- Base language which the package is written in.
-    default-language: Haskell2010
+test-suite Bandaged-Cube-TFG-test
+    -- Import common warning flags.
+    import:           warnings, common-exec-test
+
+    -- The interface type and version of the test suite.
+    --type:             detailed-0.9
+    type:             exitcode-stdio-1.0
+
+    -- Directories containing source files.
+    hs-source-dirs:   test, src-exe, src-exe/Data, src-exe/Search_Engine
+
+    main-is: MainTest.hs
+
+    --test-module: TestCube
+
+    other-modules: TestCube
+
+    -- Test dependencies.
+    build-depends:
+        QuickCheck >= 2.14,
+        --cabal-test-quickcheck >= 0.1, 
+        Cabal >= 3.0
+
+

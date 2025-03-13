@@ -1,0 +1,44 @@
+module Cube  where
+
+import Data.Group
+--import Data.List
+import qualified Data.Vector as V
+import Utils
+
+{- Implementation of a Rubik's Cube as a group.
+Numbering the 54 stickers
+-}
+
+
+newtype Cube = Cube (V.Vector Int) deriving (Show, Eq)
+--A cube is a list of numbers 0-53. Maybe, use base 64 in the future
+
+--Todo: user-friendly user-experience
+
+newCubeFromList :: [Int] -> Cube
+newCubeFromList xs = Cube $ V.fromList xs
+
+instance Semigroup Cube where
+    (Cube v1) <> (Cube v2) = Cube(V.backpermute v1 v2)
+
+instance Monoid Cube where
+    mempty = Cube (V.fromList [0..53])
+    --Be careful when changing a representation
+
+solved :: Cube -> Bool
+solved = (== mempty)
+--Be careful if rotations are allowed
+
+instance Group Cube where
+    invert (Cube xs) = Cube(V.fromList (invert_perm (V.toList xs)))
+
+--try to hide
+invert_perm :: [Int] -> [Int]
+invert_perm xs = map fst tups_ord
+    where
+        neutral = [0 .. (length xs - 1)]
+        tups = zip (neutral) xs 
+        tups_ord = sort_by_snd tups
+
+instance Ord Cube where
+    compare (Cube v1) (Cube v2) = compare v1 v2

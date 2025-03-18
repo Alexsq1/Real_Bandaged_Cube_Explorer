@@ -1,4 +1,4 @@
-module Cube  where
+module Cube (Cube(..), newCubeFromList, solved) where
 
 import Data.Group
 --import Data.List
@@ -9,12 +9,13 @@ import Utils
 Numbering the 54 stickers
 -}
 
+--A cube is a list of numbers 0-53. Maybe, use base 64 in the future
 
 newtype Cube = Cube (V.Vector Int) deriving (Show, Eq)
---A cube is a list of numbers 0-53. Maybe, use base 64 in the future
 
 --Todo: user-friendly user-experience
 
+-- | Creates a cube by a 0-53 stickers list
 newCubeFromList :: [Int] -> Cube
 newCubeFromList xs = Cube $ V.fromList xs
 
@@ -25,6 +26,8 @@ instance Monoid Cube where
     mempty = Cube (V.fromList [0..53])
     --Be careful when changing a representation
 
+-- | Checks if a cube is solved
+    
 solved :: Cube -> Bool
 solved = (== mempty)
 --Be careful if rotations are allowed

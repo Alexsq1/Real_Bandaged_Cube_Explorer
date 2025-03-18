@@ -10,7 +10,7 @@ import Data.Group
 testsCube :: IO ()
 testsCube = do 
     putStrLn "\nStarting tests of Cube: \n\n"
-    quickCheck ( asociativity)
+    quickCheck ( associativity)
     quickCheck ( neutral1)
     quickCheck ( neutral2)
     quickCheck ( inverse1)
@@ -24,8 +24,8 @@ testsCube = do
 
 --Properties of a group (associativity, neutral element, inverse)
 
-asociativity :: Cube -> Cube -> Cube -> Property
-asociativity c1 c2 c3 = (c1 <> (c2 <> c3)) === ((c1 <> c2) <> c3)
+associativity :: Cube -> Cube -> Cube -> Property
+associativity c1 c2 c3 = (c1 <> (c2 <> c3)) === ((c1 <> c2) <> c3)
 
 neutral1 :: Cube -> Property
 neutral1 c = (c <> mempty) === c

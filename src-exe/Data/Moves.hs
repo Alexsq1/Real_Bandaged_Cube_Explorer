@@ -1,8 +1,9 @@
-module Moves (Turn(..), Algorithm(..), algToPerm, possibleTurns) where
+module Moves (Turn(..), Algorithm(..), Face(..), algToPerm, possibleTurns) where
 
 import Cube
 import Data.Group
 
+-- | A face of a Cube (R, U, F, L, D, B)
 data Face = N | R | U | F | L | D | B deriving(Show, Eq, Ord, Read, Enum)
 
 -- | A Turn is a face-move in OBTM (tuple of Face and Int)
@@ -20,6 +21,7 @@ Make read from String: "R U R' " -> [R, U, R']
 Cancell paralel turns
 -}
 
+-- | Makes a list with all the possible turns
 possibleTurns :: [Turn]
 possibleTurns = [Turn(turn, degrees) | turn <- [R ..], degrees <- [1..3]]
 

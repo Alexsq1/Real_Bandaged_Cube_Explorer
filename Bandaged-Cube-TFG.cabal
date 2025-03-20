@@ -48,7 +48,7 @@ common warnings
 
 common common-exec-test
     -- Other library packages from which modules are imported.
-    build-depends:    base ^>=4.21.0.0, 
+    build-depends:  base ^>=4.21.0.0, 
                     groups >= 0.5,
                     containers >= 0.7,
                     vector >= 0.13
@@ -56,7 +56,9 @@ common common-exec-test
 
 --   base >=4.21.0.0, groups >= 0.5, containers >= 0.7
 
-    other-modules: Cube, Utils
+    other-modules: Cube, Utils, 
+                    Moves
+    --Bandaged
 
 
     -- Base language which the package is written in.
@@ -97,7 +99,7 @@ test-suite Bandaged-Cube-TFG-test
 
     --test-module: TestCube
 
-    other-modules: TestCube
+    other-modules: TestCube, TestMoves
 
     -- Test dependencies.
     build-depends:

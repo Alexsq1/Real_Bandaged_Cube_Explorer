@@ -1,4 +1,4 @@
-module Moves (Turn(..), Algorithm(..), Face(..), algToPerm, possibleTurns) where
+module Moves (Turn(..), Algorithm(..), Face(..), algToPerm, possibleTurns, permOfTurn) where
 
 import Cube
 import Data.Group
@@ -92,6 +92,7 @@ invertListofTurns (x : xs) = invertListofTurns xs ++ [invertTurn x]
 algToPerm :: Algorithm -> Cube
 algToPerm (Algorithm xs) = mconcat (map permOfTurn xs)
 
+-- | Calculates the permutation a move executes
 permOfTurn :: Turn -> Cube
 permOfTurn (Turn(N, _)) = newCubeFromList [0..53]
 permOfTurn (Turn(R, 1)) = newCubeFromList [0,1,2,3,4,5,11,9,10,13,14,12,17,15,16,7,8,6,18,19,20,21,22,23,24,25,26,27,34,35,30,31,32,33,42,43,28,29,38,39,40,41,36,37,44,45,46,47,48,49,50,51,52,53]

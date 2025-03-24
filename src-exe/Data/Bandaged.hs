@@ -1,12 +1,50 @@
-module Bandaged(newBandagedCube) where
+module Bandaged(BandagedCube(..), tryToTurn, divideTurn, allPieces) where
     --export validTurn, newBandagedCube
 
 import Moves
 import Cube
 import qualified Data.Set as S
+import qualified Data.Vector as V
 
+-- | A Bandaged Cube is a Cube with a set of sets of restrictions. 
 data BandagedCube = BandagedCube {stdCube :: Cube, restrictions :: S.Set (S.Set Int)} deriving Show
 
+
+
+tryToTurn :: BandagedCube -> Turn -> Maybe BandagedCube
+tryToTurn bCube currTurn
+    | validTurn bCube f = Just (BandagedCube {stdCube = newPerm, restrictions = restr})
+    | otherwise = Nothing
+    where
+        (BandagedCube currCube restr) = bCube
+        (Turn(f, _)) = currTurn
+        newPerm = currCube <> (permOfTurn currTurn)
+
+--Checks is a Turn does not break any block
+validTurn :: BandagedCube -> Face -> Bool
+validTurn bCube face = and (boolsAllBlocks)
+    where
+        allRestr = restrictions bCube
+        --checkOneBlock :: S.Set Int -> Bool
+        checkOneBlock = turnPreserveBlock bCube face
+        boolsAllBlocks = S.map (checkOneBlock) allRestr
+
+turnPreserveBlock :: BandagedCube -> Face -> S.Set Int -> Bool
+turnPreserveBlock (BandagedCube cubeState _) face block = (S.disjoint block s1Real) || (S.disjoint block s2Real)
+    where
+        (s1, s2) = divideTurn face
+        s1RealVec = slicePieces cubeState (S.toList s1)
+        s2RealVec = slicePieces cubeState (S.toList s2)
+        s1Real = (S.fromList . V.toList) s1RealVec
+        s2Real = (S.fromList . V.toList) s2RealVec
+        --a bit better if vector was not imported, and cube has its own function of slicing
+        
+
+
+
+--Given a face, returns the pieces afected and not afected.
+divideTurn :: Face -> (S.Set Int, S.Set Int)
+divideTurn m = (piecesAfected m, piecesNotAfected m)
 
 piecesAfected :: Face -> S.Set Int
 piecesAfected R = S.fromList [6,7,8,9,10,11,12,13,14,15,16,17,28,29,34,35,36,37,42,43,50]
@@ -21,52 +59,5 @@ piecesNotAfected :: Face -> S.Set Int
 piecesNotAfected bm = S.difference allPieces (piecesAfected bm)
 
 
---tryToTurn :: BandagedCube -> Turn -> Maybe BandagedCube
-
---Unused by the moment
---turnPreserveBlock :: Face -> S.Set Int -> Bool
---turnPreserveBlock face block = (S.disjoint block s1) || (S.disjoint block s2)
---    where
---        (s1, s2) = divideTurn face
-        --sreal = S.backpermute 
-
-
-----Not used
-
-----Revisa si un giro no rompe ningún bloque
---validTurn :: BandagedCube -> Face -> Bool
---validTurn bCube move = and (S.map (turnPreserveBlock move) allRestr)
---    where
---        allRestr = restrictions bCube
---
-
-
-
---movableFaces :: BandagedCube -> S.Set Face
---movableFaces bCube = S.difference (S.fromList [R, U, F, L, D, B]) allBlockedFaces
---    where
---        allRestr = restrictions bCube
---        allBlockedFaces = S.unions (S.map (blockFaces) allRestr)
---
-----Devuelve las capas que bloquea un bloque (>1 centros)
---blockFaces :: S.Set Int -> S.Set Face
---blockFaces xs
---    | (blockingCenters) = S.map (centerToLayer) centers
---    | otherwise = S.fromList []
---    where
---        centers = S.filter (>= 48) xs --Número de centros de un bloque
---        blockingCenters = (length centers) >= 2 --Bool, si bloquea varios
---
-----aux
-
-
-
---centerToLayer :: Int -> Face
---centerToLayer 48 = U
---centerToLayer 49 = F
---centerToLayer 50 = R
---centerToLayer 51 = B
---centerToLayer 52 = L
---centerToLayer 53 = D
---
-
+allPieces :: S.Set Int
+allPieces = S.fromList [0..53]

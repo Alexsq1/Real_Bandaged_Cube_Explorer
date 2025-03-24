@@ -54,10 +54,13 @@ common common-exec-test
                     vector >= 0.13
     --Here, add the packages imported
 
---   base >=4.21.0.0, groups >= 0.5, containers >= 0.7
 
-    other-modules: Cube, Utils, 
-                    Moves
+    other-modules:  Cube, 
+                    Utils, 
+                    Moves,
+                    Bandaged,
+                    InputBandagedCube
+
     --Bandaged
 
 

@@ -1,4 +1,4 @@
-module Cube (Cube(..), newCubeFromList, solved) where
+module Cube (Cube(..), newCubeFromList, solved, slicePieces) where
 
 import Data.Group
 --import Data.List
@@ -45,3 +45,7 @@ invert_perm xs = map fst tups_ord
 
 instance Ord Cube where
     compare (Cube v1) (Cube v2) = compare v1 v2
+
+-- | Given a cube and a list, returns a vector with the pieces of the position given. 
+slicePieces :: Cube -> [Int] -> V.Vector Int
+slicePieces (Cube xs) ys = V.backpermute xs (V.fromList ys)

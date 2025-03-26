@@ -49,3 +49,4 @@ instance Ord Cube where
 -- | Given a cube and a list, returns a vector with the pieces of the position given. 
 slicePieces :: Cube -> [Int] -> V.Vector Int
 slicePieces (Cube xs) ys = V.backpermute xs (V.fromList ys)
+

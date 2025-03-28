@@ -1,9 +1,0 @@
-# This file is used internally by FFMPEG.
-file 'file:/home/alex/git/Mine/Bandaged_Cube_TFG/media/videos/1080p60/partial_movie_files/Plantilla/4227985489_3189441945_1546107441.mp4'
-file 'file:/home/alex/git/Mine/Bandaged_Cube_TFG/media/videos/1080p60/partial_movie_files/Plantilla/2790769824_1597311075_1546107441.mp4'
-file 'file:/home/alex/git/Mine/Bandaged_Cube_TFG/media/videos/1080p60/partial_movie_files/Plantilla/2790769824_1737264415_3142295096.mp4'
-file 'file:/home/alex/git/Mine/Bandaged_Cube_TFG/media/videos/1080p60/partial_movie_files/Plantilla/2790769824_3420339324_3066156972.mp4'
-file 'file:/home/alex/git/Mine/Bandaged_Cube_TFG/media/videos/1080p60/partial_movie_files/Plantilla/2790769824_2022482936_3388184097.mp4'
-file 'file:/home/alex/git/Mine/Bandaged_Cube_TFG/media/videos/1080p60/partial_movie_files/Plantilla/2790769824_3823105530_3388184097.mp4'
-file 'file:/home/alex/git/Mine/Bandaged_Cube_TFG/media/videos/1080p60/partial_movie_files/Plantilla/2790769824_3941392960_847009939.mp4'
-file 'file:/home/alex/git/Mine/Bandaged_Cube_TFG/media/videos/1080p60/partial_movie_files/Plantilla/2790769824_2902395957_23489122.mp4'

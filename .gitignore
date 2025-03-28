@@ -161,5 +161,7 @@ pythonenv*
 .DS_Store
 
 # For manim
-/media/videos
+*/media/videos
 /custom_config.yml
+*.mp4
+partial_move_file_list.txt

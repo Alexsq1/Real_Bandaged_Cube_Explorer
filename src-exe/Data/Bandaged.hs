@@ -10,7 +10,7 @@ import qualified Data.Vector as V
 data BandagedCube = BandagedCube {stdCube :: Cube, restrictions :: S.Set (S.Set Int)} deriving Show
 
 
-
+-- | Makes a move when it is possible and does not break any block
 tryToTurn :: BandagedCube -> Turn -> Maybe BandagedCube
 tryToTurn bCube currTurn
     | validTurn bCube f = Just (BandagedCube {stdCube = newPerm, restrictions = restr})
@@ -42,7 +42,7 @@ turnPreserveBlock (BandagedCube cubeState _) face block = (S.disjoint block s1Re
 
 
 
---Given a face, returns the pieces afected and not afected.
+-- | Given a face, returns a tuple with the pieces afected and not afected respectively.
 divideTurn :: Face -> (S.Set Int, S.Set Int)
 divideTurn m = (piecesAfected m, piecesNotAfected m)
 
@@ -58,6 +58,6 @@ piecesAfected _ = S.fromList []
 piecesNotAfected :: Face -> S.Set Int
 piecesNotAfected bm = S.difference allPieces (piecesAfected bm)
 
-
+-- | A set of numbers 0..53
 allPieces :: S.Set Int
 allPieces = S.fromList [0..53]

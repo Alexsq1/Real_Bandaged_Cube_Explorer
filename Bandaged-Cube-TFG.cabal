@@ -51,7 +51,9 @@ common common-exec-test
     build-depends:  base ^>=4.21.0.0, 
                     groups >= 0.5,
                     containers >= 0.7,
-                    vector >= 0.13
+                    vector >= 0.13,
+                    process >= 1.6,
+                    split >= 0.2
     --Here, add the packages imported
 
 
@@ -59,7 +61,9 @@ common common-exec-test
                     Utils, 
                     Moves,
                     Bandaged,
-                    InputBandagedCube
+                    InputCube,
+                    InputBandagedCube,
+                    Visualizator
 
     --Bandaged
 

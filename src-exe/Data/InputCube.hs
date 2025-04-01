@@ -1,12 +1,101 @@
-module InputCube(cubeFromManimCodification) where
+module InputCube(cubeFromManimCodification, bandagedCubeScratchIO) where
 
---import Data.List.Split
+import Data.List.Split
 import qualified Data.Vector as V
 import Cube
+import InputBandagedCube
+import Bandaged
+
+
+--SCRAMBLE: U2 F2 L2
+
+
+-- | Definitive IO for asking the user to generate a Bandaged Cube
+bandagedCubeScratchIO :: IO BandagedCube
+bandagedCubeScratchIO = do
+
+    equivs <- faceAliases
+
+    xs <- inputBlock equivs
+    cube <- simpleInputCube equivs
+
+    return $ newBandagedCube cube xs
+
+-- | An IO that guides the user to insert a cube
+simpleInputCube :: [(String, String)]  -> IO Cube
+simpleInputCube equivs = do
+    uLayer <- oneFace 'U'
+    rLayer <- oneFace 'R'
+    fLayer <- oneFace 'F'
+    dLayer <- oneFace 'D'
+    lLayer <- oneFace 'L'
+    bLayer <- oneFace 'B'
+    return $ cubeFromManimCodification equivs (uLayer ++ rLayer ++ fLayer ++ dLayer ++ lLayer ++ bLayer)
+
 
 --Generate a list of tuples, with face and color [("U", "White")]
 
 --[("U", "White"), ("F", "Green"), ("R", "Red"), ("L", "Orange"), ("B", "Blue"), ("D", "Yellow")]
+
+
+-- | An IO that guides the user to insert the face aliases
+faceAliases :: IO[(String, String)]
+faceAliases = do
+    putStrLn "Insert alias for U face"
+    uLayer <- getLine
+    putStrLn "Insert alias for R face"
+    rLayer <- getLine
+    putStrLn "Insert alias for F face"
+    fLayer <- getLine
+    putStrLn "Insert alias for D face"
+    dLayer <- getLine
+    putStrLn "Insert alias for L face"
+    lLayer <- getLine
+    putStrLn "Insert alias for B face"
+    bLayer <- getLine
+    return [("U", uLayer), ("R", rLayer), ("F", fLayer), ("L", lLayer), ("B", bLayer), ("D", dLayer)]
+
+-- | IO that asks for the stickers of 1 face (private)
+oneFace :: Char -> IO [String]
+oneFace c = do
+    putStrLn ("Insert " ++ [c] ++ " face colours, separated by spaces")
+    face <- getLine
+    return (((filter (/= "")) . (splitOn " " )) face)
+
+-- | An IO that guides the user to insert a block
+inputBlock :: [(String, String)] -> IO [[Int]]
+inputBlock equiv = do
+    putStrLn "(Optional) insert a block in the format: c1-c2-c3+c1-c2+c1."
+    str <- getLine
+
+--    return (convertBlockToInts str)
+
+    --Keep on asking for input until null
+    if (null str)
+        then (return [[]])
+        else do
+            rest <- inputBlock equiv
+            return ([convertBlockToInts str] ++ rest)
+    where             
+        strAliasToInts :: [String] -> [Int]
+        strAliasToInts str
+            | length str == 1 = centerToInt str
+            | length str == 2 = edgeToInts str
+            | length str == 3 = cornerToInts str
+            | otherwise = []
+
+        convertBlockToInts :: String -> [Int]
+        convertBlockToInts str
+            | null str = []
+            | otherwise = concat $ map strAliasToInts colours
+            where
+                pieces = ( (filter (/= "")) . (splitOn "+" ) . filter (/= ' ') ) str
+                stickers = map ( (filter (/= "")) . (splitOn "-" ) ) pieces
+                colours = map (coloursToInitials equiv) stickers
+
+
+
+
 
 -- | Returns the cube given by an equivalence of colours and a list in manim's order
 cubeFromManimCodification :: [(String, String)] -- ^ Equivalence, like [(\"U\", \"White\"), (\"F\", \"Green\"), (\"R\", \"Red\"), (\"L\", \"Orange\"), (\"B\", \"Blue\"), (\"D\", \"Yellow\")]
@@ -27,6 +116,7 @@ reorder xs = V.toList (V.backpermute (V.fromList xs) (V.fromList arrangement))
 coloursToInitials :: [(String, String)] -> [String] -> [String]
 coloursToInitials eq xs = map (\str -> takeEquiv eq str) xs
 
+--Searches through the tuples and gives the equivalence
 takeEquiv :: Eq a => [(a,a)] -> a -> a
 takeEquiv [] n = n
 takeEquiv ((x,y):xs) current
@@ -94,12 +184,19 @@ cornerToInts (f1 : f2 : f3 : _)
     | (not . null) opt1 = opt1
     | (not . null) opt2 = (opt2 !! 2) : (opt2 !! 0) : (opt2 !! 1) : []
     | (not . null) opt3 = (opt3 !! 1) : (opt3 !! 2) : (opt3 !! 0) : []
+    | (not . null) opt4 = (opt4 !! 1) : (opt4 !! 0) : (opt4 !! 2) : []
+    | (not . null) opt5 = (opt5 !! 0) : (opt5 !! 2) : (opt5 !! 1) : []
+    | (not . null) opt6 = (opt6 !! 2) : (opt6 !! 1) : (opt6 !! 0) : []
     | otherwise = []
 --cornerToInts _ = []
     where
         opt1 = tryToMatch f1 f2 f3
         opt2 = tryToMatch f2 f3 f1
         opt3 = tryToMatch f3 f1 f2
+
+        opt4 = tryToMatch f1 f3 f2
+        opt5 = tryToMatch f3 f2 f1
+        opt6 = tryToMatch f2 f1 f3
         --tryToMatch always returns ascending lists
         tryToMatch :: String -> String -> String -> [Int]
         tryToMatch "U" "F" "L" = [0, 1, 2]
@@ -112,37 +209,3 @@ cornerToInts (f1 : f2 : f3 : _)
         tryToMatch "D" "B" "L" = [18, 19, 20]
         tryToMatch "D" "L" "F" = [21, 22, 23]
         tryToMatch _ _ _ = []
-
-
---simpleInput :: IO [String]
---simpleInput = do
---    uLayer <- oneFace 'U'
---    rLayer <- oneFace 'R'
---    fLayer <- oneFace 'F'
---    dLayer <- oneFace 'D'
---    lLayer <- oneFace 'L'
---    bLayer <- oneFace 'B'
---    return (uLayer ++ rLayer ++ fLayer ++ dLayer ++ lLayer ++ bLayer)
-
-
---equivFaces :: IO [(String, String)]
---equivFaces = do
---    putStrLn "Insert U colour"
---    u <- getLine
---    putStrLn "Insert R colour"
---    r <- getLine
---    putStrLn "Insert F colour"
---    f <- getLine
---    putStrLn "Insert D colour"
---    d <- getLine
---    putStrLn "Insert L colour"
---    l <- getLine
---    putStrLn "Insert B colour"
---    b <- getLine 
---    return [("U", u), ("R", r), ("F", f), ("D", d), ("L", l), ("B", b)]
-
---oneFace :: Char -> IO [String]
---oneFace c = do
---    putStrLn ("Insert " ++ [c] ++ " face colours, separated by spaces")
---    face <- getLine
---    return (((filter (/= "")) . (splitOn " " )) face)

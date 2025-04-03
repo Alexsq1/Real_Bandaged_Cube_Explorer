@@ -1,8 +1,12 @@
 module Main where
 
+
+--when cabal repl, used modules must be imported here
 import Cube
+import Bandaged
 import Moves
 import InputCube
+import InputBandagedCube
 import Visualizator
 
 --This is the entry point of cabal run

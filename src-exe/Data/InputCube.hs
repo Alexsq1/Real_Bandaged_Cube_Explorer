@@ -5,31 +5,37 @@ import qualified Data.Vector as V
 import Cube
 import InputBandagedCube
 import Bandaged
-
+import Visualizator
+import Moves
 
 --SCRAMBLE: U2 F2 L2
 
+--decir qué capa es (insert B: (alias))
 
 -- | Definitive IO for asking the user to generate a Bandaged Cube
 bandagedCubeScratchIO :: IO BandagedCube
 bandagedCubeScratchIO = do
 
+    putStrLn "IMPORTANT: for a proper visualization, place the cube with the white face on top and green on front"
+
     equivs <- faceAliases
 
-    xs <- inputBlock equivs
     cube <- simpleInputCube equivs
+    xs <- inputBlock equivs
+
+    manimRecomendedVisualizer cube (Algorithm [])
 
     return $ newBandagedCube cube xs
 
 -- | An IO that guides the user to insert a cube
 simpleInputCube :: [(String, String)]  -> IO Cube
 simpleInputCube equivs = do
-    uLayer <- oneFace 'U'
-    rLayer <- oneFace 'R'
-    fLayer <- oneFace 'F'
-    dLayer <- oneFace 'D'
-    lLayer <- oneFace 'L'
-    bLayer <- oneFace 'B'
+    uLayer <- oneFace "U" equivs
+    rLayer <- oneFace "R" equivs
+    fLayer <- oneFace "F" equivs
+    dLayer <- oneFace "D" equivs
+    lLayer <- oneFace "L" equivs
+    bLayer <- oneFace "B" equivs
     return $ cubeFromManimCodification equivs (uLayer ++ rLayer ++ fLayer ++ dLayer ++ lLayer ++ bLayer)
 
 
@@ -56,19 +62,19 @@ faceAliases = do
     return [("U", uLayer), ("R", rLayer), ("F", fLayer), ("L", lLayer), ("B", bLayer), ("D", dLayer)]
 
 -- | IO that asks for the stickers of 1 face (private)
-oneFace :: Char -> IO [String]
-oneFace c = do
-    putStrLn ("Insert " ++ [c] ++ " face colours, separated by spaces")
+oneFace :: String -> [(String, String)] -> IO [String]
+oneFace face eq = do
+    putStrLn ("Insert " ++ face ++ " (alias " ++ alias ++ ") face colours, separated by spaces")
     face <- getLine
     return (((filter (/= "")) . (splitOn " " )) face)
+    where
+        alias = takeEquiv eq face
 
 -- | An IO that guides the user to insert a block
 inputBlock :: [(String, String)] -> IO [[Int]]
 inputBlock equiv = do
-    putStrLn "(Optional) insert a block in the format: c1-c2-c3+c1-c2+c1."
+    putStrLn "(Optional) insert a block in the format: c1-c2-c3+c1-c2+c1 (empty for finish)"
     str <- getLine
-
---    return (convertBlockToInts str)
 
     --Keep on asking for input until null
     if (null str)
@@ -121,6 +127,7 @@ takeEquiv :: Eq a => [(a,a)] -> a -> a
 takeEquiv [] n = n
 takeEquiv ((x,y):xs) current
     | y == current = x
+    | x == current = y
     | otherwise = takeEquiv xs current
 
 stringToNum :: [String] -> [Int]
@@ -209,3 +216,5 @@ cornerToInts (f1 : f2 : f3 : _)
         tryToMatch "D" "B" "L" = [18, 19, 20]
         tryToMatch "D" "L" "F" = [21, 22, 23]
         tryToMatch _ _ _ = []
+
+

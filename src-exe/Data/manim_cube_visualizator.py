@@ -59,6 +59,8 @@ class Plantilla(ThreeDScene):
         self.play(FadeIn(self.cube))
         c = self.cube.cubies[0,0,0]
 
+        self.wait(2)
+
 
         #Rotar alrededor de la diagonal
         self.play(Rotate(self.cube, angle=2*PI, axis=[-1,-1,-1], run_time=self.time_of_rotation, rate_func=linear))

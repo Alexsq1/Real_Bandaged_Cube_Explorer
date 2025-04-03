@@ -12,7 +12,7 @@ manimRecomendedVisualizer :: Cube -- ^ Initial position
     -> IO()
 
 manimRecomendedVisualizer cube algorithm = do
-    manimCustomVisualizer 8 1 "low_quality" cube algorithm
+    manimCustomVisualizer 10 1 "low_quality" cube algorithm
 
 -- | Generates a video with manim, allowing configuration
 

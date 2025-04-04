@@ -102,15 +102,17 @@ arg_tMove = float(sys.argv[2])
 arg_quality = sys.argv[3]
 config.quality = arg_quality
 arg_initial_state = sys.argv[4]
-arg_moves = sys.argv[5]
+list_colours = sys.argv[5].split(",")
+arg_moves = sys.argv[6]
 
 sc = Plantilla(initial_state=arg_initial_state,
                algorithm=arg_moves, 
-               color_scheme=[WHITE, "#B90000", "#009B48", "#FFD500", "#FF5900", "#0045AD"],
+               color_scheme=list_colours,
             time_of_rotation=arg_tRotation, time_of_turns= arg_tMove)
 
 sc.render(preview=True)
 
+# [WHITE, "#B90000", "#009B48", "#FFD500", "#FF5900", "#0045AD"]
 # [WHITE, RED, GREEN, YELLOW, ORANGE, DARK_BLUE]
 # U R F D L B
 

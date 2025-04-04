@@ -8,6 +8,7 @@ import Moves
 import InputCube
 import InputBandagedCube
 import Visualizator
+import ManimHsConversion
 
 --This is the entry point of cabal run
 main :: IO ()

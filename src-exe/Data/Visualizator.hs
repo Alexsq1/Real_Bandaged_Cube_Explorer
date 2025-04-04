@@ -12,7 +12,7 @@ manimRecomendedVisualizer :: Cube -- ^ Initial position
     -> IO()
 
 manimRecomendedVisualizer cube algorithm = do
-    manimCustomVisualizer 10 1 "low_quality" cube algorithm
+    manimCustomVisualizer 10 1 "low_quality" cube "WHITE,#B90000,#009B48,#FFD500,#FF5900,#0045AD" algorithm
 
 -- | Generates a video with manim, allowing configuration
 
@@ -20,14 +20,18 @@ manimCustomVisualizer :: Int -- ^ Seconds rotating over the diagonal
     -> Float                -- ^ Seconds for each move
     -> String               -- ^ "low_quality" or "high_quality"
     -> Cube                 -- ^ Initial position
+    -> String               -- ^ String of colours in order URFLDB. Example "WHITE,#B90000,#009B48,#FFD500,#FF5900,#0045AD" 
     -> Algorithm            -- ^ Algorithm executed
     -> IO()
 
-manimCustomVisualizer tRotation tMoves quality cube alg = do
+manimCustomVisualizer tRotation tMoves quality cube scheme alg = do
     _ <- spawnProcess "python"
         ["src-exe/Data/manim_cube_visualizator.py", 
-        show tRotation, show tMoves, quality, 
+        show tRotation, 
+        show tMoves, 
+        quality, 
         toManimCodification cube, 
+        scheme,
         show alg]
     putStrLn "Generating video with Manim"
 

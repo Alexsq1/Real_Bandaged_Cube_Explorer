@@ -31,7 +31,7 @@ genericSearch maxD ini condition genMoves h
         initialSS = SearchingState{found = False, initialState = ini,
                                     currentDepth = 0, maximumDepth = maxD, 
                                     solution = [], searching = genMoves, 
-                                    heuristic = h, visitedStates = S.singleton ini}
+                                    heuristic = h, visitedStates = S.empty}
         search = dfsSgle initialSS condition
 
 dfsSgle :: SearchingState

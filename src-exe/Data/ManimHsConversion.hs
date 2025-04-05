@@ -1,4 +1,4 @@
-module ManimHsConversion(cubeFromManimCodification, facePieceToInts, coloursToInitials, takeEquiv) where
+module ManimHsConversion(cubeFromManimCodification, facePieceToInts, swapByEquivalent) where
 
 import qualified Data.Vector as V
 import Cube
@@ -10,7 +10,7 @@ cubeFromManimCodification :: [(String, String)] -- ^ Equivalence, like [(\"U\", 
 
 cubeFromManimCodification equivalence str = newCubeFromList perm
     where
-        perm = (stringToNum . reorder . coloursToInitials equivalence) str
+        perm = (stringToNum . reorder . swapByEquivalent equivalence) str
 
         --Makes the permutation from manim codification to mine
         reorder :: [String] -> [String]
@@ -20,11 +20,11 @@ cubeFromManimCodification equivalence str = newCubeFromList perm
                                 26,15,35,17,51,33,53,42,27,44,24,3,37,1,46,5,10,7,19,21,41,
                                 23,12,48,14,50,39,28,25,32,16,34,52,30,43,4,22,13,49,40,31]
 
---Maps a list of colors' string
-coloursToInitials :: [(String, String)] -> [String] -> [String]
-coloursToInitials eq xs = map (\str -> takeEquiv eq str) xs
+-- | Given tuples of equivalences, makes all the equivalences.
+swapByEquivalent :: [(String, String)] -> [String] -> [String]
+swapByEquivalent eq xs = map (takeEquiv eq) xs
 
---Searches through the tuples and gives the equivalence
+-- | Given tuples of equivalences, returns the equivalent entry
 takeEquiv :: Eq a => [(a,a)] -> a -> a
 takeEquiv [] n = n
 takeEquiv ((x,y):xs) current

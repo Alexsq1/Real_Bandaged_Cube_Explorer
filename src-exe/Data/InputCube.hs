@@ -14,16 +14,20 @@ import Data.List(intercalate)
 bandagedCubeScratchIO :: IO BandagedCube
 bandagedCubeScratchIO = do
 
+    --Input of colours
     equivs <- faceAliases
+    sch <- colourScheme equivs
 
-    sch <- colourScheme
-
+    --Input of the cube
     cube <- input54Stickers equivs
+
+    --Input of the blocks
     xs <- inputBlock equivs
 
     manimCustomVisualizer 10 1 "low_quality" cube sch (Algorithm [])
 
     return $ newBandagedCube cube xs
+
 
 --Example of list of tuples: [("U", "White"), ("F", "Green"), ("R", "Red"), ("L", "Orange"), ("B", "Blue"), ("D", "Yellow")]
 -- | An IO that guides the user to insert the face aliases
@@ -57,33 +61,56 @@ input54Stickers equivs = do
 
 -- | IO that asks for the stickers of 1 face (private)
 oneFace :: String -> [(String, String)] -> IO [String]
+    
 oneFace face eq = do
-    putStrLn ("Insert " ++ face ++ " (alias " ++ alias ++ ") face colours, separated by spaces")
+    putStrLn ("Insert " ++ face ++ " (alias " ++ alias ++ 
+        ") face colours, separated by spaces (default: " ++ def ++ ")" )
     stickers <- getLine
-    return (((filter (/= "")) . (splitOn " " )) stickers)
+    return (((filter (/= "")) . (splitOn " " )) (checkEmpty stickers))
+
     where
-        alias = takeEquiv eq face
+        [alias] = swapByEquivalent eq [face]
+        def = (concat . replicate 9) (alias ++ " ")
+
+        checkEmpty :: String -> String
+        checkEmpty "" = def
+        checkEmpty str = str
 
 --"WHITE,#B90000,#009B48,#FFD500,#FF5900,#0045AD"
 --"#FFFFFF, RED,  GREEN,    YELLOW, ORANGE, BLUE"
-colourScheme :: IO String
-colourScheme = do
-    putStrLn "Insert colour for U face (hexadecimal or by name, default #FFFFFF (white))"
+colourScheme :: [(String, String)] -> IO String
+colourScheme equiv = do
+    putStrLn "\nDefault hexadecimal colours: "
+    putStrLn "White: FFFFFF"
+    putStrLn "Red: #B90000"
+    putStrLn "Green: #009B48"
+    putStrLn "Yellow: #FFD500"
+    putStrLn "Orange: #FF5900"
+    putStrLn "Blue: #0045AD"
+
+    putStrLn ("Insert colour for U face (alias "++ (xsAlias !! 0) ++ ") (hexadecimal or by name, default #FFFFFF (white))")
     u0x <- getLine
-    putStrLn "Insert colour for R face (hexadecimal or by name, default #B90000 (red))"
+    putStrLn ("Insert colour for R face (alias "++ (xsAlias !! 1) ++ ") (hexadecimal or by name, default #B90000 (red))")
     r0x <- getLine
-    putStrLn "Insert colour for F face (hexadecimal or by name, default #009B48 (green))"
+    putStrLn ("Insert colour for F face (alias "++ (xsAlias !! 2) ++ ") (hexadecimal or by name, default #009B48 (green))")
     f0x <- getLine
-    putStrLn "Insert colour for D face (hexadecimal or by name, default #FFD500 (yellow))"
+    putStrLn ("Insert colour for D face (alias "++ (xsAlias !! 3) ++ ") (hexadecimal or by name, default #FFD500 (yellow))")
     d0x <- getLine
-    putStrLn "Insert colour for L face (hexadecimal or by name, default #FF5900 (orange))"
+    putStrLn ("Insert colour for L face (alias "++ (xsAlias !! 4) ++ ") (hexadecimal or by name, default #FF5900 (orange))")
     l0x <- getLine
-    putStrLn "Insert colour for B face (hexadecimal or by name, default #0045AD (blue))"
+    putStrLn ("Insert colour for B face (alias "++ (xsAlias !! 5) ++ ") (hexadecimal or by name, default #0045AD (blue))")
     b0x <- getLine
     let xs = map checkEmpty [('U', u0x), ('R', r0x), ('F', f0x), ('D', d0x), ('L', l0x), ('B', b0x)]
     return $ intercalate "," xs
     
     where
+        xsAlias = swapByEquivalent equiv ["U", "R", "F", "D", "L", "B"]
+
+        checkEmpty :: (Char, String) -> String
+        checkEmpty (face, "") = defaultColour face
+        checkEmpty (_, ('#':colour)) = ('#':colour)
+        checkEmpty (_, colour) = ('#':colour)
+
         defaultColour :: Char -> String
         defaultColour 'U' = "#FFFFFF"
         defaultColour 'R' = "#B90000"
@@ -93,10 +120,6 @@ colourScheme = do
         defaultColour 'B' = "#0045AD"
         defaultColour _ = "#555555" --dark grey
 
-        checkEmpty :: (Char, String) -> String
-        checkEmpty (face, colour)
-            | null colour = defaultColour face
-            | otherwise = if (head colour == '#') then colour else ('#':colour)
 
 
 
@@ -120,6 +143,6 @@ inputBlock equiv = do
             where
                 pieces = ( (filter (/= "")) . (splitOn "+" ) . filter (/= ' ') ) str
                 stickers = map ( (filter (/= "")) . (splitOn "-" ) ) pieces
-                colours = map (coloursToInitials equiv) stickers
+                colours = map (swapByEquivalent equiv) stickers
 
 

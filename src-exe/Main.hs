@@ -9,6 +9,8 @@ import InputCube
 import InputBandagedCube
 import Visualizator
 import ManimHsConversion
+import Search
+import Heuristic
 
 --This is the entry point of cabal run
 main :: IO ()

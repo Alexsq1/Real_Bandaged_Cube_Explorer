@@ -1,4 +1,4 @@
-module Bandaged(BandagedCube(..), deleteBlocks, tryToExecuteAlg, unsafeExecutionAlg, divideTurn, allPieces) where
+module Bandaged(BandagedCube(..), solvedBC, deleteBlocks, tryToTurn, tryToExecuteAlg, unsafeExecutionAlg, divideTurn, allPieces) where
 
 import Moves
 import Cube
@@ -8,7 +8,10 @@ import qualified Data.Set as S
 import qualified Data.Vector as V
 
 -- | A Bandaged Cube is a Cube with a set of sets of restrictions.
-data BandagedCube = BandagedCube {stdCube :: Cube, restrictions :: S.Set (S.Set Int)}
+data BandagedCube = BandagedCube {stdCube :: Cube, restrictions :: S.Set (S.Set Int)} deriving Eq
+
+instance Ord BandagedCube where
+    compare (BandagedCube c1 _) (BandagedCube c2 _) = compare c1 c2
 
 instance Show BandagedCube where
     show (BandagedCube cube setRestrictions) = (show cube) ++ "\n\n" ++ 
@@ -36,6 +39,8 @@ intToStrPiece n
         centers = ["U", "F", "R", "B", "L", "D"]
 
 
+solvedBC :: BandagedCube -> Bool
+solvedBC (BandagedCube c _) = solved c
 
 -- | Given a Bandaged Cube, returns the cube without blocks
 deleteBlocks :: BandagedCube -> Cube

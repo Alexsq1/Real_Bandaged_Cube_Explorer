@@ -1,4 +1,4 @@
-module Search(genericSearch) where
+module Search(genericSearch, SearchingState(..), dfsSgle) where
 
 --import Cube
 import Bandaged

@@ -63,7 +63,9 @@ common common-exec-test
                     Bandaged,
                     InputCube,
                     InputBandagedCube,
-                    Visualizator
+                    Visualizator,
+                    Heuristic,
+                    Search
 
     --Bandaged
 

@@ -1,4 +1,4 @@
-module Search(genericSearch, SearchingState(..), dfsSgle) where
+module Search(genericSearch, SearchingState(..), dfsSgle, dfsMult, allPossibleMoves) where
 
 --import Cube
 import Bandaged
@@ -6,17 +6,34 @@ import qualified Data.Set as S
 import Moves
 import Data.Maybe
 
+-- | SearchingState storages all the information needed to to a Search.
 data SearchingState = SearchingState {found :: Bool, 
                             initialState :: BandagedCube, 
                             currentDepth :: Int,
                             maximumDepth :: Int,
+                            condition :: (BandagedCube -> Bool),
                             solution :: [Turn], 
                             searching :: [Turn], 
                             heuristic :: (BandagedCube -> Int),
                             visitedStates :: S.Set BandagedCube}
 --                                deriving Show
+                            --to be added: min node that surpassed the bound
 
+instance Show SearchingState where
+    show (SearchingState f ini currD maxD _ sol genMoves _ visited) = 
+        "found: " ++ show f ++  "\n" ++
+        "initial state: " ++ show ini ++  "\n" ++
+        "current depth: " ++ show currD ++  "\n" ++
+        "maximum depth: " ++ show maxD ++ "\n" ++
+        "solution: " ++ show sol ++ "\n" ++
+        "generation of moves: " ++ show genMoves ++  "\n" ++
+        "number of visited states: " ++ show (S.size visited)
 
+-- | A list with all the possible 1-face moves
+allPossibleMoves :: [Turn]
+allPossibleMoves = [Turn(f, m) | f <- [R .. ] , m <- [1..3]]
+
+-- | Recieves data, makes a generic bounded search and compose the solution
 genericSearch :: Int                        -- ^ Max depth
                 -> BandagedCube             -- ^ Initial state
                 -> (BandagedCube -> Bool)   -- ^ Condition to determine a Node is found
@@ -24,52 +41,56 @@ genericSearch :: Int                        -- ^ Max depth
                 -> (BandagedCube -> Int)    -- ^ Heuristic (must be admissible)
                 -> Maybe Algorithm          -- ^ The solution
 
-genericSearch maxD ini condition genMoves h
-    | found search = Just (Algorithm (solution search))
-    | otherwise = Nothing
+--add IDA*, make succesive searches when not found
+
+genericSearch maxD ini cond genMoves h
+    | found search = Just (Algorithm (solution search))     --Solution found
+    | otherwise = Nothing                                   --Solution not found
     where
         initialSS = SearchingState{found = False, initialState = ini,
                                     currentDepth = 0, maximumDepth = maxD, 
+                                    condition = cond,
                                     solution = [], searching = genMoves, 
-                                    heuristic = h, visitedStates = S.singleton ini}
-        search = dfsSgle initialSS condition
+                                    heuristic = h, visitedStates = S.empty}
+        search = dfsSgle initialSS
 
-dfsSgle :: SearchingState
-            -> (BandagedCube -> Bool) 
-            -> SearchingState
+-- | Search with dfs from one node
+dfsSgle :: SearchingState                           -- ^ Initial Searching State
+            -> SearchingState                       -- ^ Final Searching State
 
-dfsSgle initialSS condition
-    | ini `S.member` visited = initialSS                        --visited node                
-    | currD > maxD || (currD + h ini > maxD) =                  --pruning, reached maximum depth
+dfsSgle initialSS
+    | (condition initialSS) ini = 
+        initialSS {found = True, visitedStates = newSet}                        --solution found
+    | ini `S.member` visited = initialSS                                        --visited node                
+    | currD >= maxD || (currD + h ini >= maxD) =                                --pruning, reached maximum depth
         initialSS {visitedStates = newSet}
-    | condition ini = 
-        initialSS {found = True, visitedStates = newSet}                       --found
-    | otherwise =                                                   --intermediate, keep searching
-        dfsMult nextSS condition genMoves
+    | otherwise =                                                               --intermediate, keep searching
+        dfsMult nextSS genMoves
 
     where
-        (SearchingState _ ini currD maxD _ genMoves h visited) = initialSS
+        (SearchingState _ ini currD maxD _ _ genMoves h visited) = initialSS
         newSet = S.insert ini visited
         nextSS = initialSS {visitedStates = newSet, currentDepth = currentDepth initialSS + 1}
 
-dfsMult :: SearchingState                   -- ^ Initial
-            -> (BandagedCube -> Bool)       -- ^ Predicate
+-- | Search with dfs algorithm. Iterate over several move generation
+dfsMult :: SearchingState                       -- ^ Initial
             -> [Turn]                           -- ^ List of moves used to generate branches
-            -> SearchingState                  -- ^ Final
+            -> SearchingState                   -- ^ Final
 
-dfsMult initialSS _ [] = initialSS                   --ended iterating
-dfsMult initialSS condition (x:xs)
-    | isNothing nextState = dfsMult initialSS condition xs   --Not valid turn, breaks a block
-    | found thisBrach = thisBrach {solution = (x:solutionP)}           --Correct branch
-    | otherwise = dfsMult nextBranch condition xs                           --Incorrect branch, keep searching
+dfsMult initialSS [] = initialSS                                    --ended iterating
+dfsMult initialSS (x:xs)                                            --keep iterations
+    | isNothing nextState = dfsMult initialSS xs                    --Not valid turn, breaks a block
+    | found thisBrach = thisBrach {solution = (x:solutionP)}        --Correct branch, recompose solution
+    | otherwise = dfsMult nextBranch xs                             --Incorrect branch, keep searching
 
     where
-        (SearchingState _ ini _ _ _ _ _ visited) = initialSS
+        cond = condition initialSS
+        (SearchingState _ ini _ _ _ _ _ _ visited) = initialSS
         nextState = tryToTurn ini x
-        thisBrach = dfsSgle (initialSS{initialState = fromJust nextState}) condition
+        thisBrach = dfsSgle (initialSS{initialState = fromJust nextState})
 
-        (SearchingState _ _ _ _ solutionP _ _ visitedP) = thisBrach
-        nextBranch = thisBrach {visitedStates = S.union visited visitedP}
+        (SearchingState _ _ _ _ _ solutionP _ _ visitedP) = thisBrach
+        nextBranch = initialSS {visitedStates = S.union visited visitedP}
 
 --auxDFSMult :: BandagedCube -> BandagedCube -> [Move] -> Int -> Int -> S.Set BandagedCube -> Maybe [Move]
 --auxDFSMult end start [] currentDepth maxBound visited = Nothing
@@ -102,6 +123,3 @@ dfsMult initialSS condition (x:xs)
 --            | otherwise = Just(fromJust (currSearch))
 --            where
 --                currSearch = boundedDFS mempty c n
---
---
---Ideas: compartir mejor el set de visitados

@@ -81,7 +81,7 @@ oneFace face eq = do
 colourScheme :: [(String, String)] -> IO String
 colourScheme equiv = do
     putStrLn "\nDefault hexadecimal colours: "
-    putStrLn "White: FFFFFF"
+    putStrLn "White: #FFFFFF"
     putStrLn "Red: #B90000"
     putStrLn "Green: #009B48"
     putStrLn "Yellow: #FFD500"

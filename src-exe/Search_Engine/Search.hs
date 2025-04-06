@@ -67,27 +67,23 @@ idaStar initSS
         thisSearchSS = dfsSgle initSS
         treshold = maximumDepth initSS
 
-
-
-
-
 -- | Search with dfs from one node
 dfsSgle :: SearchingState                           -- ^ Initial Searching State
             -> SearchingState                       -- ^ Final Searching State
 
 dfsSgle initialSS
     | (condition initialSS) ini = 
-        initialSS {found = True, visitedStates = newSet}                        --solution found
+        initialSS {found = True}                        --solution found
 --    | ini `S.member` visited = initialSS                                        --visited node.                
     | currD >= maxD || (currD + h ini >= maxD) =                                --pruning, reached maximum depth
-        initialSS{visitedStates = newSet}
+        initialSS
     | otherwise =                                                               --intermediate, keep searching
         dfsMult nextSS genMoves
 
     where
         (SearchingState _ ini currD maxD _ _ genMoves h visited) = initialSS
         newSet = S.insert ini visited
-        nextSS = initialSS {visitedStates = newSet}
+        nextSS = initialSS
 
 -- | Search with dfs algorithm. Iterate over several move generation
 dfsMult :: SearchingState                       -- ^ Initial
@@ -108,36 +104,4 @@ dfsMult initialSS (x:xs)                                            --keep itera
         thisBrach = dfsSgle (initialSS{initialState = fromJust nextState, currentDepth = currentDepth initialSS + 1})
 
         (SearchingState _ _ _ _ _ solutionP _ _ visitedP) = thisBrach
-        nextBranch = initialSS {visitedStates = S.union visited visitedP}
-
---auxDFSMult :: BandagedCube -> BandagedCube -> [Move] -> Int -> Int -> S.Set BandagedCube -> Maybe [Move]
---auxDFSMult end start [] currentDepth maxBound visited = Nothing
---auxDFSMult end start (x:xs) currentDepth maxBound visited
---    | isNothing thisBrach = auxDFSMult end start xs currentDepth maxBound visited
---    | otherwise = Just (x : (fromJust thisBrach))
---    where
---        thisBrach = auxDFSSgle end (start <> (moveToPerm x)) (currentDepth + 1) maxBound (visited)
---
---
-
---boundedDFS :: BandagedCube -> BandagedCube -> Int -> Maybe [Move]
---boundedDFS end start bound = auxDFSSgle end start 0 bound S.empty
---    
---auxDFSSgle :: BandagedCube -> BandagedCube -> Int -> Int -> S.Set BandagedCube -> Maybe [Move]
---auxDFSSgle end start currentDepth maxBound visited
---    | currentDepth > maxBound || currentDepth > 20 = Nothing
---    | start `S.member` visited = Nothing
---    | end == start = Just []
---    | otherwise = auxDFSMult end start listPossibleMoves currentDepth maxBound (S.insert start visited)
---
-----Cuidado: puede no acabar
---iddfs :: BandagedCube -> Maybe[Move]
---iddfs = iterDeep 0
---    where
---        iterDeep :: Int -> BandagedCube -> Maybe[Move]
---        iterDeep 20 _ = Nothing
---        iterDeep n c 
---            | isNothing currSearch = iterDeep (n+1) c
---            | otherwise = Just(fromJust (currSearch))
---            where
---                currSearch = boundedDFS mempty c n
+        nextBranch = initialSS

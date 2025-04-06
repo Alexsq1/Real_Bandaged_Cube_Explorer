@@ -32,12 +32,3 @@ inverse2 :: Algorithm -> Property
 inverse2 a = ((invert a) <> a) === mempty
 
 
-
-instance Arbitrary Turn where
-    arbitrary = elements possibleTurns
-
-instance Arbitrary Algorithm where
-    arbitrary = do
-        xs <- listOf arbitrary
-        return (Algorithm xs <> mempty)
-        --The mempty forces to simplify

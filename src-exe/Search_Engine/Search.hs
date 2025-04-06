@@ -1,4 +1,4 @@
-module Search(genericSearch, SearchingState(..), dfsSgle, dfsMult, allPossibleMoves) where
+module Search(genericSearch, idaStar, SearchingState(..), dfsSgle, dfsMult, allPossibleMoves) where
 
 --import Cube
 import Bandaged
@@ -34,25 +34,42 @@ allPossibleMoves :: [Turn]
 allPossibleMoves = [Turn(f, m) | f <- [R .. ] , m <- [1..3]]
 
 -- | Recieves data, makes a generic bounded search and compose the solution
-genericSearch :: Int                        -- ^ Max depth
-                -> BandagedCube             -- ^ Initial state
+genericSearch :: BandagedCube               -- ^ Initial state
                 -> (BandagedCube -> Bool)   -- ^ Condition to determine a Node is found
                 -> [Turn]                   -- ^ List of Turns to generate a new node
                 -> (BandagedCube -> Int)    -- ^ Heuristic (must be admissible)
                 -> Maybe Algorithm          -- ^ The solution
 
---add IDA*, make succesive searches when not found
 
-genericSearch maxD ini cond genMoves h
+
+genericSearch ini cond genMoves h
     | found search = Just (Algorithm (solution search))     --Solution found
     | otherwise = Nothing                                   --Solution not found
     where
         initialSS = SearchingState{found = False, initialState = ini,
-                                    currentDepth = 0, maximumDepth = maxD, 
+                                    currentDepth = 0, maximumDepth = 0, 
                                     condition = cond,
                                     solution = [], searching = genMoves, 
                                     heuristic = h, visitedStates = S.empty}
-        search = dfsSgle initialSS
+        search = idaStar initialSS
+
+--The visited states set is not useful.
+--More useful: check that the current alg has no cycles (sub-algs do a non-trivial permutation).
+--Other optimiziation option: when exploring 1 face, delete it from the next turn. Do something similar with paralel layers. (branch factor 18 -> 13.5)
+
+
+idaStar :: SearchingState -> SearchingState
+idaStar initSS
+    | found thisSearchSS = thisSearchSS
+    | (treshold <= 20) = idaStar (initSS {maximumDepth = treshold + 1})
+    | otherwise = initSS
+    where
+        thisSearchSS = dfsSgle initSS
+        treshold = maximumDepth initSS
+
+
+
+
 
 -- | Search with dfs from one node
 dfsSgle :: SearchingState                           -- ^ Initial Searching State
@@ -61,16 +78,16 @@ dfsSgle :: SearchingState                           -- ^ Initial Searching State
 dfsSgle initialSS
     | (condition initialSS) ini = 
         initialSS {found = True, visitedStates = newSet}                        --solution found
-    | ini `S.member` visited = initialSS                                        --visited node                
+--    | ini `S.member` visited = initialSS                                        --visited node.                
     | currD >= maxD || (currD + h ini >= maxD) =                                --pruning, reached maximum depth
-        initialSS {visitedStates = newSet}
+        initialSS{visitedStates = newSet}
     | otherwise =                                                               --intermediate, keep searching
         dfsMult nextSS genMoves
 
     where
         (SearchingState _ ini currD maxD _ _ genMoves h visited) = initialSS
         newSet = S.insert ini visited
-        nextSS = initialSS {visitedStates = newSet, currentDepth = currentDepth initialSS + 1}
+        nextSS = initialSS {visitedStates = newSet}
 
 -- | Search with dfs algorithm. Iterate over several move generation
 dfsMult :: SearchingState                       -- ^ Initial
@@ -79,15 +96,16 @@ dfsMult :: SearchingState                       -- ^ Initial
 
 dfsMult initialSS [] = initialSS                                    --ended iterating
 dfsMult initialSS (x:xs)                                            --keep iterations
+    | currD > maxD = initialSS                                      --pruning (difficult with good heuristics)            
     | isNothing nextState = dfsMult initialSS xs                    --Not valid turn, breaks a block
     | found thisBrach = thisBrach {solution = (x:solutionP)}        --Correct branch, recompose solution
     | otherwise = dfsMult nextBranch xs                             --Incorrect branch, keep searching
 
     where
         cond = condition initialSS
-        (SearchingState _ ini _ _ _ _ _ _ visited) = initialSS
+        (SearchingState _ ini currD maxD _ _ _ _ visited) = initialSS
         nextState = tryToTurn ini x
-        thisBrach = dfsSgle (initialSS{initialState = fromJust nextState})
+        thisBrach = dfsSgle (initialSS{initialState = fromJust nextState, currentDepth = currentDepth initialSS + 1})
 
         (SearchingState _ _ _ _ _ solutionP _ _ visitedP) = thisBrach
         nextBranch = initialSS {visitedStates = S.union visited visitedP}

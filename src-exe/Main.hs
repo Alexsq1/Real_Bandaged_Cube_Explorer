@@ -13,22 +13,37 @@ import Search
 --import Heuristic
 
 import Data.Maybe
---import qualified Data.Set as S
+import qualified Data.Set as S
 
 --This is the entry point of cabal run
 main :: IO ()
 main = do
 
     let c = newBandagedCube (newCubeFromList [0..53]) [[]]
-    let c1 = fromJust (tryToExecuteAlg c (Algorithm [Turn(R,1)]))
+    --let xs = [Turn(R,1), Turn(U,1), Turn(R, 1)]
+    --let c1 = fromJust (tryToExecuteAlg c (Algorithm xs))
+    --let solution1 = genericSearch c1 solvedBC allPossibleMoves (\_ -> 0)
 
-    let solution1 = genericSearch 1 c1 solvedBC allPossibleMoves (\_ -> 0)
+    
+    --let initialSS = SearchingState{found = False, initialState = c1, currentDepth = 0, maximumDepth = 0, condition = solvedBC, solution = [], searching = allPossibleMoves,  heuristic = (\_ -> 0), visitedStates = S.empty}
+    --let search = dfsSgle initialSS
 
-    --let initialSS = SearchingState{found = False, initialState = c1, currentDepth = 0, maximumDepth = 1,  solution = [], searching = allPossibleMoves,  heuristic = (\_ -> 0), visitedStates = S.empty}
-    --let search = dfsSgle initialSS solvedBC
 
-    putStrLn ("Solution found: " ++ (show solution1))
+    --putStrLn ("Solution found: " ++ (show solution1))
+    
+    let p = allPossibleMoves
+    let xs = [[t1, t2, t3] | t1 <- p, t2 <- p, t3 <- p]
+    let scr1Move = map (\alg -> fromJust (tryToExecuteAlg c (Algorithm alg))) xs
+    let sols = map (\scr -> genericSearch scr solvedBC allPossibleMoves (\_ -> 0)) scr1Move
+    let maxSol = maximum (map (\(Just (Algorithm xs)) -> length xs) sols)
+    --putStrLn ("Solutions found: " ++ (show (zip xs sols)))
+    putStrLn ("Maximum solution: " ++ (show maxSol))
+
+    --putStrLn ("Solution found: " ++ (show (solution1)))
     --putStrLn ("Detailed: \n" ++ (show search))
+    --putStrLn $ show (S.member c (visitedStates search))
+
+
 
 
 

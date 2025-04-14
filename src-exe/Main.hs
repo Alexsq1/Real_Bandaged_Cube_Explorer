@@ -10,41 +10,13 @@ import InputBandagedCube
 --import Visualizator
 import ManimHsConversion
 import Search
---import Heuristic
+import Heuristic
 
 import Data.Maybe
 --import qualified Data.Set as S
 
 --This is the entry point of cabal run
 
-
-{--
-
-PROFILING:
-PROFS:
-
-cabal clean
-cabal build --enable-profiling
-cabal run exe:Bandaged-Cube-TFG -- +RTS -p
-
-MEMORY (HEAP)
-
-cabal run exe:Bandaged-Cube-TFG -- +RTS -hb
-hp2ps -c Bandaged-Cube-TFG.hp
-
-PHASES, time and memory for each
-
-cabal run exe:Bandaged-Cube-TFG -- +RTS -s
-
-
-CODE COVERAGE (check the flag -fhpc in config files)
-
-cabal build --enable-profiling
-cabal run
-hpc report Bandaged-Cube-TFG
-hpc markup Bandaged-Cube-TFG
-(last 2, the name of the executable)
---}
 
 main :: IO ()
 main = do

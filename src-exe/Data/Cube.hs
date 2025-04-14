@@ -20,7 +20,8 @@ newCubeFromList :: [Int] -> Cube
 newCubeFromList xs = Cube $ V.fromList xs
 
 instance Semigroup Cube where
-    (Cube v1) <> (Cube v2) = Cube(V.backpermute v1 v2)
+--    (Cube v1) <> (Cube v2) = Cube(V.backpermute v1 v2)
+    (Cube v1) <> (Cube v2) = Cube(V.unsafeBackpermute v1 v2)
 
 instance Monoid Cube where
     mempty = Cube (V.fromList [0..53])

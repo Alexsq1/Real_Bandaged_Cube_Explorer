@@ -94,7 +94,7 @@ executable Bandaged-Cube-TFG
 
 
     -- Directories containing source files.
-    hs-source-dirs:   src-exe, src-exe/Data, src-exe/Search_Engine
+    hs-source-dirs:   src-exe, src-exe/Data, src-exe/IO_Visualizator, src-exe/Search_Engine
 
 test-suite Bandaged-Cube-TFG-test
     -- Import common warning flags.
@@ -105,7 +105,7 @@ test-suite Bandaged-Cube-TFG-test
     type:             exitcode-stdio-1.0
 
     -- Directories containing source files.
-    hs-source-dirs:   test, src-exe, src-exe/Data, src-exe/Search_Engine
+    hs-source-dirs:   test, src-exe, src-exe/Data, src-exe/IO_Visualizator, src-exe/Search_Engine
 
     main-is: MainTest.hs
 

@@ -18,8 +18,6 @@ newBandagedCube cubeOrigin blocks = BandagedCube {stdCube = cubeOrigin, restrict
 doubleListToDoubleSet :: Ord a => [[a]] -> S.Set (S.Set a)
 doubleListToDoubleSet xs = S.fromList (map S.fromList xs)
 
-
-
 -- | Join (union) the sets that are not disjoint.
 canonicSets :: S.Set (S.Set Int) -> S.Set (S.Set Int)
 canonicSets ss = genUnions (S.toList ss) (doubleListToDoubleSet [[]])
@@ -58,25 +56,7 @@ expandBlockTurn block move
         --There are going to be intersections. Must return the proper sub-partition
         rightSubSet = if (S.disjoint block xs2) then xs1 else xs2
 
---Keep in mind: it returns the pieces of the solved state. 
---Maybe it is better to do that in the scrambled state.
---Maybe it is better to preprocess the cube, and detect it in the checking state 
-
-
 pieceIntersections :: (Foldable f) => f (S.Set Int) -> S.Set Int
 pieceIntersections = foldl' S.intersection (full)
     where
         full = allPieces
-
-
-
-
-----preprocesar bloques: piezas adyacentes entre sí.
-----misma pieza en varios bloques: hacer unión.
-----Piezas adyacentes: en un bloque, al menos uno lo rompería o impediría.
-----Un bloque siempre tiene alguna arista. Puede incluir esquinas o centros (mínimo uno)
-
-
-
---Can be added: list of color scheme (with hexadecimal values of colors)
-

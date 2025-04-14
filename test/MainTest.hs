@@ -23,3 +23,18 @@ main = do
 
     --Add here the tests of new modules
 
+
+
+{-
+REMAINING TESTING 
+
+BANDAGED
+tryToExecuteAlg and unsafe: relation
+
+InputBandagedCube
+Expanded block always have 1 edge
+Canonic sets, when adding same element to all, returns single set
+If all are disjoing, returns the same
+fromManim and toManim are inverses (almost, with adaptation)
+
+-}

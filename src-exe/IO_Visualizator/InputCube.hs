@@ -60,8 +60,7 @@ input54Stickers equivs = do
 
 
 -- | IO that asks for the stickers of 1 face (private)
-oneFace :: String -> [(String, String)] -> IO [String]
-    
+oneFace :: String -> [(String, String)] -> IO [String]  
 oneFace face eq = do
     putStrLn ("Insert " ++ face ++ " (alias " ++ alias ++ 
         ") face colours, separated by spaces (default: " ++ def ++ ")" )
@@ -120,9 +119,6 @@ colourScheme equiv = do
         defaultColour 'B' = "#0045AD"
         defaultColour _ = "#555555" --dark grey
 
-
-
-
 -- | An IO that guides the user to insert a block
 inputBlock :: [(String, String)] -> IO [[Int]]
 inputBlock equiv = do
@@ -144,5 +140,3 @@ inputBlock equiv = do
                 pieces = ( (filter (/= "")) . (splitOn "+" ) . filter (/= ' ') ) str
                 stickers = map ( (filter (/= "")) . (splitOn "-" ) ) pieces
                 colours = map (swapByEquivalent equiv) stickers
-
-

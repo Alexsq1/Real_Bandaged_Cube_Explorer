@@ -62,6 +62,7 @@ main = do
     
     let p = allPossibleMoves
     let xs = [[t1, t2, t3] | t1 <- p, t2 <- p, t3 <- p]
+--    let xs = [[t1, t2] | t1 <- p, t2 <- p]
     let scr1Move = map (\alg -> fromJust (tryToExecuteAlg c (Algorithm alg))) xs
     let sols = map (\scr -> genericSearch scr solvedBC allPossibleMoves (\_ -> 0)) scr1Move
     let maxSol = maximum (map (\(Just (Algorithm xss)) -> length xss) sols)

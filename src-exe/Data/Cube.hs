@@ -1,7 +1,7 @@
 module Cube (Cube(..), newCubeFromList, solved, slicePieces) where
 
 import Data.Group
-import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as V
 import Data.List(sortBy)
 
 {- Implementation of a Rubik's Cube as a group.

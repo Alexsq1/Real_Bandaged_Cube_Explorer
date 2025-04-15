@@ -1,6 +1,6 @@
 module ManimHsConversion(cubeFromManimCodification, toManimCodification, facePieceToInts, swapByEquivalent) where
 
-import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as V
 import Cube
 import Moves(Face(..))
 
@@ -12,7 +12,8 @@ toManimCodification (Cube xs) = foldl' (\acc face -> acc ++ (show face)) "" list
             1,31,11,32,49,34,23,41,13,21,40,12,46,53,42,18,44,15,
             4,25,2,39,52,33,20,47,22,7,27,5,36,51,38,17,45,19]
         
-        reorder = V.toList (V.backpermute xs (V.fromList permutation))
+        --reorder = V.toList (V.backpermute xs (V.fromList permutation))
+        reorder = map ((V.toList xs) !!) permutation
         listFaces = map pieceToFace reorder
 
 pieceToFace :: Int -> Face
@@ -31,7 +32,8 @@ cubeFromManimCodification equivalence str = newCubeFromList perm
 
         --Makes the permutation from manim codification to mine
         reorder :: [String] -> [String]
-        reorder xs = V.toList (V.backpermute (V.fromList xs) (V.fromList arrangement))
+        reorder xs = map (xs !!) arrangement
+        --reorder xs = V.toList (V.backpermute (V.fromList xs) (V.fromList arrangement))
             where
                 arrangement = [6,18,38,0,36,47,2,45,11,8,9,20,29,
                                 26,15,35,17,51,33,53,42,27,44,24,3,37,1,46,5,10,7,19,21,41,

@@ -7,7 +7,7 @@ import Data.List(intercalate)
 
 --import Data.Int (Int8)
 import qualified Data.Set as S
-import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as V
 
 -- | A Bandaged Cube is a Cube with a set of sets of restrictions.
 data BandagedCube = BandagedCube {stdCube :: Cube, restrictions :: S.Set (S.Set Int)} deriving Eq

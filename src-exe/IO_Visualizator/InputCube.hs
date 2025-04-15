@@ -8,7 +8,6 @@ import Visualizator
 import Moves
 import ManimHsConversion
 
-import Data.Int (Int8)
 import Data.List(intercalate)
 
 -- | Definitive IO for asking the user to generate a Bandaged Cube
@@ -46,7 +45,16 @@ faceAliases = do
     lLayer <- getLine
     putStrLn "Insert alias for B face"
     bLayer <- getLine
-    return [("U", uLayer), ("R", rLayer), ("F", fLayer), ("L", lLayer), ("B", bLayer), ("D", dLayer)]
+
+    if ((length uLayer) * (length rLayer) * (length fLayer) * (length dLayer) * (length lLayer) * (length bLayer) > 0)
+        then
+            (return [("U", uLayer), ("R", rLayer), ("F", fLayer), ("L", lLayer), ("B", bLayer), ("D", dLayer)])
+
+    else
+        do
+            putStrLn "Invalid input"
+            nextInput <- faceAliases
+            return (nextInput)
 
 -- | An IO that guides the user to insert a cube
 input54Stickers :: [(String, String)]  -> IO Cube
@@ -64,17 +72,32 @@ input54Stickers equivs = do
 oneFace :: String -> [(String, String)] -> IO [String]  
 oneFace face eq = do
     putStrLn ("Insert " ++ face ++ " (alias " ++ alias ++ 
-        ") face colours, separated by spaces (default: " ++ def ++ ")" )
+        ") face colours, separated by spaces (default: " ++ defaultFace ++ ")" )
     stickers <- getLine
-    return (((filter (/= "")) . (splitOn " " )) (checkEmpty stickers))
+    
+    let provSol = ((filter (/= "")) . (splitOn " " )) (checkEmpty stickers)
+
+    if (canBeValid provSol) 
+        then return (provSol)
+        else (
+            do
+                putStrLn "Invalid input"
+                strNext <- oneFace face eq
+                return (strNext)
+        )
 
     where
         [alias] = swapByEquivalent eq [face]
-        def = (concat . replicate 9) (alias ++ " ")
+        defaultFace = (concat . replicate 9) (alias ++ " ")
 
         checkEmpty :: String -> String
-        checkEmpty "" = def
+        checkEmpty "" = defaultFace
         checkEmpty str = str
+
+        canBeValid :: [String] -> Bool
+        canBeValid str = (length str == 9) && (all (\x -> x `elem` (map snd eq)) str)
+
+
 
 --"WHITE,#B90000,#009B48,#FFD500,#FF5900,#0045AD"
 --"#FFFFFF, RED,  GREEN,    YELLOW, ORANGE, BLUE"
@@ -121,7 +144,7 @@ colourScheme equiv = do
         defaultColour _ = "#555555" --dark grey
 
 -- | An IO that guides the user to insert a block
-inputBlock :: [(String, String)] -> IO [[Int8]]
+inputBlock :: [(String, String)] -> IO [[Int]]
 inputBlock equiv = do
     putStrLn "(Optional) insert a block in the format: c1-c2-c3+c1-c2+c1 (empty for finish)"
     str <- getLine
@@ -133,7 +156,7 @@ inputBlock equiv = do
             rest <- inputBlock equiv
             return ([convertBlockToInts str] ++ rest)
     where
-        convertBlockToInts :: String -> [Int8]
+        convertBlockToInts :: String -> [Int]
         convertBlockToInts str
             | null str = []
             | otherwise = concat $ map facePieceToInts colours

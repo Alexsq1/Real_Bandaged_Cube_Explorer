@@ -5,12 +5,12 @@ import Cube
 import Data.Maybe(isNothing, fromJust)
 import Data.List(intercalate)
 
-import Data.Int (Int8)
+--import Data.Int (Int8)
 import qualified Data.Set as S
 import qualified Data.Vector as V
 
 -- | A Bandaged Cube is a Cube with a set of sets of restrictions.
-data BandagedCube = BandagedCube {stdCube :: Cube, restrictions :: S.Set (S.Set Int8)} deriving Eq
+data BandagedCube = BandagedCube {stdCube :: Cube, restrictions :: S.Set (S.Set Int)} deriving Eq
 
 instance Ord BandagedCube where
     compare (BandagedCube c1 _) (BandagedCube c2 _) = compare c1 c2
@@ -23,9 +23,9 @@ instance Show BandagedCube where
         where
             listRestrictions = S.toList (S.map S.toList setRestrictions)
             notRepeatingPieces = map (filterEachBlock) listRestrictions
-            facesPieces = (map . map) (intToStrPiece . fromIntegral) notRepeatingPieces
+            facesPieces = (map . map) intToStrPiece notRepeatingPieces
     
-            filterEachBlock :: [Int8] -> [Int8]
+            filterEachBlock :: [Int] -> [Int]
             filterEachBlock = filter (\x -> (x < 24 && (x `mod` 3 == 0)) || (x >= 24 && x < 48 && (x `mod` 2 == 0)) || (x >= 48))
 
 intToStrPiece :: Int -> String
@@ -79,8 +79,8 @@ tryToTurn bCube currTurn
     where
         (BandagedCube currCube restr) = bCube
         (Turn(f, _)) = currTurn
-        --newPerm = currCube <> (permOfTurn currTurn)
-        newPerm = execTurn currCube currTurn
+        newPerm = currCube <> (permOfTurn currTurn)
+        --newPerm = execTurn currCube currTurn
 
 --Checks is a Turn does not break any block
 validTurn :: BandagedCube -> Face -> Bool
@@ -91,7 +91,7 @@ validTurn bCube face = and (boolsAllBlocks)
         checkOneBlock = turnPreserveBlock bCube face
         boolsAllBlocks = S.map (checkOneBlock) allRestr
 
-turnPreserveBlock :: BandagedCube -> Face -> S.Set Int8 -> Bool
+turnPreserveBlock :: BandagedCube -> Face -> S.Set Int -> Bool
 turnPreserveBlock (BandagedCube cubeState _) face block = (S.disjoint block s1Real) || (S.disjoint block s2Real)
     where
         (s1, s2) = divideTurn face
@@ -102,10 +102,10 @@ turnPreserveBlock (BandagedCube cubeState _) face block = (S.disjoint block s1Re
         --a bit better if vector was not imported, and cube has its own function of slicing
 
 -- | Given a face, returns a tuple with the pieces afected and not afected respectively.
-divideTurn :: Face -> (S.Set Int8, S.Set Int8)
+divideTurn :: Face -> (S.Set Int, S.Set Int)
 divideTurn m = (piecesAfected m, piecesNotAfected m)
 
-piecesAfected :: Face -> S.Set Int8
+piecesAfected :: Face -> S.Set Int
 piecesAfected R = S.fromList [6,7,8,9,10,11,12,13,14,15,16,17,28,29,34,35,36,37,42,43,50]
 piecesAfected U = S.fromList [9,10,11,0,1,2,3,4,5,6,7,8,30,31,24,25,26,27,28,29,48]
 piecesAfected F = S.fromList [22,23,21,2,0,1,10,11,9,14,12,13,33,32,41,40,31,30,35,34,49]
@@ -114,10 +114,10 @@ piecesAfected D = S.fromList [21,22,23,12,13,14,15,16,17,18,19,20,46,47,40,41,42
 piecesAfected B = S.fromList [8,6,7,16,17,15,20,18,19,4,5,3,37,36,45,44,27,26,39,38,51]
 piecesAfected _ = S.fromList []
 
-piecesNotAfected :: Face -> S.Set Int8
+piecesNotAfected :: Face -> S.Set Int
 piecesNotAfected bm = S.difference allPieces (piecesAfected bm)
 
 -- | A set of numbers 0..53
-allPieces :: S.Set Int8
+allPieces :: S.Set Int
 allPieces = S.fromList [0..53]
 

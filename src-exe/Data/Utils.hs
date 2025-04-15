@@ -1,25 +1,18 @@
-module Utils(cyclePieces) where
+module Utils where
 
 import qualified Data.Vector as V
-import Data.Int (Int8)
+--import Data.Int (Int8)
 
 -- | Cycle the pieces of a vector. Input cycles list, like [[0,1,2], [3,4]]
-cyclePieces :: V.Vector Int8 -> [[Int]] -> V.Vector Int8
-cyclePieces v cycs = (V.//) v swaps
-    where
-        swaps = concat (map (listToSwaps v) cycs)
-
-listToSwaps :: V.Vector Int8 -> [Int] -> [(Int, Int8)]
-listToSwaps orig cycs = map (\(a, b) -> (a, orig V.! b)) t
-    where
-        t = zip cycs (last cycs : init cycs)
-
-
-
-
-
-
-
+--cyclePieces :: V.Vector Int -> [[Int]] -> V.Vector Int
+--cyclePieces v cycs = (V.//) v swaps
+--    where
+--        swaps = concat (map (listToSwaps v) cycs)
+--
+--listToSwaps :: V.Vector Int -> [Int] -> [(Int, Int)]
+--listToSwaps orig cycs = map (\(a, b) -> (a, orig V.! b)) t
+--    where
+--        t = zip cycs (last cycs : init cycs)
 
 
 

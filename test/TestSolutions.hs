@@ -12,9 +12,9 @@ import Data.Maybe
 
 testSolutions :: IO()
 testSolutions = do
-    putStrLn "tests of solutions not yet"
+    putStrLn "tests of solutions"
     quickCheck genericSearchSolvesOptimally
-    --quickCheck optimalityScramble
+    quickCheck optimalityScramble
 
 
 genericSearchSolvesOptimally :: Algorithm -> Property
@@ -27,11 +27,11 @@ genericSearchSolvesOptimally a = (length xs1 < 6) ==>
         Algorithm xs1 = a
         Algorithm xs2 = solve
 
---optimalityScramble :: Algorithm -> Property
---optimalityScramble a = (length xs1 < 6) ==> length xs2 <= length xs1
---    where
---        origin = newBandagedCube (newCubeFromList [0..53]) [[]]
---        scr = fromJust (tryToExecuteAlg origin a)
---        solve = fromJust (genericSearch scr solvedBC [R .. ] (const 0))
---        Algorithm xs1 = a
---        Algorithm xs2 = solve
+optimalityScramble :: Algorithm -> Property
+optimalityScramble a = (length xs1 < 6) ==> length xs2 <= length xs1
+    where
+        origin = newBandagedCube (newCubeFromList [0..53]) [[]]
+        scr = fromJust (tryToExecuteAlg origin a)
+        solve = fromJust (genericSearch scr solvedBC [R .. ] (const 0))
+        Algorithm xs1 = a
+        Algorithm xs2 = solve

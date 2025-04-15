@@ -3,7 +3,6 @@ module Visualizator(manimCustomVisualizer, manimRecomendedVisualizer) where
 import Moves
 import Cube
 import ManimHsConversion(toManimCodification)
---import qualified Data.Vector as V
 import System.Process (spawnProcess)
 
 -- | Generates a video with manim, with recomended options for rendering

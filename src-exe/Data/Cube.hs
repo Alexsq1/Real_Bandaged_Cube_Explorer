@@ -3,7 +3,6 @@ module Cube (Cube(..), newCubeFromList, solved, slicePieces) where
 import Data.Group
 import qualified Data.Vector as V
 import Data.List(sortBy)
-import Data.Int(Int8)
 
 {- Implementation of a Rubik's Cube as a group.
 Numbering the 54 stickers
@@ -11,17 +10,17 @@ Numbering the 54 stickers
 
 --A cube is a list of numbers 0-53. Maybe, use base 64 in the future
 
-newtype Cube = Cube (V.Vector Int8) deriving (Show, Eq)
+newtype Cube = Cube (V.Vector Int) deriving (Show, Eq)
 
 --Todo: user-friendly user-experience
 
 -- | Creates a cube by a 0-53 stickers list
-newCubeFromList :: [Int8] -> Cube
+newCubeFromList :: [Int] -> Cube
 newCubeFromList xs = Cube $ V.fromList xs
 
 instance Semigroup Cube where
 --    (Cube v1) <> (Cube v2) = Cube(V.backpermute v1 v2)
-    (Cube v1) <> (Cube v2) = Cube(V.unsafeBackpermute v1 (V.map fromIntegral v2))
+    (Cube v1) <> (Cube v2) = Cube(V.unsafeBackpermute v1 v2)
 
 instance Monoid Cube where
     mempty = Cube (V.fromList [0..53])
@@ -37,7 +36,7 @@ instance Group Cube where
     invert (Cube xs) = Cube(V.fromList (invert_perm (V.toList xs)))
 
 --try to hide
-invert_perm :: [Int8] -> [Int8]
+invert_perm :: [Int] -> [Int]
 invert_perm xs = map fst tups_ord
     where
         neutral = [0 .. ]
@@ -46,13 +45,11 @@ invert_perm xs = map fst tups_ord
 
         sortBySnd :: Ord b => [(a,b)] -> [(a,b)]
         sortBySnd = sortBy (\(_, s1) (_, s2) -> compare s1 s2)
-        
-
 
 instance Ord Cube where
     compare (Cube v1) (Cube v2) = compare v1 v2
 
 -- | Given a cube and a list, returns a vector with the pieces of the position given. 
-slicePieces :: Cube -> [Int8] -> V.Vector Int8
-slicePieces (Cube xs) ys = V.backpermute xs (V.fromList (map fromIntegral ys))
+slicePieces :: Cube -> [Int] -> V.Vector Int
+slicePieces (Cube xs) ys = V.backpermute xs (V.fromList ys)
 

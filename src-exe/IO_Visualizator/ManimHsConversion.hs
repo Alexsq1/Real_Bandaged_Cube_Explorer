@@ -3,7 +3,6 @@ module ManimHsConversion(cubeFromManimCodification, toManimCodification, facePie
 import qualified Data.Vector as V
 import Cube
 import Moves(Face(..))
-import Data.Int (Int8)
 
 -- | Given a cube, returns the cube in Manim codification (initial of face in its order)
 toManimCodification :: Cube -> String
@@ -13,7 +12,7 @@ toManimCodification (Cube xs) = foldl' (\acc face -> acc ++ (show face)) "" list
             1,31,11,32,49,34,23,41,13,21,40,12,46,53,42,18,44,15,
             4,25,2,39,52,33,20,47,22,7,27,5,36,51,38,17,45,19]
         
-        reorder = V.toList (V.backpermute (V.map fromIntegral xs) (V.fromList permutation))
+        reorder = V.toList (V.backpermute xs (V.fromList permutation))
         listFaces = map pieceToFace reorder
 
 pieceToFace :: Int -> Face
@@ -26,7 +25,7 @@ cubeFromManimCodification :: [(String, String)] -- ^ Equivalence, like [(\"U\", 
             -> [String]                         -- ^ List of colours, like [\"White\", \"Green\", ...]
             -> Cube
 
-cubeFromManimCodification equivalence str = newCubeFromList (map fromIntegral perm)
+cubeFromManimCodification equivalence str = newCubeFromList perm
     where
         perm = (stringToNum . reorder . swapByEquivalent equivalence) str
 
@@ -52,7 +51,7 @@ takeEquiv ((x,y):xs) current
 
 -- | given ["URF", "UR", "UL"] returns the ints values [0, 1, 2, 24, 25, 28, 29]
 --(1 usage in InputCube inputBlock)
-facePieceToInts :: [String] -> [Int8]
+facePieceToInts :: [String] -> [Int]
 facePieceToInts str
     | length str == 1 = centerToInt str
     | length str == 2 = edgeToInts str
@@ -60,20 +59,20 @@ facePieceToInts str
     | otherwise = []
 
 
-stringToNum :: [String] -> [Int8]
+stringToNum :: [String] -> [Int]
 stringToNum xs = (mapBy 3 cornerToInts corners) ++ (mapBy 2 edgeToInts edges) ++ (mapBy 1 centerToInt centers)
     where
         corners = take 24 xs
         edges = (take 24 . drop 24) xs
         centers = drop 48 xs
 
-mapBy :: Int8 -> ([a] -> [b]) -> [a] -> [b]
+mapBy :: Int -> ([a] -> [b]) -> [a] -> [b]
 mapBy _ _ [] = []
-mapBy n f xs = (f prefix) ++ (mapBy n f (drop (fromIntegral n) xs))
+mapBy n f xs = (f prefix) ++ (mapBy n f (drop n xs))
     where 
-        prefix = take (fromIntegral n) xs
+        prefix = take n xs
 
-centerToInt :: [String] -> [Int8]
+centerToInt :: [String] -> [Int]
 centerToInt ["U"] = [48]
 centerToInt ["F"] = [49]
 centerToInt ["R"] = [50]
@@ -82,7 +81,7 @@ centerToInt ["L"] = [52]
 centerToInt ["D"] = [53]
 centerToInt _ = [-1]
 
-edgeToInts :: [String] -> [Int8]
+edgeToInts :: [String] -> [Int]
 edgeToInts [] = []
 edgeToInts [_] = []
 edgeToInts (f1 : f2 : _)
@@ -95,7 +94,7 @@ edgeToInts (f1 : f2 : _)
         opt2 = reverse (tryToMatch f2 f1)
 
         --tryToMatch always returns ascending lists
-        tryToMatch :: String -> String -> [Int8]
+        tryToMatch :: String -> String -> [Int]
         tryToMatch "U" "L" = [24, 25]
         tryToMatch "U" "B" = [26, 27]
         tryToMatch "U" "R" = [28, 29]
@@ -113,7 +112,7 @@ edgeToInts (f1 : f2 : _)
 
         tryToMatch _ _ = []
 
-cornerToInts :: [String] -> [Int8]
+cornerToInts :: [String] -> [Int]
 cornerToInts [] = []
 cornerToInts [_] = []
 cornerToInts [_,_] = []
@@ -135,7 +134,7 @@ cornerToInts (f1 : f2 : f3 : _)
         opt5 = tryToMatch f3 f2 f1
         opt6 = tryToMatch f2 f1 f3
         --tryToMatch always returns ascending lists
-        tryToMatch :: String -> String -> String -> [Int8]
+        tryToMatch :: String -> String -> String -> [Int]
         tryToMatch "U" "F" "L" = [0, 1, 2]
         tryToMatch "U" "L" "B" = [3, 4, 5]
         tryToMatch "U" "B" "R" = [6, 7, 8]

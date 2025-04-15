@@ -8,6 +8,7 @@ import Visualizator
 import Moves
 import ManimHsConversion
 
+import Data.Int (Int8)
 import Data.List(intercalate)
 
 -- | Definitive IO for asking the user to generate a Bandaged Cube
@@ -120,7 +121,7 @@ colourScheme equiv = do
         defaultColour _ = "#555555" --dark grey
 
 -- | An IO that guides the user to insert a block
-inputBlock :: [(String, String)] -> IO [[Int]]
+inputBlock :: [(String, String)] -> IO [[Int8]]
 inputBlock equiv = do
     putStrLn "(Optional) insert a block in the format: c1-c2-c3+c1-c2+c1 (empty for finish)"
     str <- getLine
@@ -132,7 +133,7 @@ inputBlock equiv = do
             rest <- inputBlock equiv
             return ([convertBlockToInts str] ++ rest)
     where
-        convertBlockToInts :: String -> [Int]
+        convertBlockToInts :: String -> [Int8]
         convertBlockToInts str
             | null str = []
             | otherwise = concat $ map facePieceToInts colours

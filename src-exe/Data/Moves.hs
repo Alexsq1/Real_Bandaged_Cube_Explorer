@@ -1,8 +1,8 @@
-module Moves (Turn(..), Algorithm(..), Face(..), Axis(..), algToPerm, possibleTurns, permOfTurn, axisOfFace) where
+module Moves (Turn(..), Algorithm(..), Face(..), Axis(..), algToPerm, possibleTurns, permOfTurn, execTurn, axisOfFace) where
 
-import Cube
 import Data.Group
-
+import Cube
+import Utils(cyclePieces)
 
 import Test.QuickCheck
 --import Test.QuickCheck.Gen
@@ -119,6 +119,45 @@ permOfTurn (Turn(B, 1)) = newCubeFromList [0,1,2,8,6,7,16,17,15,9,10,11,12,13,14
 permOfTurn (Turn(B, 2)) = newCubeFromList [0,1,2,15,16,17,18,19,20,9,10,11,12,13,14,3,4,5,6,7,8,21,22,23,24,25,44,45,28,29,30,31,32,33,34,35,38,39,36,37,40,41,42,43,26,27,46,47,48,49,50,51,52,53]
 permOfTurn (Turn(B, 3)) = newCubeFromList [0,1,2,20,18,19,4,5,3,9,10,11,12,13,14,8,6,7,16,17,15,21,22,23,24,25,39,38,28,29,30,31,32,33,34,35,27,26,45,44,40,41,42,43,37,36,46,47,48,49,50,51,52,53]
 permOfTurn (Turn(t, x)) = permOfTurn(Turn(t, x `mod` 4))
+
+
+execTurn :: Cube -> Turn -> Cube
+execTurn (Cube v) t = Cube (newPerm)
+    where
+        newPerm = cyclePieces v (cycleOfTurn t)
+
+cycleOfTurn :: Turn -> [[Int]]
+cycleOfTurn (Turn(R,1)) = [[11,6,17,12], [9,7,15,13], [10,8,16,14], [28,36,42,34],[35,29,37,43]]
+cycleOfTurn (Turn(R,2)) = [[11,17], [6,12], [9,15], [7,13], [10,16], [8,14], [28,42],[36,34],[35,37],[29,43]]
+cycleOfTurn (Turn(R,3)) = [[12,17,6,11],[13,15,7,9],[14,16,8,10],[34,42,36,28],[43,37,29,35]]
+
+cycleOfTurn (Turn(U,1)) = [[0,3,6,9], [1,4,7,10], [2,5,8,11], [24,26,28,30],[25,27,29,31]]
+cycleOfTurn (Turn(U,2)) = [[0,6],[3,9],[1,7],[4,10],[2,8],[5,11],[24,28],[26,30],[25,29],[27,31]]
+cycleOfTurn (Turn(U,3)) = [[9,6,3,0],[10,7,4,1],[11,8,5,2],[30,28,26,24],[31,29,27,25]]
+
+cycleOfTurn (Turn(F,1)) = [[0,10,12,22], [1,11,13,23], [2,9,14,21], [31,34,41,32],[30,35,40,33]]
+cycleOfTurn (Turn(F,2)) = [[0,12],[10,22],[1,13],[11,23],[2,14],[9,21],[31,41],[34,32],[30,40],[35,33]]
+cycleOfTurn (Turn(F,3)) = [[22,12,10,0],[23,13,11,1],[21,14,9,2],[32,41,34,31],[33,40,35,30]]
+
+cycleOfTurn (Turn(L,1)) = [[2,22,20,4], [1,21,19,3], [0,23,18,5], [25,33,47,39],[24,32,46,38]]
+cycleOfTurn (Turn(L,2)) = [[2,20],[22,4],[1,19],[21,3],[0,18],[23,5],[25,47],[33,39],[24,46],[32,38]]
+cycleOfTurn (Turn(L,3)) = [[4,20,22,2],[3,19,21,1],[5,18,23,0],[39,47,33,25],[38,46,32,24]]
+
+cycleOfTurn (Turn(D,1)) = [[12, 15, 18, 21], [13, 16, 19, 22], [14,17,20,23], [40,42,44,46],[41,43,45,47]]
+cycleOfTurn (Turn(D,2)) = [[12,18],[15,21],[13,19],[16,22],[14,20],[17,23],[40,44],[42,46],[41,45],[43,47]]
+cycleOfTurn (Turn(D,3)) = [[21,18,15,12],[22,19,16,13],[23,20,17,14],[46,44,42,40],[47,45,43,41]]
+
+cycleOfTurn (Turn(B,1)) = [[3,20,15,8], [5,19,17,7], [4,18,16,6], [27,38,45,36],[26,39,44,37]]
+cycleOfTurn (Turn(B,2)) = [[3,15],[20,8],[5,17],[19,7],[4,16],[18,6],[27,45],[38,36],[26,44],[39,37]]
+cycleOfTurn (Turn(B,3)) = [[8,15,20,3],[7,17,19,5],[6,16,18,4],[36,45,38,27],[37,44,39,26]]
+
+cycleOfTurn (Turn(N, _)) = [[]]
+cycleOfTurn (Turn(t, x)) = cycleOfTurn(Turn(t, x `mod` 4))
+
+
+
+
+
 
 -- | Axis of the cube
 data Axis = RL | UD | FB | NN deriving(Show, Eq, Ord, Read, Enum)

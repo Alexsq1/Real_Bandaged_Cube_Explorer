@@ -24,6 +24,7 @@ cabal.project.local~
 .HTF/
 .ghc.environment.*
 profilings/*
+*.tix
 
 
 #Python

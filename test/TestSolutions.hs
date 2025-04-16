@@ -18,7 +18,7 @@ testSolutions = do
 
 
 genericSearchSolvesOptimally :: Algorithm -> Property
-genericSearchSolvesOptimally a = (length xs1 < 6) ==>
+genericSearchSolvesOptimally a = (length xs1 < 7) ==>
     (solved (algToPerm (Algorithm (xs1 ++ xs2))) === True)
     where
         origin = newBandagedCube (newCubeFromList [0..53]) [[]]
@@ -28,7 +28,7 @@ genericSearchSolvesOptimally a = (length xs1 < 6) ==>
         Algorithm xs2 = solve
 
 optimalityScramble :: Algorithm -> Property
-optimalityScramble a = (length xs1 < 6) ==> length xs2 <= length xs1
+optimalityScramble a = (length xs1 < 7) ==> length xs2 <= length xs1
     where
         origin = newBandagedCube (newCubeFromList [0..53]) [[]]
         scr = fromJust (tryToExecuteAlg origin a)

@@ -1,4 +1,4 @@
-module Cube (Cube(..), newCubeFromList, solved, slicePieces) where
+module Cube (Cube(..), newCubeFromList, solved, slicePieces, corners, edges, centers, allPieces) where
 
 import Data.Group
 import qualified Data.Vector.Unboxed as V
@@ -49,7 +49,23 @@ invert_perm xs = map fst tups_ord
 instance Ord Cube where
     compare (Cube v1) (Cube v2) = compare v1 v2
 
--- | Given a cube and a list, returns a vector with the pieces of the position given. 
-slicePieces :: Cube -> [Int] -> V.Vector Int
-slicePieces (Cube xs) ys = V.backpermute xs (V.fromList ys)
+-- | Given a cube and a list, returns a list with all the pieces of the position given. 
+slicePieces :: [Int] -> Cube -> [Int]
+slicePieces ys (Cube xs) = V.toList (V.backpermute xs (V.fromList ys))
+
+-- | Returns a list of the corner pieces
+corners :: Cube -> [Int]
+corners = slicePieces [0 .. 23]
+
+-- | Returns a list of the edges pieces
+edges :: Cube -> [Int]
+edges = slicePieces [24 .. 47]
+
+-- | Returns a list of the center pieces
+centers :: Cube -> [Int]
+centers = slicePieces [48 .. 53]
+
+-- | Returns a list with all of the pieces
+allPieces :: Cube -> [Int]
+allPieces (Cube xs) = V.toList xs
 

@@ -19,11 +19,36 @@ instance Show Turn where
         | degrees == 3 = (show face) ++ "'"
         | otherwise = (show face)
 
---TODO:
-{-
-Make read from String: "R U R' " -> [R, U, R']
-Cancell paralel turns
--}
+instance Read Turn where
+    readsPrec _ (x:y:rest) = 
+        let move = read [x] :: Face
+            num =  read [y] :: Int
+        in [ ( simpOneTurn (Turn(move, num)) , rest) ]
+
+instance Read Algorithm where
+    readsPrec _ str = [(  (staticReadAlg (canonic str)), [])]
+    
+
+staticReadAlg :: String -> Algorithm
+staticReadAlg "" = Algorithm[]
+staticReadAlg (x:y:xs) = Algorithm[read ([x] ++ [y])] <> staticReadAlg xs
+staticReadAlg _ = Algorithm []
+
+
+-- Transforms R U R' F2 into R1U1R3F2 (easier to read of turn to parse)
+canonic :: String -> String
+canonic str = insertOnes strPrimes
+    where
+        strNoSpaces = filter (/= ' ') str
+        strPrimes = map (\x -> if (x == '\'') then '3' else x) strNoSpaces
+
+insertOnes :: String -> String
+insertOnes "" = ""
+insertOnes (x:y:xs) = if ((isCharMove x && isCharMove y)) then ([x] ++ "1" ++ insertOnes(y:xs)) else ([x] ++ insertOnes (y:xs))
+insertOnes (x:xs) = if (isCharMove x) then ([x] ++ "1" ++ insertOnes xs) else ([x] ++ insertOnes xs)
+
+isCharMove :: Char -> Bool
+isCharMove str = elem str (show [N .. ])
 
 -- | Makes a list with all the possible turns
 possibleTurns :: [Turn]

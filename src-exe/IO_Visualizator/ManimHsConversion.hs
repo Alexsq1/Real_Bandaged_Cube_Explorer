@@ -1,19 +1,18 @@
 module ManimHsConversion(cubeFromManimCodification, toManimCodification, facePieceToInts, swapByEquivalent) where
 
-import qualified Data.Vector.Unboxed as V
 import Cube
 import Moves(Face(..))
 
 -- | Given a cube, returns the cube in Manim codification (initial of face in its order)
 toManimCodification :: Cube -> String
-toManimCodification (Cube xs) = foldl' (\acc face -> acc ++ (show face)) "" listFaces
+toManimCodification cube = foldl' (\acc face -> acc ++ (show face)) "" listFaces
     where
         permutation = [3,26,6,24,48,28,0,30,9, 10,29,8,35,50,37,14,43,16,
             1,31,11,32,49,34,23,41,13,21,40,12,46,53,42,18,44,15,
             4,25,2,39,52,33,20,47,22,7,27,5,36,51,38,17,45,19]
         
-        --reorder = V.toList (V.backpermute xs (V.fromList permutation))
-        reorder = map ((V.toList xs) !!) permutation
+        xs = allPieces cube
+        reorder = map (xs !! ) permutation
         listFaces = map pieceToFace reorder
 
 pieceToFace :: Int -> Face
@@ -33,7 +32,6 @@ cubeFromManimCodification equivalence str = newCubeFromList perm
         --Makes the permutation from manim codification to mine
         reorder :: [String] -> [String]
         reorder xs = map (xs !!) arrangement
-        --reorder xs = V.toList (V.backpermute (V.fromList xs) (V.fromList arrangement))
             where
                 arrangement = [6,18,38,0,36,47,2,45,11,8,9,20,29,
                                 26,15,35,17,51,33,53,42,27,44,24,3,37,1,46,5,10,7,19,21,41,
@@ -62,11 +60,11 @@ facePieceToInts str
 
 
 stringToNum :: [String] -> [Int]
-stringToNum xs = (mapBy 3 cornerToInts corners) ++ (mapBy 2 edgeToInts edges) ++ (mapBy 1 centerToInt centers)
+stringToNum xs = (mapBy 3 cornerToInts cornersP) ++ (mapBy 2 edgeToInts edgesP) ++ (mapBy 1 centerToInt centersP)
     where
-        corners = take 24 xs
-        edges = (take 24 . drop 24) xs
-        centers = drop 48 xs
+        cornersP = take 24 xs
+        edgesP = (take 24 . drop 24) xs
+        centersP = drop 48 xs
 
 mapBy :: Int -> ([a] -> [b]) -> [a] -> [b]
 mapBy _ _ [] = []

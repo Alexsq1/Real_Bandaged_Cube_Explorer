@@ -1,13 +1,10 @@
-module Bandaged(BandagedCube(..), solvedBC, deleteBlocks, tryToTurn, tryToExecuteAlg, unsafeExecutionAlg, divideTurn, allPieces) where
+module Bandaged(BandagedCube(..), solvedBC, deleteBlocks, tryToTurn, tryToExecuteAlg, unsafeExecutionAlg, divideTurn) where
 
-import Moves
+import qualified Data.Set as S
 import Cube
+import Moves
 import Data.Maybe(isNothing, fromJust)
 import Data.List(intercalate)
-
---import Data.Int (Int8)
-import qualified Data.Set as S
-import qualified Data.Vector.Unboxed as V
 
 -- | A Bandaged Cube is a Cube with a set of sets of restrictions.
 data BandagedCube = BandagedCube {stdCube :: Cube, restrictions :: S.Set (S.Set Int)} deriving Eq
@@ -30,15 +27,15 @@ instance Show BandagedCube where
 
 intToStrPiece :: Int -> String
 intToStrPiece n
-    | n < 24 = corners !! (n `div` 3)
-    | n < 48 = edges !! ((n - 24) `div` 2)
-    | otherwise = centers !! (n - 48)
+    | n < 24 = cornersP !! (n `div` 3)
+    | n < 48 = edgesP !! ((n - 24) `div` 2)
+    | otherwise = centersP !! (n - 48)
     where
-        corners = ["UFL", "UBL", "UBR", "UFR", "DFR", "DBR", "DBL", "DFL"]
-        edges = ["UL", "UB", "UR", "UF", 
+        cornersP = ["UFL", "UBL", "UBR", "UFR", "DFR", "DBR", "DBL", "DFL"]
+        edgesP = ["UL", "UB", "UR", "UF", 
             "FL", "FR", "BR", "BL",
             "DF", "DR", "DB", "DL"]
-        centers = ["U", "F", "R", "B", "L", "D"]
+        centersP = ["U", "F", "R", "B", "L", "D"]
 
 
 solvedBC :: BandagedCube -> Bool
@@ -94,12 +91,9 @@ validTurn bCube face = and (boolsAllBlocks)
 turnPreserveBlock :: BandagedCube -> Face -> S.Set Int -> Bool
 turnPreserveBlock (BandagedCube cubeState _) face block = (S.disjoint block s1Real) || (S.disjoint block s2Real)
     where
-        (s1, s2) = divideTurn face
-        s1RealVec = slicePieces cubeState (S.toList s1)
-        s2RealVec = slicePieces cubeState (S.toList s2)
-        s1Real = (S.fromList . V.toList) s1RealVec
-        s2Real = (S.fromList . V.toList) s2RealVec
-        --a bit better if vector was not imported, and cube has its own function of slicing
+        (s1, s2) = divideTurn face  
+        s1Real = S.fromList (slicePieces (S.toList s1) cubeState)
+        s2Real = S.fromList (slicePieces (S.toList s2) cubeState)
 
 -- | Given a face, returns a tuple with the pieces afected and not afected respectively.
 divideTurn :: Face -> (S.Set Int, S.Set Int)
@@ -115,9 +109,8 @@ piecesAfected B = S.fromList [8,6,7,16,17,15,20,18,19,4,5,3,37,36,45,44,27,26,39
 piecesAfected _ = S.fromList []
 
 piecesNotAfected :: Face -> S.Set Int
-piecesNotAfected bm = S.difference allPieces (piecesAfected bm)
+piecesNotAfected bm = S.difference s0_53 (piecesAfected bm)
+    where
+        s0_53 = S.fromList [0..53]
 
--- | A set of numbers 0..53
-allPieces :: S.Set Int
-allPieces = S.fromList [0..53]
 

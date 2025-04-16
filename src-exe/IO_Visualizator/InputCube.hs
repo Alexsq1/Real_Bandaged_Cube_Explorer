@@ -33,28 +33,24 @@ bandagedCubeScratchIO = do
 -- | An IO that guides the user to insert the face aliases
 faceAliases :: IO[(String, String)]
 faceAliases = do
-    putStrLn "Insert alias for U face"
+    putStrLn "Insert alias for U face (default: w)"
     uLayer <- getLine
-    putStrLn "Insert alias for R face"
+    putStrLn "Insert alias for R face (default: r)"
     rLayer <- getLine
-    putStrLn "Insert alias for F face"
+    putStrLn "Insert alias for F face (default: g)"
     fLayer <- getLine
-    putStrLn "Insert alias for D face"
+    putStrLn "Insert alias for D face (default: y)"
     dLayer <- getLine
-    putStrLn "Insert alias for L face"
+    putStrLn "Insert alias for L face (default: g)"
     lLayer <- getLine
-    putStrLn "Insert alias for B face"
+    putStrLn "Insert alias for B face (default: b)"
     bLayer <- getLine
 
-    if ((length uLayer) * (length rLayer) * (length fLayer) * (length dLayer) * (length lLayer) * (length bLayer) > 0)
-        then
-            (return [("U", uLayer), ("R", rLayer), ("F", fLayer), ("L", lLayer), ("B", bLayer), ("D", dLayer)])
+    let defaultInput = [("U", "w"), ("R", "r"), ("F", "g"), ("L", "o"), ("B", "b"), ("D", "y")]
+    let input = [("U", uLayer), ("R", rLayer), ("F", fLayer), ("L", lLayer), ("B", bLayer), ("D", dLayer)]
+    let sol = zipWith (\(i, alias) (i2,def) -> if(length alias == 0) then (i2, def) else (i,alias)) input defaultInput
 
-    else
-        do
-            putStrLn "Invalid input"
-            nextInput <- faceAliases
-            return (nextInput)
+    return (sol)
 
 -- | An IO that guides the user to insert a cube
 input54Stickers :: [(String, String)]  -> IO Cube
@@ -77,7 +73,7 @@ oneFace face eq = do
     
     let provSol = ((filter (/= "")) . (splitOn " " )) (checkEmpty stickers)
 
-    if (canBeValid provSol) 
+    if ((canBeValid provSol) && (provSol !! 4) == alias) 
         then return (provSol)
         else (
             do
@@ -87,7 +83,10 @@ oneFace face eq = do
         )
 
     where
-        [alias] = swapByEquivalent eq [face]
+        result = swapByEquivalent eq [face]
+        alias = case result of
+                    [x] -> x
+                    _   -> error "Unexpected result length"
         defaultFace = (concat . replicate 9) (alias ++ " ")
 
         checkEmpty :: String -> String

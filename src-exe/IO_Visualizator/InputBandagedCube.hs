@@ -45,7 +45,7 @@ expand1Block block = pieceIntersections (expansions)
 expandBlockTurn :: S.Set Int -> Face -> S.Set Int
 expandBlockTurn block move
     | isBlockPreserved = rightSubSet
-    | otherwise = allPieces
+    | otherwise = s0_53
     where
         (xs1, xs2) = divideTurn move
         --Every turn divides the cube in 2 sets: pieces affected and not affected.
@@ -58,4 +58,9 @@ expandBlockTurn block move
 pieceIntersections :: (Foldable f) => f (S.Set Int) -> S.Set Int
 pieceIntersections = foldl' S.intersection (full)
     where
-        full = allPieces
+        full = s0_53
+
+-- | A set of numbers 0..53
+s0_53 :: S.Set Int
+s0_53 = S.fromList [0..53]
+

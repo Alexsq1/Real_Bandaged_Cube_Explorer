@@ -1,4 +1,4 @@
-module Search(genericSearch, idaStar, SearchingState(..), dfsSgle, dfsMult) where
+module Search(numberCanonicalSequences, genericSearch, idaStar, SearchingState(..), dfsSgle, dfsMult) where
 
 import Bandaged
 --import qualified Data.Set as S
@@ -31,6 +31,18 @@ instance Show SearchingState where
 -- | A list with all the possible 1-face moves
 --allPossibleMoves :: [Turn]
 --allPossibleMoves = [Turn(f, m) | f <- [R .. ] , m <- [1..3]]
+
+numberCanonicalSequences :: Int -> Int
+numberCanonicalSequences 0 = 1
+numberCanonicalSequences 1 = 18
+numberCanonicalSequences 2 = 18 * 3 * 4 + 18 * 3 `div` 2    --243
+numberCanonicalSequences n = fibIterate 2 n 243 18
+    where
+        fibIterate :: Int -> Int -> Int -> Int -> Int
+        fibIterate gen goal current prev
+            | gen == goal = current
+            | otherwise = fibIterate (gen + 1) goal (12 * current + 18 * prev) current
+
 
 -- | Recieves data, makes a generic bounded search and compose the solution
 genericSearch :: BandagedCube               -- ^ Initial state
@@ -81,7 +93,7 @@ dfsSgle initialSS
         dfsMult initialSS (subAlgs)
 
     where
-        (SearchingState _ ini currD maxD _ _ layers subAlgs h) = initialSS
+        (SearchingState _ ini currD maxD _ _ _ subAlgs h) = initialSS
         
 -- | Search with dfs algorithm. Iterate over several move generation
 dfsMult :: SearchingState                       -- ^ Initial

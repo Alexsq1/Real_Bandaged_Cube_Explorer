@@ -1,6 +1,6 @@
 module Utils where
 
-import qualified Data.Vector as V
+--import qualified Data.Vector as V
 --import Data.Int (Int8)
 
 -- | Cycle the pieces of a vector. Input cycles list, like [[0,1,2], [3,4]]

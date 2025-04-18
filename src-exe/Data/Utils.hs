@@ -15,7 +15,11 @@ module Utils where
 --        t = zip cycs (last cycs : init cycs)
 
 
-
+uniqueAndConsecutive :: [Int] -> Bool
+uniqueAndConsecutive xs = (sort xs) == [e1 .. e2]
+    where
+        e1 = minimum xs
+        e2 = maximum xs
 
 
 

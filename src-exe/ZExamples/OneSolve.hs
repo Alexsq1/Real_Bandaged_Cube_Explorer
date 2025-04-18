@@ -27,6 +27,7 @@ oneSolve = do
     
     
     let c1 = fromJust (tryToExecuteAlg c alg)
+--    let solution1 = genericSearch c1 solvedBC [R, U] (noHeuristic)
     let solution1 = genericSearch c1 solvedBC [R, U] (noHeuristic)
     putStrLn ("Solution found: " ++ (show solution1))
     

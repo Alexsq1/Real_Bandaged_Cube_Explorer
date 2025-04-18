@@ -1,4 +1,4 @@
-module Bandaged(BandagedCube(..), solvedBC, deleteBlocks, tryToTurn, tryToExecuteAlg, unsafeExecutionAlg, divideTurn) where
+module Bandaged(BandagedCube(..), solvedBC, deleteBlocks, tryToTurn, tryToExecuteAlg, validTurn, unsafeExecutionAlg, divideTurn) where
 
 import qualified Data.Set as S
 import Cube
@@ -79,7 +79,7 @@ tryToTurn bCube currTurn
         newPerm = currCube <> (permOfTurn currTurn)
         --newPerm = execTurn currCube currTurn
 
---Checks is a Turn does not break any block
+-- | Checks if a Face would not break any block
 validTurn :: BandagedCube -> Face -> Bool
 validTurn bCube face = and (boolsAllBlocks)
     where

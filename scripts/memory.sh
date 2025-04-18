@@ -2,10 +2,10 @@ cabal clean && \
 cabal build --enable-profiling && \
 #cabal run exe:Bandaged-Cube-TFG -- +RTS -hc && \   #not bad. Bastante genérico
 #cabal run exe:Bandaged-Cube-TFG -- +RTS -hy  && \  #Interesante. Divide más en algunas funciones propias
-cabal run exe:Bandaged-Cube-TFG -- +RTS -hm  && \ #Muy interesante, por módulos
+cabal run exe:Bandaged-Cube-TFG -- +RTS -hm  && \  #Muy interesante, por módulos
 #cabal run exe:Bandaged-Cube-TFG -- +RTS -hb  && \ #Muy interesante, por módulos
 
-rm profilings/memory/* && \
+#rm profilings/memory/* && \
 hp2ps -c Bandaged-Cube-TFG.hp && \
 ps2pdf Bandaged-Cube-TFG.ps && \
 #mv Bandaged-Cube-TFG.ps profilings/memory && \

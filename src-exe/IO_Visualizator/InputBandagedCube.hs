@@ -1,9 +1,17 @@
-module InputBandagedCube(newBandagedCube) where
+module InputBandagedCube(newBandagedCube, newSolvedBandagedCube, newSolvedCube) where
 
 import Moves
 import Cube
 import Bandaged
 import qualified Data.Set as S
+
+-- | Creates a standard cube
+newSolvedCube :: Cube
+newSolvedCube = newCubeFromList [0..53]
+
+-- | Creates a solved Bandaged with no blocks
+newSolvedBandagedCube :: BandagedCube
+newSolvedBandagedCube = newBandagedCube (newCubeFromList [0 .. 53]) [[]]
 
 -- | Creates a new Bandaged Cube, with a standard cube and the restrictions
 newBandagedCube :: Cube -> [[Int]] -> BandagedCube

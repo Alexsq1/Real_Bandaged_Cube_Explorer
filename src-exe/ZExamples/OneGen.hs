@@ -30,6 +30,6 @@ oneGen = do
     let scr1Move = map (\alg -> fromJust (tryToExecuteAlg c (Algorithm alg))) xs
 --    let sols = map (\scr -> fromJust (genericSearch scr solvedBC [R .. ] (noHeuristic))) scr1Move
     let sols = map (\scr -> fromJust (genericSearch scr solvedBC [R .. ] (noHeuristic))) scr1Move
-    putStrLn ("Finished depth , max sol" ++ (show (maximum (map (\(Algorithm x) -> length x) sols))))
+    putStrLn ("Finished depth , max sol: " ++ (show (maximum (map (\(Algorithm x) -> length x) sols))))
     
 

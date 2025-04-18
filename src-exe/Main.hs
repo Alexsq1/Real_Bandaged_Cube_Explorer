@@ -30,13 +30,13 @@ import OneSolve
 main :: IO ()
 main = do
     --putStrLn "ho"
-    --OneSolve.oneSolve
+    OneSolve.oneSolve
     --OneInput.oneInput
     --OneGen.oneGen
 
-    let v = cornersVector newSolvedBandagedCube
-    putStrLn ("Vector of corners: " ++ show (V.filter (<20) v))
-
-    let ve = edgesFstVector newSolvedBandagedCube
-    putStrLn ("Vector of edges: " ++ show (V.filter (<20) ve))
+--    let v = cornersVector newSolvedBandagedCube
+--    putStrLn ("Vector of corners: " ++ show (V.filter (<20) v))
+--
+--    let ve = edgesFstVector newSolvedBandagedCube
+--    putStrLn ("Vector of edges: " ++ show (V.filter (<20) ve))
     

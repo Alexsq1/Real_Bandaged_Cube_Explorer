@@ -77,6 +77,7 @@ bfs kGen2 ((depth, lastFace, bCube) : fifo) faces2 visit iniVec
         --newFifo = map (\(ff, move) -> () . fromJust . (tryToTurn bCube move) ) fs
         --dangerous to do fromJust. Won't work with bandageds
         
+        --delete set, use direct access to vector instead
 -- to be optimized with canonic sequences
 --careful when inserting to the fifo seqs of length n+1 and n+2. Must be sorted in length (update when first ocurrence)
 --may be improved with list of visited sets, ordered by depths. Problem: editing 1 element. (Maybe vector boxed)

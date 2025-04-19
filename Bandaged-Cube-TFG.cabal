@@ -45,7 +45,7 @@ extra-doc-files:    CHANGELOG.md
 
 common warnings
     ghc-options: -Wall  -O2
-    -- -prof -frop-auto
+    -- -prof -fprof-auto
     --(prof needed for time)
 
     -- -fhpc

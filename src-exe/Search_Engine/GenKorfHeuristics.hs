@@ -1,7 +1,6 @@
 module GenKorfHeuristics(lookupAll, cornersVector, edgesFstVector, edgesSndVector) where
 
 import IndexHeuristics
---import Cube
 import Bandaged
 import Moves
 import InputBandagedCube(newSolvedBandagedCube)
@@ -11,6 +10,11 @@ import qualified Data.Set as S
 import Data.Maybe
 
 import Data.Word(Word8)
+
+import qualified Data.Vector.Unboxed.Mutable as MV
+import Control.Monad.ST
+import Control.Monad(forM_)
+
 
 --Max. Int: 536.870.912
 --Max. Int: 2 ^63 -1 = 9.223.372.036.854.775.807
@@ -32,67 +36,58 @@ import Data.Word(Word8)
 type Vector8 = V.Vector Word8
 type SetVisitedKeys = S.Set Int
 
-initialStateCorners :: Vector8
-initialStateCorners = V.replicate (88179840 :: Int) 21
-
-initialStateEdges :: Vector8
-initialStateEdges = V.replicate (42577920 :: Int) 21
-
 cornersVector :: BandagedCube -> Vector8
-cornersVector = createVector initialStateCorners cornersKey [R .. ]
+cornersVector bc = applyChangesMV 88179840 ch
+    where
+        ch = bfsStoreChanges cornersKey [R .. ] bc
 --To be improved with only the movable faces in a bandaged
 
 edgesFstVector :: BandagedCube -> Vector8
-edgesFstVector = createVector initialStateEdges edgesKeyFst [R .. ]
+edgesFstVector bc = applyChangesMV 42577920 ch
+    where
+        ch = bfsStoreChanges edgesKeyFst [R .. ] bc
 
 edgesSndVector :: BandagedCube -> Vector8
-edgesSndVector = createVector initialStateEdges edgesKeySnd [R .. ]
-
-createVector :: Vector8 -> (BandagedCube -> Int) -> [Face] -> BandagedCube -> Vector8
-createVector iniVector kGen faces ini = bfs kGen [(0, N, ini)] faces S.empty iniVector
+edgesSndVector bc = applyChangesMV 42577920 ch
     where
-        bfs :: (BandagedCube -> Int) -> [(Word8, Face, BandagedCube)] -> [Face] -> SetVisitedKeys -> Vector8 -> Vector8
-        bfs _ [] _ _ iniVec = iniVec
-        bfs kGen2 ((depth, lastFace, bCube) : fifo) faces2 visit iniVec
-            | depth > 2 = iniVec
-            | S.member thisKey visit = bfs kGen2 fifo faces2 visit iniVec
-            | otherwise = bfs kGen2 (fifo ++ newFifo) faces2 newSet newVector
+        ch = bfsStoreChanges edgesKeySnd [R .. ] bc
+
+applyChangesMV :: Int -> [(Int, Word8)] -> Vector8
+applyChangesMV n changes = runST $ do
+    mv <- MV.replicate n 21
+    myUpdate mv changes
+    V.unsafeFreeze mv
+
+myUpdate :: MV.MVector s Word8 -> [(Int, Word8)] -> ST s ()
+myUpdate v changes = forM_ changes $ (\(i, value) -> MV.write v i value)
+
+bfsStoreChanges :: (BandagedCube -> Int) -> [Face] -> BandagedCube -> [(Int, Word8)]
+bfsStoreChanges kGen faces ini = bfs kGen [(0, N, ini)] faces S.empty []
+    where
+        bfs :: (BandagedCube -> Int) -> [(Word8, Face, BandagedCube)] -> [Face] -> SetVisitedKeys -> [(Int, Word8)] -> [(Int, Word8)]
+        bfs _ [] _ _ acc = acc
+        bfs kGen2 ((depth, lastFace, bCube) : fifo) faces2 visit acc
+            | depth > 4 = acc                                                       --prune, finish search
+            | S.member thisKey visit = bfs kGen2 fifo faces2 visit acc              --visited state
+            | otherwise = bfs kGen2 (fifo ++ newFifo) faces2 newSet newList         --keep iterating
 
             where 
                 thisKey = kGen2 bCube
                 newSet = S.insert thisKey visit
-                newVector = (V.//) iniVec [(thisKey, depth)]
+                newList = (thisKey, depth) : acc
 
                 moves = [ (f, Turn(f, m)) | f <- faces2, m <- [1 .. 3], 
-                    f /= lastFace, 
-                    (axisOfFace f /= axisOfFace lastFace) || ((axisOfFace f == axisOfFace lastFace) && (f > lastFace)),
+                    (axisOfFace f /= axisOfFace lastFace) || (f > lastFace),
                     validTurn bCube f]
-
-                --Turn(thFace, _) : _ = fs
 
                 possibleStates = map (\(lstFace, move) -> (lstFace, tryToTurn bCube move)) moves
                 possibleAccesibleStates = filter (isJust . snd) possibleStates
                 newFifo = map (\(lstFace, justState) -> (1 + depth, lstFace, fromJust justState)) possibleAccesibleStates
-
-        --newFifo = map ((\x -> (1 + depth , x)) . fromJust . (tryToTurn bCube)) fs
-        --newFifo = map (\(ff, move) -> () . fromJust . (tryToTurn bCube move) ) fs
-        --dangerous to do fromJust. Won't work with bandageds
-        
-        --delete set, use direct access to vector instead
--- to be optimized with canonic sequences
---careful when inserting to the fifo seqs of length n+1 and n+2. Must be sorted in length (update when first ocurrence)
+                
 --may be improved with list of visited sets, ordered by depths. Problem: editing 1 element. (Maybe vector boxed)
 --            | depth > 0 && ((S.member thisKey lastLayer) || (S.member thisKey thisLayer)) = visit
 
 
-
-
-
---Ugly, strange failure
-stdVectors :: (Vector8, (Vector8, Vector8))
-stdVectors = (cornersVector ini, (edgesFstVector ini, edgesSndVector ini))
-    where
-        ini = newSolvedBandagedCube
 
 lookupAll :: BandagedCube -> (Word8, Word8, Word8)
 lookupAll bc = (lookupCorners bc, lookupFstEdges bc, lookupSndEdges bc)
@@ -106,13 +101,21 @@ lookupFstEdges = lookupPiece 1
 lookupSndEdges :: BandagedCube -> Word8
 lookupSndEdges = lookupPiece 2
 
+
+--Ugly, strange failure
+stdVectors :: (Vector8, Vector8, Vector8)
+stdVectors = (c, e1, e2)
+    where
+        c = cornersVector ini
+        e1 = edgesFstVector ini
+        e2 = edgesSndVector ini
+        ini = newSolvedBandagedCube
+
 lookupPiece :: Int -> BandagedCube -> Word8
-lookupPiece 0 bc = (V.!) (fst stdVectors) (cornersKey bc)
-lookupPiece 1 bc = (V.!) ((fst . snd) stdVectors) (edgesKeyFst bc)
-lookupPiece 2 bc = (V.!) ((snd . snd) stdVectors) (edgesKeySnd bc)
+lookupPiece 0 bc = (V.!) c (cornersKey bc)
+lookupPiece 1 bc = (V.!) e1 (edgesKeyFst bc)
+lookupPiece 2 bc = (V.!) e2 (edgesKeySnd bc)
 lookupPiece _ _ = 25
-    --where
-        --cv = cornersVector newSolvedBandagedCube
-        --ev1 = edgesFstVector newSolvedBandagedCube
-        --ev2 = edgesSndVector newSolvedBandagedCube
-        --(cv, ev1, ev2) = stdVectors
+    where
+        (c, e1, e2) = stdVectors
+

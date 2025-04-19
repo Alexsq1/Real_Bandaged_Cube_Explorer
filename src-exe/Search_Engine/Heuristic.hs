@@ -12,8 +12,6 @@ noHeuristic bc
     | solvedBC bc = 0
     | otherwise = 1
 
-
-
 -- | DEFINITIVE method for estimating the minimal moves remaining at a position
 korfHeuristic :: BandagedCube -> Int
 korfHeuristic bc = (fromIntegral hDef) :: Int

@@ -7,10 +7,7 @@ import Moves
 import InputBandagedCube
 import Search
 import Heuristic
-
 import Data.Maybe
-
-
 
 oneSolve :: IO ()
 oneSolve = do

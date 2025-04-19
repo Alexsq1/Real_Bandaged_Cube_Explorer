@@ -2,19 +2,13 @@ module OneSolve(oneSolve) where
 
 
 --when cabal repl, used modules must be imported here
-import Cube
 import Bandaged
 import Moves
---import InputCube
 import InputBandagedCube
---import Visualizator
---import ManimHsConversion
 import Search
 import Heuristic
-import GenKorfHeuristics
 
 import Data.Maybe
---import qualified Data.Set as S
 
 
 

@@ -63,23 +63,25 @@ common common-exec-test
     --Here, add the packages imported
 
 
-    other-modules:  Cube, 
-                    --Utils, 
+    other-modules:  Bandaged,
+                    Cube, 
                     Moves,
-                    Bandaged,
-                    InputCube,
+                    MathematicalNotation,
+                    --Utils, 
                     InputBandagedCube,
-                    Visualizator,
+                    InputCube,
                     ManimHsConversion,
+                    Visualizator,
+                    Combinatorics,
+                    GenKorfHeuristics,
                     Heuristic,
                     IndexHeuristics,
-                    GenKorfHeuristics,
                     Search,
+                    --Solvable,
                     OneInput,
                     OneSolve,
                     OneGen
 
-    --Bandaged
 
 
     -- Base language which the package is written in.

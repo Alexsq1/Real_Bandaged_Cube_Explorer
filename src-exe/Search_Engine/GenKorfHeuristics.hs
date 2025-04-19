@@ -1,7 +1,7 @@
-module GenKorfHeuristics(cornersVector, edgesFstVector, edgesSndVector, korfHeuristic, korfIndivHeuristics) where
+module GenKorfHeuristics(lookupAll, cornersVector, edgesFstVector, edgesSndVector) where
 
 import IndexHeuristics
-import Cube
+--import Cube
 import Bandaged
 import Moves
 import InputBandagedCube(newSolvedBandagedCube)
@@ -86,20 +86,6 @@ createVector iniVector kGen faces ini = bfs kGen [(0, N, ini)] faces S.empty ini
 
 
 
--- | DEFINITIVE method for estimating the minimal moves remaining at a position
-korfHeuristic :: BandagedCube -> Int
-korfHeuristic bc = (fromIntegral hDef) :: Int
-    where
-        hs = [lookupCorners bc, lookupFstEdges bc, lookupSndEdges bc]
-        hDef = maximum hs
-
---Used for debugging
-korfIndivHeuristics :: BandagedCube -> [Int]
-korfIndivHeuristics bc = (map fromIntegral hs) :: [Int]
-    where
-        hs = [lookupCorners bc, lookupFstEdges bc, lookupSndEdges bc]
-
-
 
 
 --Ugly, strange failure
@@ -107,6 +93,9 @@ stdVectors :: (Vector8, (Vector8, Vector8))
 stdVectors = (cornersVector ini, (edgesFstVector ini, edgesSndVector ini))
     where
         ini = newSolvedBandagedCube
+
+lookupAll :: BandagedCube -> (Word8, Word8, Word8)
+lookupAll bc = (lookupCorners bc, lookupFstEdges bc, lookupSndEdges bc)
 
 lookupCorners :: BandagedCube -> Word8
 lookupCorners = lookupPiece 0
@@ -116,7 +105,6 @@ lookupFstEdges = lookupPiece 1
 
 lookupSndEdges :: BandagedCube -> Word8
 lookupSndEdges = lookupPiece 2
-
 
 lookupPiece :: Int -> BandagedCube -> Word8
 lookupPiece 0 bc = (V.!) (fst stdVectors) (cornersKey bc)

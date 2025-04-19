@@ -24,8 +24,8 @@ oneGen = do
     --SEARCH ALL SOLUTIONS FOR ALL SCRAMBLES AT DEPTH 3:
     let p = [Turn(f, n) | f <- [R .. ], n <- [1 ..3]]
 --    let xs = [[t1, t2] | t1 <- p, t2 <- p]
-    let xs = [[t1, t2, t3] | t1 <- p, t2 <- p, t3 <- p]
---    let xs = [[t1, t2, t3, t4] | t1 <- p, t2 <- p, t3 <- p, t4 <- p]
+--    let xs = [[t1, t2, t3] | t1 <- p, t2 <- p, t3 <- p]
+    let xs = [[t1, t2, t3, t4] | t1 <- p, t2 <- p, t3 <- p, t4 <- p]
 
     let scr1Move = map (\alg -> fromJust (tryToExecuteAlg c (Algorithm alg))) xs
 --    let sols = map (\scr -> fromJust (genericSearch scr solvedBC [R .. ] (noHeuristic))) scr1Move

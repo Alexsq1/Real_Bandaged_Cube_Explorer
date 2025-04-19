@@ -90,7 +90,7 @@ dfsSgle :: SearchingState                           -- ^ Initial Searching State
             -> SearchingState                       -- ^ Final Searching State
 
 dfsSgle initialSS
-    | pred ini = 
+    | predicate ini = 
         initialSS {found = True}                                                --solution found       
     | currD >= maxD || (currD + h ini >= maxD) =                                --pruning, reached maximum depth
         initialSS
@@ -98,7 +98,7 @@ dfsSgle initialSS
         dfsMult initialSS movesToIterate
 
     where
-        (SearchingState _ ini currD maxD pred _ _ movesValid lstFace h) = initialSS
+        (SearchingState _ ini currD maxD predicate _ _ movesValid lstFace h) = initialSS
         movesToIterate = filter (predCanonicSequence lstFace) movesValid
         --This makes canonical sequences
         

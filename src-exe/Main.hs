@@ -19,9 +19,9 @@ import Data.Maybe
 --import qualified Data.Set as S
 import qualified Data.Vector.Unboxed as V
 
-import OneSolve
+--import OneSolve
 --import OneInput
---import OneGen
+import OneGen
 
 --import Data.Maybe
 --This is the entry point of cabal run
@@ -30,9 +30,9 @@ import OneSolve
 main :: IO ()
 main = do
     --putStrLn "ho"
-    OneSolve.oneSolve
+    --OneSolve.oneSolve
     --OneInput.oneInput
-    --OneGen.oneGen
+    OneGen.oneGen
 
     --let v = cornersVector newSolvedBandagedCube
     --putStrLn ("Vector of corners: " ++ show (V.filter (<20) v))

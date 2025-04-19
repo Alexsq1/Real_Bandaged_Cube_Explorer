@@ -9,6 +9,9 @@ Numbering the 54 stickers
 -}
 
 --A cube is a list of numbers 0-53. Maybe, use base 64 in the future
+--Tried to use word8. Conclusion: difficult to make at the same efficiency. 
+--Best: 3% less fast, with 35% less memory. Do map fromIntegral in each backpermute.
+--Option to convert to word8 when slicing, to make npr keys with less memory
 
 newtype Cube = Cube (V.Vector Int) deriving (Show, Eq)
 

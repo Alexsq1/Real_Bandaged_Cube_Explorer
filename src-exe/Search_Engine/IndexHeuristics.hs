@@ -32,7 +32,7 @@ edgesKeyFst c = fst (edgesKey c)
 
 -- | Returns the key of the second 6 edges
 edgesKeySnd :: BandagedCube -> Int
-edgesKeySnd c = fst (edgesKey c)
+edgesKeySnd c = snd (edgesKey c)
 
 -- | Returns the key of the halves of the edges of BCube
 edgesKey :: BandagedCube -> (Int, Int)

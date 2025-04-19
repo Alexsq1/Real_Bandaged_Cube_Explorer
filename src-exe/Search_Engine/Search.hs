@@ -113,9 +113,9 @@ dfsMult :: SearchingState                       -- ^ Initial
 
 dfsMult initialSS [] = initialSS                                    --ended iterating
 dfsMult initialSS (x:xs)                                            --keep iterations
+    | found thisBrach = thisBrach {solution = (x : solutionP)}      --Correct branch, recompose solution
     | currD > maxD = initialSS                                      --pruning (difficult with good heuristics)            
     | isNothing nextState = dfsMult initialSS xs                    --Not valid turn, breaks a block
-    | found thisBrach = thisBrach {solution = (x : solutionP)}      --Correct branch, recompose solution
     | otherwise = dfsMult initialSS xs                              --Incorrect branch, keep searching
 
     where

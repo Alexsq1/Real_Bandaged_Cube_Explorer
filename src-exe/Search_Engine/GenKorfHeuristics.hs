@@ -1,15 +1,16 @@
-module GenKorfHeuristics(cornersVector, edgesFstVector, edgesSndVector) where
+module GenKorfHeuristics(cornersVector, edgesFstVector, edgesSndVector, korfHeuristic, korfIndivHeuristics) where
 
 import IndexHeuristics
 import Cube
 import Bandaged
 import Moves
+import InputBandagedCube(newSolvedBandagedCube)
 
 import qualified Data.Vector.Unboxed as V
 import qualified Data.Set as S
 import Data.Maybe
 
---import Data.Word8 as w8
+import Data.Word(Word8)
 
 --Max. Int: 536.870.912
 --Max. Int: 2 ^63 -1 = 9.223.372.036.854.775.807
@@ -28,7 +29,7 @@ import Data.Maybe
 
 
 --To be changed to 1 byte ints (only vector)
-type Vector8 = V.Vector Int
+type Vector8 = V.Vector Word8
 type SetVisitedKeys = S.Set Int
 
 initialStateCorners :: Vector8
@@ -49,29 +50,29 @@ edgesSndVector = createVector initialStateEdges edgesKeySnd [R .. ]
 
 createVector :: Vector8 -> (BandagedCube -> Int) -> [Face] -> BandagedCube -> Vector8
 createVector iniVector kGen faces ini = bfs kGen [(0, N, ini)] faces S.empty iniVector
---    where
-bfs :: (BandagedCube -> Int) -> [(Int, Face, BandagedCube)] -> [Face] -> SetVisitedKeys -> Vector8 -> Vector8
-bfs _ [] _ _ iniVec = iniVec
-bfs kGen2 ((depth, lastFace, bCube) : fifo) faces2 visit iniVec
-    | depth >= 3 = iniVec
-    | S.member thisKey visit = bfs kGen2 fifo faces2 visit iniVec
-    | otherwise = bfs kGen2 (fifo ++ newFifo) faces2 newSet newVector
+    where
+        bfs :: (BandagedCube -> Int) -> [(Word8, Face, BandagedCube)] -> [Face] -> SetVisitedKeys -> Vector8 -> Vector8
+        bfs _ [] _ _ iniVec = iniVec
+        bfs kGen2 ((depth, lastFace, bCube) : fifo) faces2 visit iniVec
+            | depth > 2 = iniVec
+            | S.member thisKey visit = bfs kGen2 fifo faces2 visit iniVec
+            | otherwise = bfs kGen2 (fifo ++ newFifo) faces2 newSet newVector
 
-    where 
-        thisKey = kGen2 bCube
-        newSet = S.insert thisKey visit
-        newVector = (V.//) iniVec [(thisKey, depth)]
-        
-        moves = [ (f, Turn(f, m)) | f <- faces2, m <- [1 .. 3], 
-            f /= lastFace, 
-            (axisOfFace f /= axisOfFace lastFace) || ((axisOfFace f == axisOfFace lastFace) && (f > lastFace)),
-            validTurn bCube f]
+            where 
+                thisKey = kGen2 bCube
+                newSet = S.insert thisKey visit
+                newVector = (V.//) iniVec [(thisKey, depth)]
 
-        --Turn(thFace, _) : _ = fs
+                moves = [ (f, Turn(f, m)) | f <- faces2, m <- [1 .. 3], 
+                    f /= lastFace, 
+                    (axisOfFace f /= axisOfFace lastFace) || ((axisOfFace f == axisOfFace lastFace) && (f > lastFace)),
+                    validTurn bCube f]
 
-        possibleStates = map (\(lstFace, move) -> (lstFace, tryToTurn bCube move)) moves
-        possibleAccesibleStates = filter (isJust . snd) possibleStates
-        newFifo = map (\(lstFace, justState) -> (1 + depth, lstFace, fromJust justState)) possibleAccesibleStates
+                --Turn(thFace, _) : _ = fs
+
+                possibleStates = map (\(lstFace, move) -> (lstFace, tryToTurn bCube move)) moves
+                possibleAccesibleStates = filter (isJust . snd) possibleStates
+                newFifo = map (\(lstFace, justState) -> (1 + depth, lstFace, fromJust justState)) possibleAccesibleStates
 
         --newFifo = map ((\x -> (1 + depth , x)) . fromJust . (tryToTurn bCube)) fs
         --newFifo = map (\(ff, move) -> () . fromJust . (tryToTurn bCube move) ) fs
@@ -82,3 +83,48 @@ bfs kGen2 ((depth, lastFace, bCube) : fifo) faces2 visit iniVec
 --careful when inserting to the fifo seqs of length n+1 and n+2. Must be sorted in length (update when first ocurrence)
 --may be improved with list of visited sets, ordered by depths. Problem: editing 1 element. (Maybe vector boxed)
 --            | depth > 0 && ((S.member thisKey lastLayer) || (S.member thisKey thisLayer)) = visit
+
+
+
+-- | DEFINITIVE method for estimating the minimal moves remaining at a position
+korfHeuristic :: BandagedCube -> Int
+korfHeuristic bc = (fromIntegral hDef) :: Int
+    where
+        hs = [lookupCorners bc, lookupFstEdges bc, lookupSndEdges bc]
+        hDef = maximum hs
+
+--Used for debugging
+korfIndivHeuristics :: BandagedCube -> [Int]
+korfIndivHeuristics bc = (map fromIntegral hs) :: [Int]
+    where
+        hs = [lookupCorners bc, lookupFstEdges bc, lookupSndEdges bc]
+
+
+
+
+--Ugly, strange failure
+stdVectors :: (Vector8, (Vector8, Vector8))
+stdVectors = (cornersVector ini, (edgesFstVector ini, edgesSndVector ini))
+    where
+        ini = newSolvedBandagedCube
+
+lookupCorners :: BandagedCube -> Word8
+lookupCorners = lookupPiece 0
+
+lookupFstEdges :: BandagedCube -> Word8
+lookupFstEdges = lookupPiece 1
+
+lookupSndEdges :: BandagedCube -> Word8
+lookupSndEdges = lookupPiece 2
+
+
+lookupPiece :: Int -> BandagedCube -> Word8
+lookupPiece 0 bc = (V.!) (fst stdVectors) (cornersKey bc)
+lookupPiece 1 bc = (V.!) ((fst . snd) stdVectors) (edgesKeyFst bc)
+lookupPiece 2 bc = (V.!) ((snd . snd) stdVectors) (edgesKeySnd bc)
+lookupPiece _ _ = 25
+    --where
+        --cv = cornersVector newSolvedBandagedCube
+        --ev1 = edgesFstVector newSolvedBandagedCube
+        --ev2 = edgesSndVector newSolvedBandagedCube
+        --(cv, ev1, ev2) = stdVectors

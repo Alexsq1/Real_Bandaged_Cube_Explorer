@@ -1,10 +1,7 @@
 module IndexHeuristics(cornersKey, edgesKey, edgesKeyFst, edgesKeySnd) where
 
 import Bandaged
---import Cube
 import Combinatorics
---import Data.List
---import Data.Maybe
 import MathematicalNotation(cornerState, edgesState)
 
 -- | Returns the key of the corners of a BCube

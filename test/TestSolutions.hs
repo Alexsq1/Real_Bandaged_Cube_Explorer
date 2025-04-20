@@ -8,6 +8,7 @@ import Moves
 import Bandaged
 import InputBandagedCube
 import Data.Maybe
+import Heuristic
 
 
 testSolutions :: IO()
@@ -15,7 +16,6 @@ testSolutions = do
     putStrLn "tests of solutions"
     quickCheck genericSearchSolvesOptimally
     quickCheck optimalityScramble
-
 
 genericSearchSolvesOptimally :: Algorithm -> Property
 genericSearchSolvesOptimally a = (length xs1 < 7) ==>
@@ -35,3 +35,5 @@ optimalityScramble a = (length xs1 < 7) ==> length xs2 <= length xs1
         solve = fromJust (genericSearch scr solvedBC [R .. ] (const 0))
         Algorithm xs1 = a
         Algorithm xs2 = solve
+
+

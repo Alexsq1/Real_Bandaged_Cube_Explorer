@@ -3,14 +3,14 @@ module Main where
 
 --when cabal repl, used modules must be imported here
 --import Cube
---import Bandaged
---import Moves
+import Bandaged
+import Moves
 --import InputCube
 import InputBandagedCube
 --import Visualizator
 --import ManimHsConversion
 --import Search
---import Heuristic
+import Heuristic
 --import IndexHeuristics
 import GenKorfHeuristics
 
@@ -34,10 +34,13 @@ main = do
     --OneInput.oneInput
     --OneGen.oneGen
 
-    let v = cornersVector newSolvedBandagedCube
-    putStrLn ("Vector of corners: " ++ show (((take 50) . V.toList . (V.filter (<20))) v))
+    let md = 4
+    let v = cornersVector newSolvedBandagedCube md
+    putStrLn ("Vector of corners: " ++ show (((take 10) . V.toList . (V.filter (< 20))) v))
+    putStrLn ("Vector of corners: " ++ show (((take 20) . V.toList . (V.filter (<= md))) v))
     
---
-    let ve = edgesFstVector newSolvedBandagedCube
-    putStrLn ("Vector of edges: " ++ show  (((take 50) . V.toList . (V.filter (<20)))  ve ))
+
+    let ve = edgesFstVector newSolvedBandagedCube md
+    putStrLn ("Vector of edges: " ++ show  (((take 10) . V.toList . (V.filter (< 20)))  ve ))
+    putStrLn ("Vector of edges: " ++ show (((take 20) . V.toList . (V.filter (<= md))) ve))
     

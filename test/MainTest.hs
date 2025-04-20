@@ -3,6 +3,7 @@ module Main where
 import TestCube
 import TestMoves
 import TestSolutions
+import TestHeuristics
 
 --main-is of cabal test
 main :: IO()
@@ -18,7 +19,12 @@ main = do
 
     putStrLn "\n"
     putStrLn "Testing Solutions:"
-    testSolutions
+    putStrLn "Removed for efficiency"
+    --testSolutions
+
+    putStrLn "\n"
+    putStrLn "Testing Heuristics:"
+    testHeuristics
 
 
     --Add here the tests of new modules

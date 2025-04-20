@@ -1,4 +1,4 @@
-module MathematicalNotation(cornerState, edgesState) where
+module MathematicalNotation(cornerState, edgesState, edgesSplittedState) where
 
 import Cube
 import Bandaged
@@ -21,3 +21,10 @@ edgesState (BandagedCube cube _) = (perm, ori)
         xs2 = filter (\(_, y) -> (y `mod` 2 == 0)) xs
         perm = map (\(_,x) -> (x - 24) `div` 2) xs2
         ori = map (\(x,_) -> x `mod` 2) xs2
+
+edgesSplittedState :: BandagedCube -> (([Int], [Int]), ([Int], [Int]))
+edgesSplittedState bc = (s1, s2)
+    where
+        (p, o) = edgesState bc
+        s1 = (take 6 p, take 6 o)
+        s2 = (drop 6 p, drop 6 o)

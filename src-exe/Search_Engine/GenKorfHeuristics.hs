@@ -1,19 +1,18 @@
 module GenKorfHeuristics(lookupAll, cornersVector, edgesFstVector, edgesSndVector) where
 
+import qualified Data.Set as S
+import Data.Maybe
+import Data.Word(Word8)
+import qualified Data.Vector.Unboxed as V
+import qualified Data.Vector.Unboxed.Mutable as MV
+import Control.Monad.ST
+import Control.Monad(forM_)
+
 import IndexHeuristics
 import Bandaged
 import Moves
 import InputBandagedCube(newSolvedBandagedCube)
 
-import qualified Data.Vector.Unboxed as V
-import qualified Data.Set as S
-import Data.Maybe
-
-import Data.Word(Word8)
-
-import qualified Data.Vector.Unboxed.Mutable as MV
-import Control.Monad.ST
-import Control.Monad(forM_)
 
 
 --Max. Int: 536.870.912
@@ -31,45 +30,60 @@ import Control.Monad(forM_)
 --Valid with indexes of 26-27 bits (4 bytes)
 --Each number: 0-20 (4 bits)
 
-
---To be changed to 1 byte ints (only vector)
 type Vector8 = V.Vector Word8
 type SetVisitedKeys = S.Set Int
 
-cornersVector :: BandagedCube -> Vector8
-cornersVector bc = applyChangesMV 88179840 ch
+
+
+-- | Generate a pattern database of corners from a state to depth n
+cornersVector :: BandagedCube                                   -- ^ Initial state (solved recommended)
+                -> Word8                                        -- ^ Maximum depth
+                -> Vector8
+cornersVector bc n = applyChangesMV 88179840 (n+1) ch
     where
-        ch = bfsStoreChanges cornersKey [R .. ] bc
+        ch = bfsStoreChanges cornersKey n [R .. ] bc
+
 --To be improved with only the movable faces in a bandaged
 
-edgesFstVector :: BandagedCube -> Vector8
-edgesFstVector bc = applyChangesMV 42577920 ch
+-- | Generate a pattern database of the first 6 edges from a state to depth n
+edgesFstVector :: BandagedCube                                  -- ^ Initial state (solved recommended)
+                -> Word8                                          -- ^ Maximum depth
+                -> Vector8
+edgesFstVector bc n = applyChangesMV 42577920 (n+1) ch
     where
-        ch = bfsStoreChanges edgesKeyFst [R .. ] bc
+        ch = bfsStoreChanges edgesKeyFst n [R .. ] bc
 
-edgesSndVector :: BandagedCube -> Vector8
-edgesSndVector bc = applyChangesMV 42577920 ch
+-- | Generate a pattern database of the last 6 edges from a state to depth n
+edgesSndVector :: BandagedCube                                  -- ^ Initial state (solved recommended)
+                -> Word8                                        -- ^ Maximum depth
+                -> Vector8
+edgesSndVector bc n = applyChangesMV 42577920 (n+1) ch
     where
-        ch = bfsStoreChanges edgesKeySnd [R .. ] bc
+        ch = bfsStoreChanges edgesKeySnd n [R .. ] bc
 
-applyChangesMV :: Int -> [(Int, Word8)] -> Vector8
-applyChangesMV n changes = runST $ do
-    mv <- MV.replicate n 21
+-- | Make the inmutable vector (with mutable operations) 
+applyChangesMV :: Int                                           -- ^ Size
+                -> Word8                                        -- ^ Maximum depth
+                -> [(Int, Word8)]                               -- ^ Changes
+                -> Vector8
+
+applyChangesMV size defaultDepth changes = runST $ do
+    mv <- MV.replicate size defaultDepth
     myUpdate mv changes
     V.unsafeFreeze mv
 
 myUpdate :: MV.MVector s Word8 -> [(Int, Word8)] -> ST s ()
 myUpdate v changes = forM_ changes $ (\(i, value) -> MV.write v i value)
 
-bfsStoreChanges :: (BandagedCube -> Int) -> [Face] -> BandagedCube -> [(Int, Word8)]
-bfsStoreChanges kGen faces ini = bfs kGen [(0, N, ini)] faces S.empty []
+bfsStoreChanges :: (BandagedCube -> Int) -> Word8 -> [Face] -> BandagedCube -> [(Int, Word8)]
+bfsStoreChanges kGen maxDepth faces ini = bfs kGen maxDepth [(0, N, ini)] faces S.empty []
     where
-        bfs :: (BandagedCube -> Int) -> [(Word8, Face, BandagedCube)] -> [Face] -> SetVisitedKeys -> [(Int, Word8)] -> [(Int, Word8)]
-        bfs _ [] _ _ acc = acc
-        bfs kGen2 ((depth, lastFace, bCube) : fifo) faces2 visit acc
-            | depth > 4 = acc                                                       --prune, finish search
-            | S.member thisKey visit = bfs kGen2 fifo faces2 visit acc              --visited state
-            | otherwise = bfs kGen2 (fifo ++ newFifo) faces2 newSet newList         --keep iterating
+        bfs :: (BandagedCube -> Int) -> Word8 -> [(Word8, Face, BandagedCube)] -> [Face] -> SetVisitedKeys -> [(Int, Word8)] -> [(Int, Word8)]
+        bfs _ _ [] _ _ acc = acc
+        bfs kGen2 maxDepth2 ((depth, lastFace, bCube) : fifo) faces2 visit acc
+            | depth > maxDepth2 = acc                                                         --prune, finish search
+            | S.member thisKey visit = bfs kGen2 maxDepth2 fifo faces2 visit acc              --visited state
+            | otherwise = bfs kGen2 maxDepth2 (fifo ++ newFifo) faces2 newSet newList         --keep iterating
 
             where 
                 thisKey = kGen2 bCube
@@ -82,8 +96,10 @@ bfsStoreChanges kGen faces ini = bfs kGen [(0, N, ini)] faces S.empty []
 
                 possibleStates = map (\(lstFace, move) -> (lstFace, tryToTurn bCube move)) moves
                 possibleAccesibleStates = filter (isJust . snd) possibleStates
+                --Maybe filter the visited states here could be more efficient
                 newFifo = map (\(lstFace, justState) -> (1 + depth, lstFace, fromJust justState)) possibleAccesibleStates
                 
+
 --may be improved with list of visited sets, ordered by depths. Problem: editing 1 element. (Maybe vector boxed)
 --            | depth > 0 && ((S.member thisKey lastLayer) || (S.member thisKey thisLayer)) = visit
 
@@ -101,21 +117,20 @@ lookupFstEdges = lookupPiece 1
 lookupSndEdges :: BandagedCube -> Word8
 lookupSndEdges = lookupPiece 2
 
-
---Ugly, strange failure
 stdVectors :: (Vector8, Vector8, Vector8)
 stdVectors = (c, e1, e2)
     where
-        c = cornersVector ini
-        e1 = edgesFstVector ini
-        e2 = edgesSndVector ini
+        maxDepth = 3
+        c = cornersVector ini maxDepth
+        e1 = edgesFstVector ini maxDepth
+        e2 = edgesSndVector ini maxDepth
         ini = newSolvedBandagedCube
 
 lookupPiece :: Int -> BandagedCube -> Word8
-lookupPiece 0 bc = (V.!) c (cornersKey bc)
-lookupPiece 1 bc = (V.!) e1 (edgesKeyFst bc)
-lookupPiece 2 bc = (V.!) e2 (edgesKeySnd bc)
-lookupPiece _ _ = 25
-    where
-        (c, e1, e2) = stdVectors
-
+lookupPiece n bc = 
+    let (c, e1, e2) = stdVectors
+    in case n of
+        0 -> (V.!) c (cornersKey bc)
+        1 -> (V.!) e1 (edgesKeyFst bc)
+        2 -> (V.!) e2 (edgesKeySnd bc)
+        _ -> 25

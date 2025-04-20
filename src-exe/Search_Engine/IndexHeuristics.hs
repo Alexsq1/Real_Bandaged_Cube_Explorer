@@ -3,6 +3,7 @@ module IndexHeuristics(cornersKey, edgesKey, edgesKeyFst, edgesKeySnd) where
 import Bandaged
 import Combinatorics
 import MathematicalNotation(cornerState, edgesState)
+import Data.List(sortBy)
 
 -- | Returns the key of the corners of a BCube
 cornersKey :: BandagedCube -> Int
@@ -25,8 +26,17 @@ edgesKey :: BandagedCube -> (Int, Int)
 edgesKey bc = (keyFst, keySnd)
     where
         (perm, ori) = edgesState bc
-        keyFst = indexHalfE (take 6 perm) (take 6 ori)
-        keySnd = indexHalfE (drop 6 perm) (drop 6 ori)
+        allp = zip3 [0..11] perm ori
+
+        sortedEdges = sortBy (\(_, p1, _) (_, p2, _) -> compare p1 p2) allp
+
+        (iReorder, _, oReorder) = unzip3 sortedEdges
+
+        keyFst = indexHalfE (take 6 iReorder) (take 6 oReorder)
+        keySnd = indexHalfE (drop 6 iReorder) (drop 6 oReorder)
+
+        --keyFst = indexHalfE (take 6 perm) (take 6 ori)
+        --keySnd = indexHalfE (drop 6 perm) (drop 6 ori)
 
 indexHalfE :: [Int] -> [Int] -> Int
 indexHalfE perm0 ori0 = (permKey * 2 ^ (6 :: Int)) + orKey

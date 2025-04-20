@@ -15,12 +15,12 @@ data SearchingState = SearchingState {found :: Bool,
                             validLayers :: [Face],
                             listMoves :: [Turn], 
                             lastFace :: Face,
-                            heuristic :: (BandagedCube -> Int)}
+                            heuristic :: (BandagedCube -> Int),
+                            minimumExceding :: Int      --Maybe a word8, to be seen
+                            }
                             
-                            --to be added: min node that surpassed the bound
-
 instance Show SearchingState where
-    show (SearchingState f ini currD maxD _ sol layers _ lstFace _) = 
+    show (SearchingState f ini currD maxD _ sol layers _ lstFace _ _) = 
         "found: " ++ show f ++  "\n" ++
         "initial state: " ++ show ini ++  "\n" ++
         "current depth: " ++ show currD ++  "\n" ++
@@ -65,12 +65,13 @@ genericSearch ini cond validLs h
         --To be improved: use only free faces (delete non movable)
 
         initialSS = SearchingState{found = False, initialState = ini,
-                                    currentDepth = 0, maximumDepth = 0, 
+                                    currentDepth = 0, maximumDepth = h ini, 
                                     condition = cond,
                                     solution = [], validLayers = validLs, 
                                     listMoves = gen1, 
                                     lastFace = N, 
-                                    heuristic = h}
+                                    heuristic = h,
+                                    minimumExceding = 21}
                                     
                                     --Start initial max depth with heuristic of initial node
         search = idaStar initialSS
@@ -79,11 +80,14 @@ genericSearch ini cond validLs h
 idaStar :: SearchingState -> SearchingState
 idaStar initSS
     | found thisSearchSS = thisSearchSS
-    | (treshold <= 20) = idaStar (initSS {maximumDepth = treshold + 1})     --Update max depth with minimum node that exceeded the max.
+    | (nextDepth <= 20) && (nextDepth > treshold) = idaStar (initSS {maximumDepth = nextDepth})     --Update max depth with minimum node that exceeded the max.
+    --The <= 20 can be dangerous. Would prune non-optimal paths
     | otherwise = initSS
     where
         thisSearchSS = dfsSgle initSS
         treshold = maximumDepth initSS
+        --nextDepth = max (1 + maximumDepth initSS) (minimumExceding thisSearchSS)
+        nextDepth = minimumExceding thisSearchSS
 
 -- | Search with dfs from one node
 dfsSgle :: SearchingState                           -- ^ Initial Searching State
@@ -92,14 +96,23 @@ dfsSgle :: SearchingState                           -- ^ Initial Searching State
 dfsSgle initialSS
     | predicate ini = 
         initialSS {found = True}                                                --solution found       
-    | currD >= maxD || (currD + h ini >= maxD) =                                --pruning, reached maximum depth
-        initialSS
+    | currD > maxD || (currD + h ini > maxD) =                                --pruning, reached maximum depth
+        prunedSS
     | otherwise =                                                               --intermediate, keep searching
         dfsMult initialSS movesToIterate
 
     where
-        (SearchingState _ ini currD maxD predicate _ _ movesValid lstFace h) = initialSS
+        (SearchingState _ ini currD maxD predicate _ _ movesValid lstFace h exc) = initialSS
+        estimLength = currD + h ini
+
+        prunedSS = if ((estimLength > maxD) && (estimLength < exc) && (estimLength <= 20))
+        --Maybe the <= 20 is not perfect. 
+            then
+                (initialSS{minimumExceding = estimLength})
+            else
+                initialSS
         movesToIterate = filter (predCanonicSequence lstFace) movesValid
+
         --This makes canonical sequences
         
         predCanonicSequence :: Face -> Turn -> Bool
@@ -116,19 +129,24 @@ dfsMult initialSS (x:xs)                                            --keep itera
     | found thisBrach = thisBrach {solution = (x : solutionP)}      --Correct branch, recompose solution
     | currD > maxD = initialSS                                      --pruning (difficult with good heuristics)            
     | isNothing nextState = dfsMult initialSS xs                    --Not valid turn, breaks a block
-    | otherwise = dfsMult initialSS xs                              --Incorrect branch, keep searching
+    | otherwise = 
+        dfsMult (initialSS {minimumExceding = min exc0 maybeNewExc}) xs                              --Incorrect branch, keep searching
 
     where
-        (SearchingState _ ini currD maxD _ _ _ _ _ _) = initialSS
+        (SearchingState _ ini currD maxD _ _ _ _ _ _ exc0) = initialSS
 
         nextState = tryToTurn ini x
 
         (Turn(lastFaceExecuted, _)) = x
-
+    
         thisBrach = dfsSgle (initialSS
             {initialState = fromJust nextState, 
             currentDepth = currD + 1,
-            lastFace = lastFaceExecuted} )
+            lastFace = lastFaceExecuted,
+            minimumExceding = exc0
+            } 
+            )
 
+        maybeNewExc = minimumExceding thisBrach
         solutionP = solution thisBrach
         

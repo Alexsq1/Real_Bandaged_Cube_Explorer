@@ -1,4 +1,4 @@
-module Moves (Turn(..), Algorithm(..), Face(..), Axis(..), algToPerm, possibleTurns, permOfTurn, axisOfFace) where
+module Moves (Turn(..), Algorithm(..), Face(..), Axis(..), algToPerm, possibleTurns, permOfTurn, isCanonicalSecuence, axisOfFace) where
 
 import Data.Group
 import Cube
@@ -144,6 +144,14 @@ permOfTurn (Turn(B, 2)) = newCubeFromList [0,1,2,15,16,17,18,19,20,9,10,11,12,13
 permOfTurn (Turn(B, 3)) = newCubeFromList [0,1,2,20,18,19,4,5,3,9,10,11,12,13,14,8,6,7,16,17,15,21,22,23,24,25,39,38,28,29,30,31,32,33,34,35,27,26,45,44,40,41,42,43,37,36,46,47,48,49,50,51,52,53]
 permOfTurn (Turn(t, x)) = permOfTurn(Turn(t, x `mod` 4))
 
+isCanonicalSecuence :: [Turn] -> Bool
+isCanonicalSecuence xs = canAux (Turn(N,0) : xs)
+    where
+        canAux :: [Turn] -> Bool
+        canAux [] = True
+        canAux [_] = True
+        canAux (Turn(x, _):Turn(y, m):xs) = ((axisOfFace x /= axisOfFace y) || x < y)
+            && canAux (Turn(y,m):xs)
 
 --execTurn :: Cube -> Turn -> Cube
 --execTurn (Cube v) t = Cube (newPerm)

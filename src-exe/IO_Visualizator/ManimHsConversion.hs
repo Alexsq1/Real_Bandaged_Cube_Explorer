@@ -10,7 +10,6 @@ toManimCodification cube = foldl' (\acc face -> acc ++ (show face)) "" listFaces
         permutation = [3,26,6,24,48,28,0,30,9, 10,29,8,35,50,37,14,43,16,
             1,31,11,32,49,34,23,41,13,21,40,12,46,53,42,18,44,15,
             4,25,2,39,52,33,20,47,22,7,27,5,36,51,38,17,45,19]
-        
         xs = allPieces cube
         reorder = map (xs !! ) permutation
         listFaces = map pieceToFace reorder
@@ -57,7 +56,6 @@ facePieceToInts str
     | length str == 2 = edgeToInts str
     | length str == 3 = cornerToInts str
     | otherwise = []
-
 
 stringToNum :: [String] -> [Int]
 stringToNum xs = (mapBy 3 cornerToInts cornersP) ++ (mapBy 2 edgeToInts edgesP) ++ (mapBy 1 centerToInt centersP)

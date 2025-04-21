@@ -14,7 +14,6 @@ manimRecomendedVisualizer cube algorithm = do
     manimCustomVisualizer 10 1 "low_quality" cube "WHITE,#B90000,#009B48,#FFD500,#FF5900,#0045AD" algorithm
 
 -- | Generates a video with manim, allowing configuration
-
 manimCustomVisualizer :: Int -- ^ Seconds rotating over the diagonal
     -> Float                -- ^ Seconds for each move
     -> String               -- ^ "low_quality" or "high_quality"
@@ -34,4 +33,6 @@ manimCustomVisualizer tRotation tMoves quality cube scheme alg = do
         show alg]
     putStrLn "Generating video with Manim"
 
---funciona python manim_cube... y python3.8. python3 no funciona
+--Shell command that works:
+--python manim_cube 
+--Python3 and python3.8 fails

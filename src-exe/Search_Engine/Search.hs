@@ -1,9 +1,10 @@
-module Search(numberCanonicalSequences, genericSearch, idaStar, SearchingState(..), dfsSgle, dfsMult) where
+module Search(genericSearch, idaStar, SearchingState(..), dfsSgle, dfsMult) where
 
 import Bandaged
 --import qualified Data.Set as S
 import Moves
 import Data.Maybe
+import Data.List(nub)
 
 -- | SearchingState storages all the information needed to to a Search.
 data SearchingState = SearchingState {found :: Bool, 
@@ -18,7 +19,14 @@ data SearchingState = SearchingState {found :: Bool,
                             heuristic :: (BandagedCube -> Int),
                             minimumExceding :: Int      --Maybe a word8, to be seen
                             }
-                            
+
+{-
+REGARDING A SET OF VISITED STATES
+A lot of memory.
+Repeated states increase in higher depths.
+Idea: save the 3 keys of (corners,edgesFst, edgesSnd). 3 word8 (3 bytes) per state.
+-}                            
+
 instance Show SearchingState where
     show (SearchingState f ini currD maxD _ sol layers _ lstFace _ _) = 
         "found: " ++ show f ++  "\n" ++
@@ -28,54 +36,36 @@ instance Show SearchingState where
         "solution: " ++ show sol ++ "\n" ++
         "generation of moves: " ++ show layers ++
         "last face executed: " ++ show lstFace
-        
-        
--- | A list with all the possible 1-face moves
---allPossibleMoves :: [Turn]
---allPossibleMoves = [Turn(f, m) | f <- [R .. ] , m <- [1..3]]
-
-numberCanonicalSequences :: Int -> Int
-numberCanonicalSequences 0 = 1
-numberCanonicalSequences 1 = 18
-numberCanonicalSequences 2 = 18 * 3 * 4 + 18 * 3 `div` 2    --243
-numberCanonicalSequences n = fibIterate 2 n 243 18
-    where
-        fibIterate :: Int -> Int -> Int -> Int -> Int
-        fibIterate gen goal current prev
-            | gen == goal = current
-            | otherwise = fibIterate (gen + 1) goal (12 * current + 18 * prev) current
 
 
 -- | Recieves data, makes a generic bounded search and compose the solution
 genericSearch :: BandagedCube               -- ^ Initial state
                 -> (BandagedCube -> Bool)   -- ^ Condition to determine a Node is found
-                -> [Face]                   -- ^ List of Turns to generate a new node
+                -- -> [Face]                   -- ^ List of Turns to generate a new node
+                -> [Turn]                   -- ^ List of Turns to generate a new node
                 -> (BandagedCube -> Int)    -- ^ Heuristic (must be admissible)
                 -> Maybe Algorithm          -- ^ The solution
 
-
-
-genericSearch ini cond validLs h
+genericSearch ini cond validMoves h
     | found search = Just (Algorithm (solution search))     --Solution found
     | otherwise = Nothing                                   --Solution not found
     where
-
-        nums = [1 .. 3]
-        gen1 = [ Turn(f, n) | f <- validLs, n <- nums]
+        --nums = [1 .. 3]
+        --gen1 = [ Turn(f, n) | f <- validLs, n <- nums]
         --To be improved: use only free faces (delete non movable)
+        validLs = nub (map (\(Turn(f,_)) -> f ) validMoves)
 
         initialSS = SearchingState{found = False, initialState = ini,
                                     currentDepth = 0, maximumDepth = h ini, 
                                     condition = cond,
                                     solution = [], validLayers = validLs, 
-                                    listMoves = gen1, 
+                                    listMoves = validMoves, 
                                     lastFace = N, 
                                     heuristic = h,
                                     minimumExceding = 21}
                                     
                                     --Start initial max depth with heuristic of initial node
         search = idaStar initialSS
-
 
 idaStar :: SearchingState -> SearchingState
 idaStar initSS
@@ -100,7 +90,6 @@ dfsSgle initialSS
         prunedSS
     | otherwise =                                                               --intermediate, keep searching
         dfsMult initialSS movesToIterate
-
     where
         (SearchingState _ ini currD maxD predicate _ _ movesValid lstFace h exc) = initialSS
         estimLength = currD + h ini
@@ -131,14 +120,10 @@ dfsMult initialSS (x:xs)                                            --keep itera
     | isNothing nextState = dfsMult initialSS xs                    --Not valid turn, breaks a block
     | otherwise = 
         dfsMult (initialSS {minimumExceding = min exc0 maybeNewExc}) xs                              --Incorrect branch, keep searching
-
     where
         (SearchingState _ ini currD maxD _ _ _ _ _ _ exc0) = initialSS
-
         nextState = tryToTurn ini x
-
         (Turn(lastFaceExecuted, _)) = x
-    
         thisBrach = dfsSgle (initialSS
             {initialState = fromJust nextState, 
             currentDepth = currD + 1,

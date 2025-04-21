@@ -8,28 +8,42 @@ import InputBandagedCube
 import Search
 import Heuristic
 import Data.Maybe
+import SolvingStrategies
+import MoveGeneration
 
 oneSolve :: IO ()
 oneSolve = do
 
     let c = newSolvedBandagedCube
 
-    --let alg = read "R U F2 R' F' U F' U F R2 F' " :: Algorithm
---    let alg = read "R U R' U R U R2 U R' U' R U' R2 U R' U R U R " :: Algorithm       --length 17
---    let alg = read " U R U R U2 R' " :: Algorithm
-    let alg = read "R U R' U R U R2 U2 R' U' R U2 R2 U R' U " :: Algorithm      --lenth 16
+    --let alg = read "R U F2 R' F' U F' U F R2  " :: Algorithm
+    --let alg = read "R U R' U R U R2 U R' U' R U' R2 U R' U R U R " :: Algorithm       --length 17
+    --let alg = read " U R U R U2 R' " :: Algorithm
+    --let alg = read "R U " :: Algorithm
     --let alg = read "R U' L' U R' U' L U R U R' " :: Algorithm      --length 16
     --let alg = read "R L' U2 L R' U2 R L' U2 R L " :: Algorithm      --checks that RL are in the right order
+
+    let alg = read "D R2 U F2 R F  " :: Algorithm      --6-GEN
+    --let alg = read "D" :: Algorithm      --5-GEN
         
     
     let c1 = fromJust (tryToExecuteAlg c alg)
 
-    putStrLn ("Heuristics: " ++ show(korfIndivHeuristics c1))
-    --let solution1 = genericSearch c1 solvedBC [R, U] (noHeuristic)
-    let solution1 = genericSearch c1 solvedBC [R, U] (korfHeuristic)
-    --let solution1 = genericSearch c1 solvedBC [R, U, F] (noHeuristic)
-    --let solution1 = genericSearch c1 solvedBC [R,U,L] (noHeuristic)
+    let h = {-# SCC "Heuristic_Generation" #-} korfIndivHeuristics c1
+
+    putStrLn ("Heuristics: " ++ show(h))
+
+    
+    --let solution1 = {-#Solution#-} genericSearch c1 solvedBC sixAxis (const 0)
+    --let solution1 = {-#Solution#-} genericSearch c1 solvedBC sixAxis (korfHeuristic)
+    --let solution1 = {-# SCC "Solution" #-} genericSearch c1 solvedBC (freeFaces [R, U, F, L, B]) (korfHeuristic)
+    let solution1 = korfSolver c1
+    --let solution1 = kociembaSolver c1
+
     putStrLn ("Solution found: " ++ (show solution1))
+    
+    --putStrLn ("Solution found by Kociemba: " ++ (show solution2))
+    --putStrLn ("Solution found by Korf: " ++ (show solution1))
     
     --WORKING: in < 10 seconds
     --6-gen: working for lenght <=7. Starting to have troubles in length 8

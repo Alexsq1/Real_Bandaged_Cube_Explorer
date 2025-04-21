@@ -71,4 +71,3 @@ pieceIntersections = foldl' S.intersection (full)
 -- | A set of numbers 0..53
 s0_53 :: S.Set Int
 s0_53 = S.fromList [0..53]
-

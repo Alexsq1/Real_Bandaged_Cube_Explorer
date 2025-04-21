@@ -4,7 +4,6 @@ import Data.List
 import Data.Maybe
 
 -- | Recieves a permutation of elements and returns its numeration
-
 factorialNumbering :: [Int] -> Int
 factorialNumbering xp = factorialNumberingGlobal xp (sort xp)
     where
@@ -17,10 +16,9 @@ factorialNumbering xp = factorialNumberingGlobal xp (sort xp)
                 thisElem = ( i) * factorial l
 
 factorial :: Int -> Int
-factorial n = product [2 .. ( n)]
+factorial n = product [2 .. n]
 
 -- | Recieves a variation of elements and returns its numeration
-
 nprNumbering :: [Int]       -- ^ Total elements
                 -> [Int]    -- ^ The variation
                 -> Int
@@ -42,16 +40,16 @@ firstOcurrence n xs = (i, xs2)
         i = fromJust (elemIndex n xs)
         xs2 = delete n xs
 
-variationsCardinal :: Int -> Int -> Int
-variationsCardinal n r = product [(n - r + 1 ) .. n]
-
--- | Generates the variations of n elements of a list
-variations :: Int           -- ^ Number of elems in each variation 
-            -> [Int]        -- ^ List of elements to choose
-            -> [[Int]]
-variations 0 _ = [[]]
-variations _ [] = [[]]
-variations k xs = [y:ys | (y,rest) <- select xs, ys <- variations (k-1) rest]
-    where
-        select [] = []
-        select (x:xs) = (x,xs) : [(y,x:ys) | (y,ys) <- select xs]
+--variationsCardinal :: Int -> Int -> Int
+--variationsCardinal n r = product [(n - r + 1 ) .. n]
+--
+---- | Generates the variations of n elements of a list
+--variations :: Int           -- ^ Number of elems in each variation 
+--            -> [Int]        -- ^ List of elements to choose
+--            -> [[Int]]
+--variations 0 _ = [[]]
+--variations _ [] = [[]]
+--variations k xs = [y:ys | (y,rest) <- select xs, ys <- variations (k-1) rest]
+--    where
+--        select [] = []
+--        select (x:xss) = (x,xss) : [(y,x:ys) | (y,ys) <- select xss]

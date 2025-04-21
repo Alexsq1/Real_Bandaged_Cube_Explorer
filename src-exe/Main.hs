@@ -3,25 +3,26 @@ module Main where
 
 --when cabal repl, used modules must be imported here
 --import Cube
-import Bandaged
-import Moves
+--import Bandaged
+--import Moves
 --import InputCube
-import InputBandagedCube
+--import InputBandagedCube
 --import Visualizator
 --import ManimHsConversion
-import Search
-import Heuristic
+--import Search
+--import Heuristic
 --import IndexHeuristics
-import GenKorfHeuristics
-
-import Data.Maybe
+--import GenKorfHeuristics
+--import MoveGeneration
+--import SolvingStrategies
+--import Data.Maybe
 --import Data.List
 --import qualified Data.Set as S
-import qualified Data.Vector.Unboxed as V
+--import qualified Data.Vector.Unboxed as V
 
-import OneSolve
+--import OneSolve
 --import OneInput
---import OneGen
+import OneGen
 
 --import Data.Maybe
 --This is the entry point of cabal run
@@ -30,9 +31,9 @@ import OneSolve
 main :: IO ()
 main = do
     --putStrLn "ho"
-    OneSolve.oneSolve
+    --OneSolve.oneSolve
     --OneInput.oneInput
-    --OneGen.oneGen
+    OneGen.oneGen
 
 --    let md = 4
 --    let v = cornersVector newSolvedBandagedCube md

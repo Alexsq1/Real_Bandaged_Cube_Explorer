@@ -14,7 +14,6 @@ import Moves
 import InputBandagedCube(newSolvedBandagedCube)
 
 
-
 --Max. Int: 536.870.912
 --Max. Int: 2 ^63 -1 = 9.223.372.036.854.775.807
 
@@ -32,8 +31,6 @@ import InputBandagedCube(newSolvedBandagedCube)
 
 type Vector8 = V.Vector Word8
 type SetVisitedKeys = S.Set Int
-
-
 
 -- | Generate a pattern database of corners from a state to depth n
 cornersVector :: BandagedCube                                   -- ^ Initial state (solved recommended)
@@ -81,10 +78,9 @@ bfsStoreChanges kGen maxDepth faces ini = bfs kGen maxDepth [(0, N, ini)] faces 
         bfs :: (BandagedCube -> Int) -> Word8 -> [(Word8, Face, BandagedCube)] -> [Face] -> SetVisitedKeys -> [(Int, Word8)] -> [(Int, Word8)]
         bfs _ _ [] _ _ acc = acc
         bfs kGen2 maxDepth2 ((depth, lastFace, bCube) : fifo) faces2 visit acc
-            | depth > maxDepth2 = acc                                                         --prune, finish search
-            | S.member thisKey visit = bfs kGen2 maxDepth2 fifo faces2 visit acc              --visited state
-            | otherwise = bfs kGen2 maxDepth2 (fifo ++ newFifo) faces2 newSet newList         --keep iterating
-
+            | depth > maxDepth2 = acc                                                                   --prune, finish search
+            | S.member thisKey visit = bfs kGen2 maxDepth2 fifo faces2 visit acc                        --visited state
+            | otherwise = bfs kGen2 maxDepth2 (fifo ++ newFifoFiltered) faces2 newSet newList           --keep iterating
             where 
                 thisKey = kGen2 bCube
                 newSet = S.insert thisKey visit
@@ -97,8 +93,9 @@ bfsStoreChanges kGen maxDepth faces ini = bfs kGen maxDepth [(0, N, ini)] faces 
                 possibleStates = map (\(lstFace, move) -> (lstFace, tryToTurn bCube move)) moves
                 possibleAccesibleStates = filter (isJust . snd) possibleStates
                 --Maybe filter the visited states here could be more efficient
+
                 newFifo = map (\(lstFace, justState) -> (1 + depth, lstFace, fromJust justState)) possibleAccesibleStates
-                
+                newFifoFiltered = filter (\(_, _, potBCVisited) -> S.notMember (kGen2 potBCVisited) visit) newFifo
 
 --may be improved with list of visited sets, ordered by depths. Problem: editing 1 element. (Maybe vector boxed)
 --            | depth > 0 && ((S.member thisKey lastLayer) || (S.member thisKey thisLayer)) = visit
@@ -120,7 +117,7 @@ lookupSndEdges = lookupPiece 2
 stdVectors :: (Vector8, Vector8, Vector8)
 stdVectors = (c, e1, e2)
     where
-        maxDepth = 3
+        maxDepth = 4
         c = cornersVector ini maxDepth
         e1 = edgesFstVector ini maxDepth
         e2 = edgesSndVector ini maxDepth

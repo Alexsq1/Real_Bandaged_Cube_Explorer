@@ -35,13 +35,8 @@ edgesKey bc = (keyFst, keySnd)
         keyFst = indexHalfE (take 6 iReorder) (take 6 oReorder)
         keySnd = indexHalfE (drop 6 iReorder) (drop 6 oReorder)
 
-        --keyFst = indexHalfE (take 6 perm) (take 6 ori)
-        --keySnd = indexHalfE (drop 6 perm) (drop 6 ori)
-
 indexHalfE :: [Int] -> [Int] -> Int
 indexHalfE perm0 ori0 = (permKey * 2 ^ (6 :: Int)) + orKey
     where
         permKey = nprNumbering [0..11] perm0
         orKey = sum [(2 ^ i * ori0 !! (5 - i)) | i <- [0 .. 5]]
-
-

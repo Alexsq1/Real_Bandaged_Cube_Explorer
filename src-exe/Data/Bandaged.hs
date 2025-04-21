@@ -79,7 +79,6 @@ tryToTurn bCube currTurn
         (BandagedCube currCube restr) = bCube
         (Turn(f, _)) = currTurn
         newPerm = currCube <> (permOfTurn currTurn)
-        --newPerm = execTurn currCube currTurn
 
 -- | Checks if a Face would not break any block
 validTurn :: BandagedCube -> Face -> Bool

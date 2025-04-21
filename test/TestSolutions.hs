@@ -9,6 +9,7 @@ import Bandaged
 import InputBandagedCube
 import Data.Maybe
 import Heuristic
+import MoveGeneration
 
 
 testSolutions :: IO()
@@ -18,21 +19,21 @@ testSolutions = do
     quickCheck optimalityScramble
 
 genericSearchSolvesOptimally :: Algorithm -> Property
-genericSearchSolvesOptimally a = (length xs1 < 7) ==>
+genericSearchSolvesOptimally a = (length xs1 <= 8) ==>
     (solved (algToPerm (Algorithm (xs1 ++ xs2))) === True)
     where
         origin = newBandagedCube (newCubeFromList [0..53]) [[]]
         scr = fromJust (tryToExecuteAlg origin a)
-        solve = fromJust (genericSearch scr solvedBC [R .. ] (const 0))
+        solve = fromJust (genericSearch scr solvedBC sixAxis (korfHeuristic))
         Algorithm xs1 = a
         Algorithm xs2 = solve
 
 optimalityScramble :: Algorithm -> Property
-optimalityScramble a = (length xs1 < 7) ==> length xs2 <= length xs1
+optimalityScramble a = (length xs1 <= 8) ==> length xs2 <= length xs1
     where
         origin = newBandagedCube (newCubeFromList [0..53]) [[]]
         scr = fromJust (tryToExecuteAlg origin a)
-        solve = fromJust (genericSearch scr solvedBC [R .. ] (const 0))
+        solve = fromJust (genericSearch scr solvedBC sixAxis (korfHeuristic))
         Algorithm xs1 = a
         Algorithm xs2 = solve
 

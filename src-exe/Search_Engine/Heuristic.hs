@@ -1,9 +1,10 @@
---module Heuristic(noHeuristic) where
 module Heuristic(noHeuristic,korfHeuristic, korfIndivHeuristics) where
 
 import Bandaged()
 import GenKorfHeuristics
 import Bandaged
+import MathematicalNotation(edgesState, cornerState)
+import Data.List(sort)
 
 --import Data.Word(Word8)
 
@@ -17,9 +18,8 @@ korfHeuristic :: BandagedCube -> Int
 korfHeuristic bc = (fromIntegral hDef) :: Int
     where
         (c, e1, e2) = lookupAll bc
---        hs = [lookupCorners bc, lookupFstEdges bc, lookupSndEdges bc]
         hDef = maximum [c, e1, e2]
---maybe not optimal this steps, lot of aux functions and conversions [] <-> ()
+        --maybe not optimal this steps, lot of aux functions and conversions [] <-> ()
 
 --Used for debugging
 korfIndivHeuristics :: BandagedCube -> [Int]

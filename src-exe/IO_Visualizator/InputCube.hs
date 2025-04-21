@@ -63,7 +63,6 @@ input54Stickers equivs = do
     bLayer <- oneFace "B" equivs
     return $ cubeFromManimCodification equivs (uLayer ++ rLayer ++ fLayer ++ dLayer ++ lLayer ++ bLayer)
 
-
 -- | IO that asks for the stickers of 1 face (private)
 oneFace :: String -> [(String, String)] -> IO [String]  
 oneFace face eq = do
@@ -95,8 +94,6 @@ oneFace face eq = do
 
         canBeValid :: [String] -> Bool
         canBeValid str = (length str == 9) && (all (\x -> x `elem` (map snd eq)) str)
-
-
 
 --"WHITE,#B90000,#009B48,#FFD500,#FF5900,#0045AD"
 --"#FFFFFF, RED,  GREEN,    YELLOW, ORANGE, BLUE"

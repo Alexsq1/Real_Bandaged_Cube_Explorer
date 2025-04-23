@@ -1,8 +1,8 @@
 module Bandaged(BandagedCube(..), solvedBC, deleteBlocks, tryToTurn, tryToExecuteAlg, validTurn, unsafeExecutionAlg, divideTurn) where
 
-import qualified Data.Set as S
 import Cube
 import Moves
+import qualified Data.Set as S
 import Data.Maybe(isNothing, fromJust)
 import Data.List(intercalate)
 

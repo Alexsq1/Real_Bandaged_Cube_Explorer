@@ -1,9 +1,8 @@
 module Search(genericSearch, idaStar, SearchingState(..), dfsSgle, dfsMult) where
 
 import Bandaged
---import qualified Data.Set as S
 import Moves
-import Data.Maybe
+import Data.Maybe(fromJust, isNothing)
 import Data.List(nub)
 
 -- | SearchingState storages all the information needed to to a Search.

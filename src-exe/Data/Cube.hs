@@ -30,15 +30,12 @@ instance Monoid Cube where
     --Be careful when changing a representation
 
 -- | Checks if a cube is solved
-    
 solved :: Cube -> Bool
 solved = (== mempty)
---Be careful if rotations are allowed
 
 instance Group Cube where
     invert (Cube xs) = Cube(V.fromList (invert_perm (V.toList xs)))
 
---try to hide
 invert_perm :: [Int] -> [Int]
 invert_perm xs = map fst tups_ord
     where
@@ -71,4 +68,3 @@ centers = slicePieces [48 .. 53]
 -- | Returns a list with all of the pieces
 allPieces :: Cube -> [Int]
 allPieces (Cube xs) = V.toList xs
-

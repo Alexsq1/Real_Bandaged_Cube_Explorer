@@ -1,7 +1,7 @@
 module IndexHeuristics(cornersKey, edgesKey, edgesKeyFst, edgesKeySnd) where
 
 import Bandaged
-import Combinatorics
+import Combinatorics(nprNumbering, factorialNumbering)
 import MathematicalNotation(cornerState, edgesState)
 import Data.List(sortBy)
 

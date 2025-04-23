@@ -1,7 +1,7 @@
 module Visualizator(manimCustomVisualizer, manimRecomendedVisualizer) where
 
-import Moves
 import Cube
+import Moves
 import ManimHsConversion(toManimCodification)
 import System.Process (spawnProcess)
 

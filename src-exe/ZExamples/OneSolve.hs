@@ -5,11 +5,11 @@ module OneSolve(oneSolve) where
 import Bandaged
 import Moves
 import InputBandagedCube
-import Search
+--import Search
 import Heuristic
 import Data.Maybe
 import SolvingStrategies
-import MoveGeneration
+--import MoveGeneration
 
 oneSolve :: IO ()
 oneSolve = do

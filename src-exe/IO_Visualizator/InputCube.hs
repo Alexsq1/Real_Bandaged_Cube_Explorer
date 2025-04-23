@@ -1,13 +1,13 @@
 module InputCube(bandagedCubeScratchIO) where
 
-import Data.List.Split
 import Cube
-import InputBandagedCube
-import Bandaged
-import Visualizator
 import Moves
+import Bandaged
+import InputBandagedCube
+import Visualizator
 import ManimHsConversion
 
+import Data.List.Split(splitOn)
 import Data.List(intercalate)
 
 -- | Definitive IO for asking the user to generate a Bandaged Cube

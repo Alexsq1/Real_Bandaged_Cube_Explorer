@@ -3,10 +3,6 @@ module Heuristic(noHeuristic,korfHeuristic, korfIndivHeuristics) where
 import Bandaged()
 import GenKorfHeuristics
 import Bandaged
-import MathematicalNotation(edgesState, cornerState)
-import Data.List(sort)
-
---import Data.Word(Word8)
 
 noHeuristic :: BandagedCube -> Int
 noHeuristic bc

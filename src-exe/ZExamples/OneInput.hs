@@ -1,21 +1,8 @@
 module OneInput(oneInput) where
 
-
---when cabal repl, used modules must be imported here
---import Cube
---import Bandaged
 import Moves
---import InputCube
---import InputBandagedCube
 import Visualizator
 import ManimHsConversion
---import Search
---import Heuristic
-
---import Data.Maybe
---import qualified Data.Set as S
-
-
 
 oneInput :: IO ()
 oneInput = do
@@ -47,9 +34,3 @@ oneInput = do
 
     let c = cubeFromManimCodification eq state
     manimRecomendedVisualizer c (Algorithm[])
-
-
-{-
-["red","white","white","white","white","green","yellow","yellow","white",
-"orange","orange","green","white","red","blue","white","yellow","orange","red","orange","blue","yellow","green","orange","yellow","blue","red","orange","white","blue","green","yellow","blue","green","red","blue","yellow","green","blue","green","orange","red","white","yellow","green","red","red","green","orange","blue","red","yellow","blue","orange"]
--}

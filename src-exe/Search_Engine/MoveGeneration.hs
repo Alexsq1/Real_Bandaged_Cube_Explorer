@@ -2,7 +2,6 @@ module MoveGeneration(sixAxis, kociembaMoves, freeFaces) where
 
 import Moves
 
-
 sixAxis :: [Turn]
 sixAxis = genMs (map (casualZip [1 .. 3]) [R .. ] )
 
@@ -23,8 +22,3 @@ genMs xs = concat (map indivFace xs)
     where
         indivFace :: (Face, [Int]) -> [Turn]
         indivFace = ( \(f,numsList) -> [Turn (f, n) | n <- numsList] )
-
-
-
---genMs :: [Face] -> [Int] -> [Turn]
---genMs fs nums = map Turn (zip fs nums)

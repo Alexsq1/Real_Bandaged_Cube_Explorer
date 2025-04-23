@@ -1,17 +1,18 @@
 module GenKorfHeuristics(lookupAll, cornersVector, edgesFstVector, edgesSndVector) where
 
 import qualified Data.Set as S
-import Data.Maybe
+import Data.Maybe(isJust, fromJust)
 import Data.Word(Word8)
+
+import Bandaged
+import Moves
+import InputBandagedCube(newSolvedBandagedCube)
+import IndexHeuristics
+
 import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Unboxed.Mutable as MV
 import Control.Monad.ST
 import Control.Monad(forM_)
-
-import IndexHeuristics
-import Bandaged
-import Moves
-import InputBandagedCube(newSolvedBandagedCube)
 
 
 --Max. Int: 536.870.912

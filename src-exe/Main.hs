@@ -20,9 +20,9 @@ module Main where
 --import qualified Data.Set as S
 --import qualified Data.Vector.Unboxed as V
 
---import OneSolve
+import OneSolve
 --import OneInput
-import OneGen
+--import OneGen
 
 --import Data.Maybe
 --This is the entry point of cabal run
@@ -31,9 +31,9 @@ import OneGen
 main :: IO ()
 main = do
     --putStrLn "ho"
-    --OneSolve.oneSolve
+    OneSolve.oneSolve
     --OneInput.oneInput
-    OneGen.oneGen
+    --OneGen.oneGen
 
 --    let md = 4
 --    let v = cornersVector newSolvedBandagedCube md

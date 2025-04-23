@@ -57,6 +57,7 @@ common common-exec-test
                     QuickCheck >= 2.14,
                     groups >= 0.5,
                     containers >= 0.7,
+                    PSQueue >= 1.1,
                     vector >= 0.13,
                     process >= 1.6,
                     split >= 0.2

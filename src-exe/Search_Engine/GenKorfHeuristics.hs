@@ -9,6 +9,7 @@ import Moves
 import InputBandagedCube(newSolvedBandagedCube)
 import IndexHeuristics
 
+import Data.PSQueue as PS
 import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Unboxed.Mutable as MV
 import Control.Monad.ST
@@ -73,34 +74,62 @@ applyChangesMV size defaultDepth changes = runST $ do
 myUpdate :: MV.MVector s Word8 -> [(Int, Word8)] -> ST s ()
 myUpdate v changes = forM_ changes $ (\(i, value) -> MV.write v i value)
 
+--(Key, LastFace, BCube)
+newtype GenerationState = GenerationState (Int, Face, BandagedCube)
+
+instance Eq GenerationState where 
+    (GenerationState (key1, _, _)) == (GenerationState (key2, _, _)) = key1 == key2
+
+instance Ord GenerationState where
+    compare (GenerationState (key1, _, _)) (GenerationState (key2, _, _)) = compare key1 key2
+
+--PQS of genState Word8. Values are of GenState, Word8 are the priorities, depth 
+
 bfsStoreChanges :: (BandagedCube -> Int) -> Word8 -> [Face] -> BandagedCube -> [(Int, Word8)]
-bfsStoreChanges kGen maxDepth faces ini = bfs kGen maxDepth [(0, N, ini)] faces S.empty []
+bfsStoreChanges kGen maxDepth faces initBC = bfs kGen maxDepth (PS.singleton gs0 0) faces S.empty []
     where
-        bfs :: (BandagedCube -> Int) -> Word8 -> [(Word8, Face, BandagedCube)] -> [Face] -> SetVisitedKeys -> [(Int, Word8)] -> [(Int, Word8)]
-        bfs _ _ [] _ _ acc = acc
-        bfs kGen2 maxDepth2 ((depth, lastFace, bCube) : fifo) faces2 visit acc
-            | depth > maxDepth2 = acc                                                                   --prune, finish search
-            | S.member thisKey visit = bfs kGen2 maxDepth2 fifo faces2 visit acc                        --visited state
-            | otherwise = bfs kGen2 maxDepth2 (fifo ++ newFifoFiltered) faces2 newSet newList           --keep iterating
-            where 
-                thisKey = kGen2 bCube
-                newSet = S.insert thisKey visit
-                newList = (thisKey, depth) : acc
+        gs0 = GenerationState (kGen initBC, N, initBC)
 
-                moves = [ (f, Turn(f, m)) | f <- faces2, m <- [1 .. 3], 
-                    (axisOfFace f /= axisOfFace lastFace) || (f > lastFace),
-                    validTurn bCube f]
+--Has a bug, not reaching 1-move states
+bfs ::  (BandagedCube -> Int) -> Word8 
+    -> PS.PSQ GenerationState Word8 -> [Face] 
+    -> SetVisitedKeys -> [(Int, Word8)] 
+    -> [(Int, Word8)]
+bfs kGen maxDepth pq faces visited acc
+    | PS.null pq = acc                                                      --empty generation, maybe not happening
+    | isRepeated = bfs kGen maxDepth pqNoMin faces visited acc              --repeated element
+    | currDepth > maxDepth = acc                                            --1st surpass, finished
+    | otherwise = bfs kGen maxDepth nextPQ faces nextVSet (newChanges)
 
-                possibleStates = map (\(lstFace, move) -> (lstFace, tryToTurn bCube move)) moves
-                possibleAccesibleStates = filter (isJust . snd) possibleStates
-                --Maybe filter the visited states here could be more efficient
+    where
+        (thisGenState PS.:-> currDepth , pqNoMin) = fromJust (PS.minView pq)
+        GenerationState (thisKey, lastFace, thisBCube) = thisGenState
+        isRepeated = S.member thisKey visited
 
-                newFifo = map (\(lstFace, justState) -> (1 + depth, lstFace, fromJust justState)) possibleAccesibleStates
-                newFifoFiltered = filter (\(_, _, potBCVisited) -> S.notMember (kGen2 potBCVisited) visit) newFifo
+        infListNextDepth = (repeat (1 + currDepth))
+        nextGS = nextLayerNonRepeating kGen thisGenState faces visited
+        nextPQ = insertList (zip nextGS infListNextDepth) pqNoMin
 
---may be improved with list of visited sets, ordered by depths. Problem: editing 1 element. (Maybe vector boxed)
---            | depth > 0 && ((S.member thisKey lastLayer) || (S.member thisKey thisLayer)) = visit
+        newKeys = map (\(GenerationState(key, _, _)) -> key) nextGS
+        nextVSet = S.union visited (S.fromList newKeys)
+        newChanges = (thisKey , currDepth) : acc
 
+insertList :: (Ord k, Ord p) => [(k , p)] -> PSQ k p -> PSQ k p
+insertList [] pq = pq
+insertList ((k , p):xs) pq = PS.insert k p (insertList xs pq)
+
+nextLayerNonRepeating :: (BandagedCube -> Int)
+                        -> GenerationState -> [Face] 
+                        -> SetVisitedKeys -> [GenerationState]
+nextLayerNonRepeating kGen (GenerationState(k, lastFace, bCube)) faces visited = newStatesFiltered
+    where
+        moves = [ (f, Turn(f, m)) | f <- faces, m <- [1 .. 3], 
+            (axisOfFace f /= axisOfFace lastFace) || (f > lastFace),
+            validTurn bCube f]
+        possibleAccesibleStates = [(lf, tryToTurn bCube m) | (lf, m) <- moves , isJust (tryToTurn bCube m)]
+
+        newStatesFiltered = [  GenerationState (kGen bc, lf, bc) | 
+                    (lf, Just bc) <- possibleAccesibleStates , S.notMember (kGen bc) visited ]
 
 
 lookupAll :: BandagedCube -> (Word8, Word8, Word8)
@@ -118,7 +147,7 @@ lookupSndEdges = lookupPiece 2
 stdVectors :: (Vector8, Vector8, Vector8)
 stdVectors = (c, e1, e2)
     where
-        maxDepth = 4
+        maxDepth = 2
         c = cornersVector ini maxDepth
         e1 = edgesFstVector ini maxDepth
         e2 = edgesSndVector ini maxDepth

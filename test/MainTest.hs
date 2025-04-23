@@ -19,8 +19,8 @@ main = do
 
     putStrLn "\n"
     putStrLn "Testing Solutions:"
-    --putStrLn "Removed for efficiency"
-    testSolutions
+    putStrLn "Removed for efficiency"
+    --testSolutions
 
     putStrLn "\n"
     putStrLn "Testing Heuristics:"

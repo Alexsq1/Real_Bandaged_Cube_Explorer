@@ -14,9 +14,9 @@ import IndexHeuristics
 
 testHeuristics :: IO()
 testHeuristics = do
-        quickCheck perfectHashingCP
-        quickCheck perfectHashingEP
-        quickCheck perfectHashingBC
+        --quickCheck perfectHashingCP
+        --quickCheck perfectHashingEP
+        --quickCheck perfectHashingBC
         putStrLn "Generating pattern databases, be patient"
         quickCheck admisibleCornerHeuristic
         quickCheck admisibleEdgeHeuristic

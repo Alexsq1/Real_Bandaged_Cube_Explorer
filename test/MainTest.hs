@@ -18,13 +18,13 @@ main = do
     --Test of moves is not working
 
     putStrLn "\n"
-    putStrLn "Testing Solutions:"
-    putStrLn "Removed for efficiency"
-    --testSolutions
-
-    putStrLn "\n"
     putStrLn "Testing Heuristics:"
     testHeuristics
+
+    putStrLn "\n"
+    putStrLn "Testing Solutions:"
+    putStrLn "Removed for efficiency"
+    testSolutions
 
     putStrLn "\n"
 

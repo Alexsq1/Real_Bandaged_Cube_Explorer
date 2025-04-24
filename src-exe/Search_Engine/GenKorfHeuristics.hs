@@ -1,4 +1,5 @@
-module GenKorfHeuristics(lookupAll, cornersVector, edgesFstVector, edgesSndVector) where
+module GenKorfHeuristics(lookupAll, cornersVector, edgesFstVector, edgesSndVector, bfsStoreChanges, applyChangesMV) where
+--remove auxiliars
 
 import qualified Data.Set as S
 import Data.Maybe(isJust, fromJust)
@@ -66,8 +67,8 @@ applyChangesMV :: Int                                           -- ^ Size
                 -> [(Int, Word8)]                               -- ^ Changes
                 -> Vector8
 
-applyChangesMV size defaultDepth changes = runST $ do
-    mv <- MV.replicate size defaultDepth
+applyChangesMV sizeV defaultDepth changes = runST $ do
+    mv <- MV.replicate sizeV defaultDepth
     myUpdate mv changes
     V.unsafeFreeze mv
 
@@ -83,6 +84,8 @@ instance Eq GenerationState where
 instance Ord GenerationState where
     compare (GenerationState (key1, _, _)) (GenerationState (key2, _, _)) = compare key1 key2
 
+instance Show GenerationState where
+    show (GenerationState (k, _, _)) = '#' : (show k)
 --PQS of genState Word8. Values are of GenState, Word8 are the priorities, depth 
 
 bfsStoreChanges :: (BandagedCube -> Int) -> Word8 -> [Face] -> BandagedCube -> [(Int, Word8)]
@@ -99,19 +102,21 @@ bfs kGen maxDepth pq faces visited acc
     | PS.null pq = acc                                                      --empty generation, maybe not happening
     | isRepeated = bfs kGen maxDepth pqNoMin faces visited acc              --repeated element
     | currDepth > maxDepth = acc                                            --1st surpass, finished
-    | otherwise = bfs kGen maxDepth nextPQ faces nextVSet (newChanges)
+    -- | currDepth == maxDepth = bfs kGen maxDepth pqNoMin faces nextVSet (newChanges)    --Only check your case
+    | otherwise = bfs kGen maxDepth nextPQ faces nextVSet (newChanges)      --Iterate
 
     where
+        --Comprobations
         (thisGenState PS.:-> currDepth , pqNoMin) = fromJust (PS.minView pq)
-        GenerationState (thisKey, lastFace, thisBCube) = thisGenState
+        GenerationState (thisKey, _, _) = thisGenState
         isRepeated = S.member thisKey visited
 
+        --Generation of next layer
         infListNextDepth = (repeat (1 + currDepth))
         nextGS = nextLayerNonRepeating kGen thisGenState faces visited
         nextPQ = insertList (zip nextGS infListNextDepth) pqNoMin
 
-        newKeys = map (\(GenerationState(key, _, _)) -> key) nextGS
-        nextVSet = S.union visited (S.fromList newKeys)
+        nextVSet = S.insert thisKey visited
         newChanges = (thisKey , currDepth) : acc
 
 insertList :: (Ord k, Ord p) => [(k , p)] -> PSQ k p -> PSQ k p
@@ -121,7 +126,7 @@ insertList ((k , p):xs) pq = PS.insert k p (insertList xs pq)
 nextLayerNonRepeating :: (BandagedCube -> Int)
                         -> GenerationState -> [Face] 
                         -> SetVisitedKeys -> [GenerationState]
-nextLayerNonRepeating kGen (GenerationState(k, lastFace, bCube)) faces visited = newStatesFiltered
+nextLayerNonRepeating kGen (GenerationState(_, lastFace, bCube)) faces visited = newStatesFiltered
     where
         moves = [ (f, Turn(f, m)) | f <- faces, m <- [1 .. 3], 
             (axisOfFace f /= axisOfFace lastFace) || (f > lastFace),
@@ -147,7 +152,8 @@ lookupSndEdges = lookupPiece 2
 stdVectors :: (Vector8, Vector8, Vector8)
 stdVectors = (c, e1, e2)
     where
-        maxDepth = 2
+        --UGLY
+        maxDepth = 4
         c = cornersVector ini maxDepth
         e1 = edgesFstVector ini maxDepth
         e2 = edgesSndVector ini maxDepth

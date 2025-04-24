@@ -2,29 +2,30 @@ module Main where
 
 
 --when cabal repl, used modules must be imported here
---import Cube
---import Bandaged
---import Moves
---import InputCube
---import InputBandagedCube
---import Visualizator
---import ManimHsConversion
---import Search
---import Heuristic
---import IndexHeuristics
---import GenKorfHeuristics
---import MoveGeneration
---import SolvingStrategies
---import Data.Maybe
---import Data.List
---import qualified Data.Set as S
---import qualified Data.Vector.Unboxed as V
+import Cube
+import Bandaged
+import Moves
+import InputCube
+import InputBandagedCube
+import Visualizator
+import ManimHsConversion
+import Search
+import Heuristic
+import IndexHeuristics
+import GenKorfHeuristics
+import MoveGeneration
+import SolvingStrategies
+import Data.Maybe
+import Data.List
+import qualified Data.Set as S
+import qualified Data.Vector.Unboxed as V
 
 import OneSolve
 --import OneInput
 --import OneGen
 
---import Data.Maybe
+import Data.Maybe
+import Data.List
 --This is the entry point of cabal run
 
 

@@ -10,8 +10,6 @@ import SolvingStrategies
 oneSolve :: IO ()
 oneSolve = do
 
-    let c = newSolvedBandagedCube
-
     --let alg = read "R U F2 R' F' U F' U F R2  " :: Algorithm
     --let alg = read "R U R' U R U R2 U R' U' R U' R2 U R' U R U R " :: Algorithm       --length 17
     --let alg = read " U R U R U2 R' " :: Algorithm
@@ -20,22 +18,20 @@ oneSolve = do
     --let alg = read "R L' U2 L R' U2 R L' U2 R L " :: Algorithm      --checks that RL are in the right order
 
     --let alg = read "D R2 U F2 R F  " :: Algorithm      --6-GEN
-    let alg = read " U " :: Algorithm      --6-GEN
+    let alg = read " U' D' R2" :: Algorithm      --6-GEN
+    let c1 = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
     --let alg = read "D" :: Algorithm      --5-GEN
-        
-    
-    let c1 = fromJust (tryToExecuteAlg c alg)
 
     let h = {-# SCC "Heuristic_Generation" #-} korfIndivHeuristics c1
 
     putStrLn ("Heuristics: " ++ show(h))
 
-    
+    --let solution1 = korfSolver c1
+    --let solution1 = kociembaSolver c1
+
     --let solution1 = {-#Solution#-} genericSearch c1 solvedBC sixAxis (const 0)
     --let solution1 = {-#Solution#-} genericSearch c1 solvedBC sixAxis (korfHeuristic)
     --let solution1 = {-# SCC "Solution" #-} genericSearch c1 solvedBC (freeFaces [R, U, F, L, B]) (korfHeuristic)
-    --let solution1 = korfSolver c1
-    --let solution1 = kociembaSolver c1
 
     --putStrLn ("Solution found: " ++ (show solution1))
     

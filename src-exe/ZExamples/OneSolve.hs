@@ -1,12 +1,13 @@
 module OneSolve(oneSolve) where
 
+import Cube
 import Bandaged
 import Moves
 import InputBandagedCube
 import Heuristic
-import IndexHeuristics
+--import IndexHeuristics
 import Data.Maybe
-import Data.List
+--import Data.List
 import SolvingStrategies
 
 oneSolve :: IO ()
@@ -24,31 +25,18 @@ oneSolve = do
 
 
     --CHECKING 1 HEURISTIC
-    let alg = read "R' F" :: Algorithm      --6-GEN
-    let c1 = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
-    let [_, _,h ] = {-# SCC "Heuristic_Generation" #-} korfIndivHeuristics c1
-    putStrLn ("Corner heuristics: " ++ show(h))
+    let alg = read "D L2 U D' L U D L2 D U' L U D L " :: Algorithm      --6-GEN
+    let bcs = newBandagedCube (newCubeFromList [0..53]) [[49,50,51]]
+    let c1 = fromJust (tryToExecuteAlg bcs alg)
+    let h = {-# SCC "Heuristic_Generation" #-} korfIndivHeuristics c1
+    putStrLn ("Individual heuristics: " ++ show(h))
 
 
-
-
-
-
-    --CHECKING WHICH MOVES OF DEPTH D FAILS AT ITS HEURISTIC
-
-    --let m = [ [Turn(f1,m1), Turn(f2, m2)] | f1 <- [N .. ], f2 <- [N .. ], m1 <- [1..3], m2 <- [1..3]]
-    --let algs =  (map (Algorithm) (filter isCanonicalSecuence m))
-    --let cubes = map (\alg -> (alg , fromJust(tryToExecuteAlg newSolvedBandagedCube alg))) algs
-    --let heurs = map (\(a, c) -> (a, edgesKeySnd c, korfEdges2 c)) cubes
-    ----let heursClean = nubBy (\(_, k1, _) (_, k2, _) -> k1 == k2) heurs
-    ----let heursWrong = filter (\x -> snd x > 2) heurs
-    --putStrLn ("Total heurs: " ++ show heurs)
-
-
-
+    let solution1 = korfLayersSolver [L,U,D] c1
+    putStrLn ("Solution found: " ++ (show solution1))
+    
+    
     --SOLVING 1 CUBE
-
-    --putStrLn ("Heuristics: " ++ show(h))
 
     --let solution1 = korfSolver c1
     --let solution1 = kociembaSolver c1
@@ -68,6 +56,16 @@ oneSolve = do
 
 
 
+
+    --CHECKING WHICH MOVES OF DEPTH D FAILS AT ITS HEURISTIC
+
+    --let m = [ [Turn(f1,m1), Turn(f2, m2)] | f1 <- [N .. ], f2 <- [N .. ], m1 <- [1..3], m2 <- [1..3]]
+    --let algs =  (map (Algorithm) (filter isCanonicalSecuence m))
+    --let cubes = map (\alg -> (alg , fromJust(tryToExecuteAlg newSolvedBandagedCube alg))) algs
+    --let heurs = map (\(a, c) -> (a, edgesKeySnd c, korfEdges2 c)) cubes
+    ----let heursClean = nubBy (\(_, k1, _) (_, k2, _) -> k1 == k2) heurs
+    ----let heursWrong = filter (\x -> snd x > 2) heurs
+    --putStrLn ("Total heurs: " ++ show heurs)
 
 
     --RESULTS

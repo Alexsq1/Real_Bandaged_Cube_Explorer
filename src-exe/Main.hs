@@ -2,50 +2,36 @@ module Main where
 
 
 --when cabal repl, used modules must be imported here
-import Cube
-import Bandaged
-import Moves
-import InputCube
-import InputBandagedCube
-import Visualizator
-import ManimHsConversion
-import Search
-import Heuristic
-import IndexHeuristics
-import GenKorfHeuristics
-import MoveGeneration
-import SolvingStrategies
-import Data.Maybe
-import Data.List
-import qualified Data.Set as S
-import qualified Data.Vector.Unboxed as V
+--import Cube
+--import Bandaged
+--import Moves
+--import InputCube
+--import InputBandagedCube
+--import Visualizator
+--import ManimHsConversion
+--import Search
+--import Heuristic
+--import IndexHeuristics
+--import GenKorfHeuristics
+--import MoveGeneration
+--import SolvingStrategies
+--import Data.Maybe
+--import Data.List
+--
+--import qualified Data.Set as S
+--import qualified Data.Vector.Unboxed as V
+--import Data.Maybe
+--import Data.List
 
 import OneSolve
---import OneInput
+import OneInput
 --import OneGen
 
-import Data.Maybe
-import Data.List
 --This is the entry point of cabal run
 
 
 main :: IO ()
 main = do
-    --putStrLn "ho"
     OneSolve.oneSolve
-    --OneInput.oneInput
+    OneInput.oneInput
     --OneGen.oneGen
-
---    let md = 4
---    let v = cornersVector newSolvedBandagedCube md
---    putStrLn ("Vector of corners: " ++ show (((take 10) . V.toList . (V.filter (< 20))) v))
---    putStrLn ("Vector of corners: " ++ show (((take 20) . V.toList . (V.filter (<= md))) v))
---    
---
---    let ve = edgesFstVector newSolvedBandagedCube md
---    putStrLn ("Vector of edges: " ++ show  (((take 10) . V.toList . (V.filter (< 20)))  ve ))
---    putStrLn ("Vector of edges: " ++ show (((take 20) . V.toList . (V.filter (== 1))) ve))
---    putStrLn ("Vector of edges: " ++ show (((take 20) . V.toList . (V.filter (== 2))) ve))
---    putStrLn ("Vector of edges: " ++ show (((take 20) . V.toList . (V.filter (== 3))) ve))
---    putStrLn ("Vector of edges: " ++ show (((take 20) . V.toList . (V.filter (== 4))) ve))
-    

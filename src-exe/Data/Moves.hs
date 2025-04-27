@@ -23,6 +23,7 @@ instance Read Turn where
         let move = read [x] :: Face
             num =  read [y] :: Int
         in [ ( simpOneTurn (Turn(move, num)) , rest) ]
+    readsPrec _ _ = []
 
 instance Read Algorithm where
     readsPrec _ str = [(  (staticReadAlg (canonic str)), [])]
@@ -138,15 +139,15 @@ permOfTurn (Turn(B, 3)) = newCubeFromList [0,1,2,20,18,19,4,5,3,9,10,11,12,13,14
 permOfTurn (Turn(t, x)) = permOfTurn(Turn(t, x `mod` 4))
 
 --Not used, but could be interesting
-
+-- | Returns if a sequence is canonical (does not repeat layers and paralel layers are not generated duplicately)
 isCanonicalSecuence :: [Turn] -> Bool
 isCanonicalSecuence xs = canAux (Turn(N,0) : xs)
     where
         canAux :: [Turn] -> Bool
         canAux [] = True
         canAux [_] = True
-        canAux (Turn(x, _):Turn(y, m):xs) = ((axisOfFace x /= axisOfFace y) || x < y)
-            && canAux (Turn(y,m):xs)
+        canAux (Turn(x, _):Turn(y, m):rest) = ((axisOfFace x /= axisOfFace y) || x < y)
+            && canAux (Turn(y,m):rest)
 
 --numberCanonicalSequences :: Int -> Int
 --numberCanonicalSequences 0 = 1

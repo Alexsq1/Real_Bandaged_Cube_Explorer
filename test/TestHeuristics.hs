@@ -14,14 +14,67 @@ import IndexHeuristics
 
 testHeuristics :: IO()
 testHeuristics = do
-        --quickCheck perfectHashingCP
-        --quickCheck perfectHashingEP
-        --quickCheck perfectHashingBC
+        quickCheck perfectHashingCP
+        quickCheck perfectHashingEP
+        quickCheck perfectHashingBC
         putStrLn "Generating pattern databases, be patient"
         quickCheck admisibleCornerHeuristic
-        quickCheck admisibleEdgeHeuristic
+        quickCheck admisibleEdgeFstHeuristic
+        quickCheck admisibleEdgeSndHeuristic
         quickCheck korfAdmissible
         
+
+perfectHashingCP :: Property
+perfectHashingCP = forAll (genCPs 2000) $
+                (\perms -> 
+                    let indexs = map factorialNumbering perms
+                    in length (nub indexs) == length indexs)
+
+perfectHashingEP :: Property
+perfectHashingEP = forAll (genEPHalves 2000) $
+                (\perms -> 
+                    let indexs = map (nprNumbering [0 .. 11]) perms
+                    in length (nub indexs) == length indexs)
+
+perfectHashingBC :: [BandagedCube] -> Property
+perfectHashingBC bcList = let hashes = map (\c -> (cornersKey c, edgesKeyFst c, edgesKeySnd c)) bcList
+                        in property (length (nub bcList) == length (nub hashes))
+
+
+admisibleCornerHeuristic :: Algorithm -> Property
+admisibleCornerHeuristic alg = property(cornerH <= length xs)
+    where
+        Algorithm xs = alg
+        finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
+        cornerH = case (korfIndivHeuristics finalSt) of
+            ([_, x, _]) -> x
+            _ -> 1000
+
+admisibleEdgeFstHeuristic :: Algorithm -> Property
+admisibleEdgeFstHeuristic alg = property (edgeH <= length xs)
+    where
+        Algorithm xs = alg
+        finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
+        edgeH = case (korfIndivHeuristics finalSt) of
+            ([_, x, _]) -> x
+            _ -> 1000
+
+admisibleEdgeSndHeuristic :: Algorithm -> Property
+admisibleEdgeSndHeuristic alg = property (edgeH <= length xs)
+    where
+        Algorithm xs = alg
+        finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
+        edgeH = case (korfIndivHeuristics finalSt) of
+            ([_, _, x]) -> x
+            _ -> 1000
+        
+korfAdmissible :: Algorithm -> Property
+korfAdmissible alg = property (h <= length xs)
+    where
+        Algorithm xs = alg
+        finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
+        h = korfHeuristic finalSt
+
 
 gen1CP :: Gen [Int]
 gen1CP = shuffle [0 .. 7]
@@ -49,41 +102,3 @@ genEPHalves n = go n []
             if p3 `elem` acc 
                 then go k acc
                 else go (k-1) (p3:acc)
-
-perfectHashingCP :: Property
-perfectHashingCP = forAll (genCPs 2000) $
-                (\perms -> 
-                    let indexs = map factorialNumbering perms
-                    in length (nub indexs) == length indexs)
-
-perfectHashingEP :: Property
-perfectHashingEP = forAll (genEPHalves 2000) $
-                (\perms -> 
-                    let indexs = map (nprNumbering [0 .. 11]) perms
-                    in length (nub indexs) == length indexs)
-
-perfectHashingBC :: [BandagedCube] -> Property
-perfectHashingBC bcList = let hashes = map (\c -> (cornersKey c, edgesKeyFst c, edgesKeySnd c)) bcList
-                        in property (length (nub bcList) == length (nub hashes))
-
-
-admisibleCornerHeuristic :: Algorithm -> Property
-admisibleCornerHeuristic alg = property(cornerH <= length xs)
-    where
-        Algorithm xs = alg
-        finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
-        cornerH : _ = korfIndivHeuristics finalSt
-
-admisibleEdgeHeuristic :: Algorithm -> Property
-admisibleEdgeHeuristic alg = property (edgeH <= length xs)
-    where
-        Algorithm xs = alg
-        finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
-        [_, edgeH, _] = korfIndivHeuristics finalSt
-
-korfAdmissible :: Algorithm -> Property
-korfAdmissible alg = property (h <= length xs)
-    where
-        Algorithm xs = alg
-        finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
-        h = korfHeuristic finalSt

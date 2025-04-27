@@ -18,6 +18,7 @@ oneGen = do
     let xs = [[t1, t2, t3] | t1 <- p, t2 <- p, t3 <- p]
 --    let xs = [[t1, t2, t3, t4] | t1 <- p, t2 <- p, t3 <- p, t4 <- p]
 --    let xs = [[t1, t2, t3, t4, t5] | t1 <- p, t2 <- p, t3 <- p, t4 <- p, t5 <- p]
+--    let xs = [[t1, t2, t3, t4, t5, t6] | t1 <- p, t2 <- p, t3 <- p, t4 <- p, t5 <- p, t6 <- p]
 
     let scr1Move = map (\alg -> fromJust (tryToExecuteAlg c (Algorithm alg))) xs
 

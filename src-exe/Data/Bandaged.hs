@@ -15,7 +15,7 @@ instance Ord BandagedCube where
     compare (BandagedCube c1 _) (BandagedCube c2 _) = compare c1 c2
 
 instance Show BandagedCube where
-    show (BandagedCube cube setRestrictions) = (show cube) ++ "\n\n" ++ 
+    show (BandagedCube cube setRestrictions) = (show cube) ++ "\n" ++ (show listRestrictions) ++ "\n" ++ 
                         --(show listRestrictions) ++ "\n" ++
                         "BLOCKS: \n" ++
                         (intercalate "\n" (map unwords facesPieces))

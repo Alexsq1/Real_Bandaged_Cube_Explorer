@@ -4,6 +4,8 @@ import Data.Group
 import qualified Data.Vector.Unboxed as V
 import Data.List(sortBy)
 
+import Test.QuickCheck
+
 {- Implementation of a Rubik's Cube as a group.
 Numbering the 54 stickers
 -}
@@ -68,3 +70,9 @@ centers = slicePieces [48 .. 53]
 -- | Returns a list with all of the pieces
 allPieces :: Cube -> [Int]
 allPieces (Cube xs) = V.toList xs
+
+instance Arbitrary Cube where
+    arbitrary = do
+        xs <- shuffle [0..53]
+        return $ newCubeFromList xs
+    --Random stickers permutations. Can be improved with real perms

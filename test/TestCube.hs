@@ -52,9 +52,3 @@ props matemáticas de grupos (orden), algoritmos que resuelven,
 
 
 
-instance Arbitrary Cube where
-    arbitrary = do
-        xs <- shuffle [0..53]
-        return $ newCubeFromList xs
-    --Random stickers permutations. Can be improved with real perms
-

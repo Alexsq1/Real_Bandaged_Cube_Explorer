@@ -22,9 +22,9 @@ main = do
     testHeuristics
 
     putStrLn "\n"
-    --putStrLn "Testing Solutions:"
-    putStrLn "Removed for failing of heuristics"
-    --testSolutions
+    putStrLn "Testing Solutions:"
+    --putStrLn "Removed for failing of heuristics"
+    testSolutions
 
     putStrLn "\n"
 

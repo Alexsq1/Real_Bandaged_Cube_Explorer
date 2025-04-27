@@ -3,6 +3,10 @@ module OneInput(oneInput) where
 import Moves
 import Visualizator
 import ManimHsConversion
+import Heuristic
+import SolvingStrategies
+import InputBandagedCube
+import Data.Maybe(fromJust)
 
 oneInput :: IO ()
 oneInput = do
@@ -25,12 +29,23 @@ oneInput = do
 
 
     let eq = [("U", "w"), ("F", "g"), ("R", "r"), ("L", "o"), ("B", "b"), ("D", "y")]
-    let state = ["b","w","r","w","w","w","o","w","g",
-                "r","r","y","r","r","r","w","r","r",
-                "g","g","y","g","g","g","g","g","g",
-                "o","y","r","y","y","y","o","y","b",
-                "o","o","y","o","o","o","w","o","w",
-                "b","b","y","b","b","b","w","b","b"]
+    let state = ["w", "y", "y", "y", "w", "w", "y", "w", "r",
+                "w", "r", "g", "w", "r", "r", "w", "b", "b",
+                "g", "g", "b", "y", "g", "b", "y", "g", "g",
+                "r", "r", "r", "w", "y", "o", "b", "y", "o",
+                "g", "r", "r", "g", "o", "b", "y", "o", "b",
+                "o", "o", "o", "b", "b", "o", "w", "g", "o"]
 
     let c = cubeFromManimCodification eq state
-    manimRecomendedVisualizer c (Algorithm[])
+
+    let bc = newBandagedCube c [[0,1,2,32,33],[3,4,5,38,39],[6,7,8,26,27],[9,10,11,34,35],[12,13,14,42,43],[15,16,17,44,45],[21,22,23,46,47],[24,25,52],[28,29,48,50],[30,31,49],[36,37,51],[40,41,53]]
+
+    let h = {-# SCC "Heuristic_Generation" #-} korfIndivHeuristics bc
+    putStrLn ("Individual heuristics: " ++ show(h))
+
+
+    let solution1 = korfLayersSolver [F, B, L, D] bc
+    putStrLn ("Solution found: " ++ (show solution1))
+ 
+
+    manimRecomendedVisualizer c (fromJust solution1)

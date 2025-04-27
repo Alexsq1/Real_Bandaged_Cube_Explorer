@@ -1,4 +1,4 @@
-module Search(genericSearch, idaStar, SearchingState(..), dfsSgle, dfsMult) where
+module Search(genericSearch) where
 
 import Bandaged
 import Moves
@@ -114,9 +114,9 @@ dfsMult :: SearchingState                       -- ^ Initial
 
 dfsMult initialSS [] = initialSS                                    --ended iterating
 dfsMult initialSS (x:xs)                                            --keep iterations
+    | isNothing nextState = dfsMult initialSS xs                    --Not valid turn, breaks a block
     | found thisBrach = thisBrach {solution = (x : solutionP)}      --Correct branch, recompose solution
     | currD > maxD = initialSS                                      --pruning (difficult with good heuristics)            
-    | isNothing nextState = dfsMult initialSS xs                    --Not valid turn, breaks a block
     | otherwise = 
         dfsMult (initialSS {minimumExceding = min exc0 maybeNewExc}) xs                              --Incorrect branch, keep searching
     where

@@ -1,5 +1,4 @@
-module GenKorfHeuristics(lookupAll, cornersVector, edgesFstVector, edgesSndVector, bfsStoreChanges, applyChangesMV) where
---remove auxiliars
+module GenKorfHeuristics(lookupAll, stdVectors) where
 
 import qualified Data.Set as S
 import Data.Maybe(isJust, fromJust)
@@ -17,7 +16,7 @@ import Control.Monad.ST
 import Control.Monad(forM_)
 
 
-import Debug.Trace (trace, traceShow)
+--import Debug.Trace (trace, traceShow)
 
 --Max. Int: 536.870.912
 --Max. Int: 2 ^63 -1 = 9.223.372.036.854.775.807
@@ -34,8 +33,25 @@ import Debug.Trace (trace, traceShow)
 --Valid with indexes of 26-27 bits (4 bytes)
 --Each number: 0-20 (4 bits)
 
+-- | Alias for Word8 Vectors
 type Vector8 = V.Vector Word8
-type SetVisitedKeys = S.Set Int
+
+-- | Calculates a vector with the depths of a pattern database
+stdVectors :: (Vector8, Vector8, Vector8)
+stdVectors = (c, e1, e2)
+    where
+        --UGLY
+        maxDepth = 5
+        c = cornersVector ini maxDepth
+        e1 = edgesFstVector ini maxDepth
+        e2 = edgesSndVector ini maxDepth
+        ini = newSolvedBandagedCube
+
+-- | Accesses the pattern database and return the minimum number of moves for each piece set
+lookupAll :: BandagedCube -> (Word8, Word8, Word8)
+lookupAll bc = (lookupCorners bc, lookupFstEdges bc, lookupSndEdges bc)
+
+
 
 -- | Generate a pattern database of corners from a state to depth n
 cornersVector :: BandagedCube                                   -- ^ Initial state (solved recommended)
@@ -77,8 +93,10 @@ applyChangesMV sizeV defaultDepth changes = runST $ do
 myUpdate :: MV.MVector s Word8 -> [(Int, Word8)] -> ST s ()
 myUpdate v changes = forM_ changes $ (\(i, value) -> MV.write v i value)
 
---(Key, LastFace, BCube)
+
+
 newtype GenerationState = GenerationState (Int, Face, BandagedCube)
+--(Key, LastFace, BCube)
 
 instance Eq GenerationState where 
     (GenerationState (key1, _, _)) == (GenerationState (key2, _, _)) = key1 == key2
@@ -88,14 +106,16 @@ instance Ord GenerationState where
 
 instance Show GenerationState where
     show (GenerationState (k, _, _)) = '#' : (show k)
---PQS of genState Word8. Values are of GenState, Word8 are the priorities, depth 
+--PQS of genState Word8. Values are of GenState, Word8 are the priorities, depth
+
+
+type SetVisitedKeys = S.Set Int
 
 bfsStoreChanges :: (BandagedCube -> Int) -> Word8 -> [Face] -> BandagedCube -> [(Int, Word8)]
 bfsStoreChanges kGen maxDepth faces initBC = bfs kGen maxDepth (PS.singleton gs0 0) faces S.empty S.empty []
     where
         gs0 = GenerationState (kGen initBC, N, initBC)
 
---Has a bug
 bfs ::  (BandagedCube -> Int) -> Word8 
     -> PS.PSQ GenerationState Word8 -> [Face] 
     -> SetVisitedKeys -> SetVisitedKeys -> [(Int, Word8)] 
@@ -113,7 +133,7 @@ bfs kGen maxDepth pq faces visited onceEnqueued acc
         --trace ("First surpass: " ++ show thisKey ++ ", at depth " ++ show currDepth) $
         acc                                            --1st surpass, finished
 
-    -- | currDepth == maxDepth = bfs kGen maxDepth pqNoMin faces nextVSet (newChanges)    --Only check your case
+    | currDepth == maxDepth = bfs kGen maxDepth pqNoMin faces nextVSet (S.delete thisKey onceEnqueued) newChanges    --Only check your case
     | otherwise = 
         --trace ("Normal, recieved " ++ show thisKey ++ " state at depth " ++ show currDepth ++ ", adding " ++ show nextGS ++ "\n") $
         bfs kGen maxDepth nextPQ faces nextVSet nextEnq newChanges      --Iterate
@@ -133,7 +153,7 @@ bfs kGen maxDepth pq faces visited onceEnqueued acc
         newChanges = (thisKey , currDepth) : acc
 
         keysEnq = map (\(GenerationState(k, _, _)) -> k) nextGS
-        nextEnq = S.union onceEnqueued (S.fromList keysEnq)
+        nextEnq = S.union (S.delete thisKey onceEnqueued) (S.fromList keysEnq)
 
 insertList :: (Ord k, Ord p) => [(k , p)] -> PSQ k p -> PSQ k p
 insertList [] pq = pq
@@ -149,10 +169,6 @@ nextLayerNonRepeating kGen (GenerationState(_, lastFace, bCube)) faces visited o
 
         newStatesFiltered = [  GenerationState (kGen bc, lf, bc) | (lf, Just bc) <- possibleAccesibleStates , S.notMember (kGen bc) visited, S.notMember (kGen bc) onceEnqueued ]
 
-
-lookupAll :: BandagedCube -> (Word8, Word8, Word8)
-lookupAll bc = (lookupCorners bc, lookupFstEdges bc, lookupSndEdges bc)
-
 lookupCorners :: BandagedCube -> Word8
 lookupCorners = lookupPiece 0
 
@@ -161,16 +177,6 @@ lookupFstEdges = lookupPiece 1
 
 lookupSndEdges :: BandagedCube -> Word8
 lookupSndEdges = lookupPiece 2
-
-stdVectors :: (Vector8, Vector8, Vector8)
-stdVectors = (c, e1, e2)
-    where
-        --UGLY
-        maxDepth = 4
-        c = cornersVector ini maxDepth
-        e1 = edgesFstVector ini maxDepth
-        e2 = edgesSndVector ini maxDepth
-        ini = newSolvedBandagedCube
 
 lookupPiece :: Int -> BandagedCube -> Word8
 lookupPiece n bc = 

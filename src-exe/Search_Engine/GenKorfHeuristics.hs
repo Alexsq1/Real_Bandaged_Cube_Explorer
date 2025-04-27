@@ -17,6 +17,8 @@ import Control.Monad.ST
 import Control.Monad(forM_)
 
 
+import Debug.Trace (trace, traceShow)
+
 --Max. Int: 536.870.912
 --Max. Int: 2 ^63 -1 = 9.223.372.036.854.775.807
 
@@ -89,21 +91,32 @@ instance Show GenerationState where
 --PQS of genState Word8. Values are of GenState, Word8 are the priorities, depth 
 
 bfsStoreChanges :: (BandagedCube -> Int) -> Word8 -> [Face] -> BandagedCube -> [(Int, Word8)]
-bfsStoreChanges kGen maxDepth faces initBC = bfs kGen maxDepth (PS.singleton gs0 0) faces S.empty []
+bfsStoreChanges kGen maxDepth faces initBC = bfs kGen maxDepth (PS.singleton gs0 0) faces S.empty S.empty []
     where
         gs0 = GenerationState (kGen initBC, N, initBC)
 
---Has a bug, not reaching 1-move states
+--Has a bug
 bfs ::  (BandagedCube -> Int) -> Word8 
     -> PS.PSQ GenerationState Word8 -> [Face] 
-    -> SetVisitedKeys -> [(Int, Word8)] 
+    -> SetVisitedKeys -> SetVisitedKeys -> [(Int, Word8)] 
     -> [(Int, Word8)]
-bfs kGen maxDepth pq faces visited acc
-    | PS.null pq = acc                                                      --empty generation, maybe not happening
-    | isRepeated = bfs kGen maxDepth pqNoMin faces visited acc              --repeated element
-    | currDepth > maxDepth = acc                                            --1st surpass, finished
+bfs kGen maxDepth pq faces visited onceEnqueued acc
+    | PS.null pq = 
+        --trace ("Ended the alg, recieved empty pq") $
+        acc                                                      --empty generation, maybe not happening
+    
+    | isRepeated = 
+        --trace ("Visited state: " ++ (show thisKey)) $
+        bfs kGen maxDepth pqNoMin faces visited onceEnqueued acc              --repeated element
+    
+    | currDepth > maxDepth = 
+        --trace ("First surpass: " ++ show thisKey ++ ", at depth " ++ show currDepth) $
+        acc                                            --1st surpass, finished
+
     -- | currDepth == maxDepth = bfs kGen maxDepth pqNoMin faces nextVSet (newChanges)    --Only check your case
-    | otherwise = bfs kGen maxDepth nextPQ faces nextVSet (newChanges)      --Iterate
+    | otherwise = 
+        --trace ("Normal, recieved " ++ show thisKey ++ " state at depth " ++ show currDepth ++ ", adding " ++ show nextGS ++ "\n") $
+        bfs kGen maxDepth nextPQ faces nextVSet nextEnq newChanges      --Iterate
 
     where
         --Comprobations
@@ -113,11 +126,14 @@ bfs kGen maxDepth pq faces visited acc
 
         --Generation of next layer
         infListNextDepth = (repeat (1 + currDepth))
-        nextGS = nextLayerNonRepeating kGen thisGenState faces visited
+        nextGS = nextLayerNonRepeating kGen thisGenState faces visited onceEnqueued
         nextPQ = insertList (zip nextGS infListNextDepth) pqNoMin
 
         nextVSet = S.insert thisKey visited
         newChanges = (thisKey , currDepth) : acc
+
+        keysEnq = map (\(GenerationState(k, _, _)) -> k) nextGS
+        nextEnq = S.union onceEnqueued (S.fromList keysEnq)
 
 insertList :: (Ord k, Ord p) => [(k , p)] -> PSQ k p -> PSQ k p
 insertList [] pq = pq
@@ -125,16 +141,13 @@ insertList ((k , p):xs) pq = PS.insert k p (insertList xs pq)
 
 nextLayerNonRepeating :: (BandagedCube -> Int)
                         -> GenerationState -> [Face] 
-                        -> SetVisitedKeys -> [GenerationState]
-nextLayerNonRepeating kGen (GenerationState(_, lastFace, bCube)) faces visited = newStatesFiltered
+                        -> SetVisitedKeys -> SetVisitedKeys -> [GenerationState]
+nextLayerNonRepeating kGen (GenerationState(_, lastFace, bCube)) faces visited onceEnqueued = newStatesFiltered
     where
-        moves = [ (f, Turn(f, m)) | f <- faces, m <- [1 .. 3], 
-            (axisOfFace f /= axisOfFace lastFace) || (f > lastFace),
-            validTurn bCube f]
+        moves = [ (f, Turn(f, m)) | f <- faces, m <- [1 .. 3], (axisOfFace f /= axisOfFace lastFace) || (f > lastFace),validTurn bCube f]
         possibleAccesibleStates = [(lf, tryToTurn bCube m) | (lf, m) <- moves , isJust (tryToTurn bCube m)]
 
-        newStatesFiltered = [  GenerationState (kGen bc, lf, bc) | 
-                    (lf, Just bc) <- possibleAccesibleStates , S.notMember (kGen bc) visited ]
+        newStatesFiltered = [  GenerationState (kGen bc, lf, bc) | (lf, Just bc) <- possibleAccesibleStates , S.notMember (kGen bc) visited, S.notMember (kGen bc) onceEnqueued ]
 
 
 lookupAll :: BandagedCube -> (Word8, Word8, Word8)

@@ -1,4 +1,4 @@
-module Heuristic(noHeuristic,korfHeuristic, korfIndivHeuristics) where
+module Heuristic(noHeuristic,korfHeuristic, korfIndivHeuristics, korfCorner,korfEdges1,korfEdges2) where
 
 import Bandaged()
 import GenKorfHeuristics
@@ -23,3 +23,21 @@ korfIndivHeuristics bc = (map fromIntegral hs) :: [Int]
     where
         (c, e1, e2) = lookupAll bc
         hs = [c, e1, e2]
+
+--Used for debugging
+korfCorner :: BandagedCube -> Int
+korfCorner bc = (fromIntegral c) :: Int
+    where
+        (c, _, _) = lookupAll bc
+
+--Used for debugging
+korfEdges1 :: BandagedCube -> Int
+korfEdges1 bc = (fromIntegral c) :: Int
+    where
+        (_, c, _) = lookupAll bc
+
+--Used for debugging
+korfEdges2 :: BandagedCube -> Int
+korfEdges2 bc = (fromIntegral c) :: Int
+    where
+        (_, _, c) = lookupAll bc

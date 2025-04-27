@@ -4,11 +4,15 @@ import Bandaged
 import Moves
 import InputBandagedCube
 import Heuristic
+import IndexHeuristics
 import Data.Maybe
+import Data.List
 import SolvingStrategies
 
 oneSolve :: IO ()
 oneSolve = do
+
+    --GENERATING ALGS AND CHECKING 1 HEURISTIC
 
     --let alg = read "R U F2 R' F' U F' U F R2  " :: Algorithm
     --let alg = read "R U R' U R U R2 U R' U' R U' R2 U R' U R U R " :: Algorithm       --length 17
@@ -16,15 +20,35 @@ oneSolve = do
     --let alg = read "R U " :: Algorithm
     --let alg = read "R U' L' U R' U' L U R U R' " :: Algorithm      --length 16
     --let alg = read "R L' U2 L R' U2 R L' U2 R L " :: Algorithm      --checks that RL are in the right order
-
     --let alg = read "D R2 U F2 R F  " :: Algorithm      --6-GEN
-    let alg = read " U' D' R2" :: Algorithm      --6-GEN
+
+
+    --CHECKING 1 HEURISTIC
+    let alg = read "R' F" :: Algorithm      --6-GEN
     let c1 = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
-    --let alg = read "D" :: Algorithm      --5-GEN
+    let [_, _,h ] = {-# SCC "Heuristic_Generation" #-} korfIndivHeuristics c1
+    putStrLn ("Corner heuristics: " ++ show(h))
 
-    let h = {-# SCC "Heuristic_Generation" #-} korfIndivHeuristics c1
 
-    putStrLn ("Heuristics: " ++ show(h))
+
+
+
+
+    --CHECKING WHICH MOVES OF DEPTH D FAILS AT ITS HEURISTIC
+
+    --let m = [ [Turn(f1,m1), Turn(f2, m2)] | f1 <- [N .. ], f2 <- [N .. ], m1 <- [1..3], m2 <- [1..3]]
+    --let algs =  (map (Algorithm) (filter isCanonicalSecuence m))
+    --let cubes = map (\alg -> (alg , fromJust(tryToExecuteAlg newSolvedBandagedCube alg))) algs
+    --let heurs = map (\(a, c) -> (a, edgesKeySnd c, korfEdges2 c)) cubes
+    ----let heursClean = nubBy (\(_, k1, _) (_, k2, _) -> k1 == k2) heurs
+    ----let heursWrong = filter (\x -> snd x > 2) heurs
+    --putStrLn ("Total heurs: " ++ show heurs)
+
+
+
+    --SOLVING 1 CUBE
+
+    --putStrLn ("Heuristics: " ++ show(h))
 
     --let solution1 = korfSolver c1
     --let solution1 = kociembaSolver c1
@@ -38,6 +62,16 @@ oneSolve = do
     --putStrLn ("Solution found by Kociemba: " ++ (show solution2))
     --putStrLn ("Solution found by Korf: " ++ (show solution1))
     
+
+
+
+
+
+
+
+
+    --RESULTS
+
     --WORKING: in < 10 seconds
     --6-gen: working for lenght <=7. Starting to have troubles in length 8
     --3 adj-gen: working for length <=10. Starting to have troubles in length 11

@@ -1,4 +1,4 @@
-module Moves (Turn(..), Algorithm(..), Face(..), Axis(..), algToPerm, possibleTurns, permOfTurn, axisOfFace) where
+module Moves (Turn(..), Algorithm(..), Face(..), Axis(..), algToPerm, possibleTurns, permOfTurn, axisOfFace, isCanonicalSecuence) where
 
 import Data.Group
 import Cube
@@ -13,6 +13,7 @@ newtype Turn = Turn(Face, Int) deriving (Eq)
 
 instance Show Turn where
     show (Turn(face, degrees))
+        | face == N = ""
         | degrees == 2 = (show face) ++ "2"
         | degrees == 3 = (show face) ++ "'"
         | otherwise = (show face)
@@ -138,14 +139,14 @@ permOfTurn (Turn(t, x)) = permOfTurn(Turn(t, x `mod` 4))
 
 --Not used, but could be interesting
 
---isCanonicalSecuence :: [Turn] -> Bool
---isCanonicalSecuence xs = canAux (Turn(N,0) : xs)
---    where
---        canAux :: [Turn] -> Bool
---        canAux [] = True
---        canAux [_] = True
---        canAux (Turn(x, _):Turn(y, m):xs) = ((axisOfFace x /= axisOfFace y) || x < y)
---            && canAux (Turn(y,m):xs)
+isCanonicalSecuence :: [Turn] -> Bool
+isCanonicalSecuence xs = canAux (Turn(N,0) : xs)
+    where
+        canAux :: [Turn] -> Bool
+        canAux [] = True
+        canAux [_] = True
+        canAux (Turn(x, _):Turn(y, m):xs) = ((axisOfFace x /= axisOfFace y) || x < y)
+            && canAux (Turn(y,m):xs)
 
 --numberCanonicalSequences :: Int -> Int
 --numberCanonicalSequences 0 = 1

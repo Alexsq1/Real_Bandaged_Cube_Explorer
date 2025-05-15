@@ -69,13 +69,11 @@ genericSearch ini cond validMoves h
 idaStar :: SearchingState -> SearchingState
 idaStar initSS
     | found thisSearchSS = thisSearchSS
-    | (nextDepth <= 20) && (nextDepth > treshold) = idaStar (initSS {maximumDepth = nextDepth})     --Update max depth with minimum node that exceeded the max.
-    --The <= 20 can be dangerous. Would prune non-optimal paths
+    | (nextDepth > treshold) = idaStar (initSS {maximumDepth = nextDepth})     --Update max depth with minimum node that exceeded the max.
     | otherwise = initSS
     where
         thisSearchSS = dfsSgle initSS
         treshold = maximumDepth initSS
-        --nextDepth = max (1 + maximumDepth initSS) (minimumExceding thisSearchSS)
         nextDepth = minimumExceding thisSearchSS
 
 -- | Search with dfs from one node

@@ -11,7 +11,7 @@ manimRecomendedVisualizer :: Cube -- ^ Initial position
     -> IO()
 
 manimRecomendedVisualizer cube algorithm = do
-    manimCustomVisualizer 10 1 "low_quality" cube "WHITE,#B90000,#009B48,#FFD500,#FF5900,#0045AD" algorithm
+    manimCustomVisualizer 10 1.5 "low_quality" cube "WHITE,#B90000,#009B48,#FFD500,#FF5900,#0045AD" algorithm
 
 -- | Generates a video with manim, allowing configuration
 manimCustomVisualizer :: Int -- ^ Seconds rotating over the diagonal
@@ -24,7 +24,7 @@ manimCustomVisualizer :: Int -- ^ Seconds rotating over the diagonal
 
 manimCustomVisualizer tRotation tMoves quality cube scheme alg = do
     _ <- spawnProcess "python"
-        ["src-exe/Data/manim_cube_visualizator.py", 
+        ["src-exe/IO_Visualizator/manim_cube_visualizator.py", 
         show tRotation, 
         show tMoves, 
         quality, 

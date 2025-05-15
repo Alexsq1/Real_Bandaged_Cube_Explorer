@@ -83,7 +83,8 @@ common common-exec-test
                     --Solvable,
                     OneInput,
                     OneSolve,
-                    OneGen
+                    OneGen,
+                    InputAndSolve
 
 
 

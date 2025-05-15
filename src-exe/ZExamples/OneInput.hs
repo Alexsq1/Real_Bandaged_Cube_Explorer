@@ -27,14 +27,15 @@ oneInput = do
 --    let c = cubeFromManimCodification eq state
 --    manimRecomendedVisualizer c (inv)
 
+    --Scramble: D L2 B L' D' B' L' D2 F D' L2 F' L2 B D L D' B' D L
 
     let eq = [("U", "w"), ("F", "g"), ("R", "r"), ("L", "o"), ("B", "b"), ("D", "y")]
-    let state = ["w", "y", "y", "y", "w", "w", "y", "w", "r",
-                "w", "r", "g", "w", "r", "r", "w", "b", "b",
-                "g", "g", "b", "y", "g", "b", "y", "g", "g",
-                "r", "r", "r", "w", "y", "o", "b", "y", "o",
-                "g", "r", "r", "g", "o", "b", "y", "o", "b",
-                "o", "o", "o", "b", "b", "o", "w", "g", "o"]
+    let state = ["w", "r", "r", "w", "w", "w", "r", "o", "o",
+                "g", "r", "w", "w", "r", "r", "r", "r", "w",
+                "b", "y", "y", "b", "g", "g", "y", "g", "g",
+                "b", "y", "y", "w", "y", "y", "w", "o", "o",
+                "b", "b", "y", "b", "o", "y", "b", "o", "o",
+                "g", "g", "r", "b", "b", "o", "g", "g", "o"]
 
     let c = cubeFromManimCodification eq state
 

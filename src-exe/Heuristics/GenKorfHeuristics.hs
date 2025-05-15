@@ -15,6 +15,7 @@ import qualified Data.Vector.Unboxed.Mutable as MV
 import Control.Monad.ST
 import Control.Monad(forM_)
 
+{-There should be a function to load the pdb in a file in this module-}
 
 --import Debug.Trace (trace, traceShow)
 
@@ -133,7 +134,7 @@ bfs kGen maxDepth pq faces visited onceEnqueued acc
         --trace ("First surpass: " ++ show thisKey ++ ", at depth " ++ show currDepth) $
         acc                                            --1st surpass, finished
 
-    | currDepth == maxDepth = bfs kGen maxDepth pqNoMin faces nextVSet (S.delete thisKey onceEnqueued) newChanges    --Only check your case
+    | currDepth == maxDepth = bfs kGen maxDepth pqNoMin faces nextVSet (S.delete thisKey onceEnqueued) newChanges    --Only check your case, not adding elements
     | otherwise = 
         --trace ("Normal, recieved " ++ show thisKey ++ " state at depth " ++ show currDepth ++ ", adding " ++ show nextGS ++ "\n") $
         bfs kGen maxDepth nextPQ faces nextVSet nextEnq newChanges      --Iterate
@@ -162,12 +163,16 @@ insertList ((k , p):xs) pq = PS.insert k p (insertList xs pq)
 nextLayerNonRepeating :: (BandagedCube -> Int)
                         -> GenerationState -> [Face] 
                         -> SetVisitedKeys -> SetVisitedKeys -> [GenerationState]
+                        
 nextLayerNonRepeating kGen (GenerationState(_, lastFace, bCube)) faces visited onceEnqueued = newStatesFiltered
     where
         moves = [ (f, Turn(f, m)) | f <- faces, m <- [1 .. 3], (axisOfFace f /= axisOfFace lastFace) || (f > lastFace),validTurn bCube f]
-        possibleAccesibleStates = [(lf, tryToTurn bCube m) | (lf, m) <- moves , isJust (tryToTurn bCube m)]
+        possibleAccesibleStates = [(lf, tryToTurn bCube m) | (lf, m) <- moves, isJust (tryToTurn bCube m)]
 
-        newStatesFiltered = [  GenerationState (kGen bc, lf, bc) | (lf, Just bc) <- possibleAccesibleStates , S.notMember (kGen bc) visited, S.notMember (kGen bc) onceEnqueued ]
+        newStatesFiltered = [  GenerationState (kGen bc, lf, bc) | 
+                            (lf, Just bc) <- possibleAccesibleStates, 
+                            S.notMember (kGen bc) visited, 
+                            S.notMember (kGen bc) onceEnqueued ]
 
 lookupCorners :: BandagedCube -> Word8
 lookupCorners = lookupPiece 0

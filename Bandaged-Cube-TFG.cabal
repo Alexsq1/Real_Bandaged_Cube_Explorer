@@ -65,6 +65,7 @@ common common-exec-test
 
 
     other-modules:  Bandaged,
+                    ExpandBlocks,
                     Cube, 
                     Moves,
                     MathematicalNotation,

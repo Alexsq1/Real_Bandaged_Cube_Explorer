@@ -91,8 +91,7 @@ dfsSgle initialSS
         (SearchingState _ ini currD maxD predicate _ _ movesValid lstFace h exc) = initialSS
         estimLength = currD + h ini
 
-        prunedSS = if ((estimLength > maxD) && (estimLength < exc) && (estimLength <= 20))
-        --Maybe the <= 20 is not perfect. 
+        prunedSS = if ((estimLength > maxD) && (estimLength < exc))
             then
                 (initialSS{minimumExceding = estimLength})
             else

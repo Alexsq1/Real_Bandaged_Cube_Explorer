@@ -1,10 +1,10 @@
 module InputCube(bandagedCubeScratchIO) where
 
 import Cube
-import Moves
 import Bandaged
 import InputBandagedCube
-import Visualizator
+--import Visualizator
+--import Moves
 import ManimHsConversion
 
 import Data.List.Split(splitOn)
@@ -16,15 +16,13 @@ bandagedCubeScratchIO = do
 
     --Input of colours
     equivs <- faceAliases
-    sch <- colourScheme equivs
+    --sch <- colourScheme equivs
 
     --Input of the cube
     cube <- input54Stickers equivs
 
     --Input of the blocks
     xs <- inputBlock equivs
-
-    manimCustomVisualizer 10 1 "low_quality" cube sch (Algorithm [])
 
     return $ newBandagedCube cube xs
 

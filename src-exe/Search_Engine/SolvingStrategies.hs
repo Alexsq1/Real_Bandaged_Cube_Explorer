@@ -1,4 +1,4 @@
-module SolvingStrategies(iddfsSolver, kociembaSolver, korfSolver, korfLayersSolver) where
+module SolvingStrategies(iddfsSolver, kociembaSolver, korfSolver, smartKorfSolver) where
 
 
 import Bandaged(BandagedCube(..), solvedBC, tryToExecuteAlg)
@@ -8,7 +8,7 @@ import Search
 import Heuristic
 import MathematicalNotation(edgesState, cornerState)
 
-import MoveGeneration(sixAxis, kociembaMoves, freeFaces)
+import MoveGeneration(sixAxis, kociembaMoves, notBlockedMoves)
 
 import Data.Maybe(fromJust, isJust)
 import Data.List(sort)
@@ -35,10 +35,14 @@ kociembaSolver bc
         bcIntermediate = algStep1 >>= (\algUnpack -> tryToExecuteAlg bc algUnpack)
         algStep2 = bcIntermediate >>= (\bcUnpack -> genericSearch bcUnpack solvedBC kociembaMoves korfHeuristic)
        
--- | Solves the cube optimally with the Korf algorithm.
+-- | Solves the cube optimally with the Korf algorithm. Generation with 6 faces.
 korfSolver :: BandagedCube -> Maybe Algorithm
 korfSolver bc = genericSearch bc (solvedBC) sixAxis korfHeuristic
 
+-- | Solves the cubo optimally with the Korf algorithm. Use only the movable faces
+smartKorfSolver :: BandagedCube -> Maybe Algorithm
+smartKorfSolver bc = genericSearch bc (solvedBC) (notBlockedMoves bc) korfHeuristic
+
 -- | Allows the Korf algorithm to specify the layers used to generate moves
-korfLayersSolver :: [Face] -> BandagedCube -> Maybe Algorithm
-korfLayersSolver fs bc = genericSearch bc (solvedBC) (freeFaces fs) korfHeuristic
+--korfLayersSolver :: [Face] -> BandagedCube -> Maybe Algorithm
+--korfLayersSolver fs bc = genericSearch bc (solvedBC) (freeFaces fs) korfHeuristic

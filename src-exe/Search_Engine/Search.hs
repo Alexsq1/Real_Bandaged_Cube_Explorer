@@ -51,7 +51,6 @@ genericSearch ini cond validMoves h
     where
         --nums = [1 .. 3]
         --gen1 = [ Turn(f, n) | f <- validLs, n <- nums]
-        --To be improved: use only free faces (delete non movable)
         validLs = nub (map (\(Turn(f,_)) -> f ) validMoves)
 
         initialSS = SearchingState{found = False, initialState = ini,
@@ -61,7 +60,7 @@ genericSearch ini cond validMoves h
                                     listMoves = validMoves, 
                                     lastFace = N, 
                                     heuristic = h,
-                                    minimumExceding = 21}
+                                    minimumExceding = maxBound :: Int}
                                     
                                     --Start initial max depth with heuristic of initial node
         search = idaStar initialSS
@@ -71,6 +70,7 @@ idaStar initSS
     | found thisSearchSS = thisSearchSS
     | (nextDepth > treshold) = idaStar (initSS {maximumDepth = nextDepth})     --Update max depth with minimum node that exceeded the max.
     | otherwise = initSS
+--    | otherwise = idaStar (initSS {maximumDepth = nextDepth + 1})               --Dangerous. If there is no solution, infinite recursion
     where
         thisSearchSS = dfsSgle initSS
         treshold = maximumDepth initSS

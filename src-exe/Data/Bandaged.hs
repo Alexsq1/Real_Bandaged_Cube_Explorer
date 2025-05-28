@@ -82,12 +82,10 @@ tryToTurn bCube currTurn
 
 -- | Checks if a Face would not break any block
 validTurn :: BandagedCube -> Face -> Bool
-validTurn bCube face = and (boolsAllBlocks)
+validTurn bCube face = all (checkOneBlock) allRestr
     where
         allRestr = restrictions bCube
-        --checkOneBlock :: S.Set Int -> Bool
         checkOneBlock = turnPreserveBlock bCube face
-        boolsAllBlocks = S.map (checkOneBlock) allRestr
 
 turnPreserveBlock :: BandagedCube -> Face -> S.Set Int -> Bool
 turnPreserveBlock (BandagedCube cubeState _) face block = (S.disjoint block s1Real) || (S.disjoint block s2Real)

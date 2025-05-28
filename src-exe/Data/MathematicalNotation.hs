@@ -1,7 +1,7 @@
 module MathematicalNotation(cornerState, edgesState, edgesSplittedState) where
 
 import Cube
-import Bandaged
+import Bandaged(BandagedCube(..))
 
 -- | Returns the state of corners in "mathematical" notation
 cornerState :: BandagedCube -> ([Int], [Int])

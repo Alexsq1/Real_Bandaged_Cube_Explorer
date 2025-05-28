@@ -24,4 +24,5 @@ oneGen = do
 
     --let sols = map (\scr -> fromJust (korfSolver scr)) scr1Move
     let sols = map (\scr -> fromJust (iddfsSolver scr)) scr1Move
+    
     putStrLn ("Finished depth , max sol: " ++ (show (maximum (map (\(Algorithm x) -> length x) sols))))

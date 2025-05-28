@@ -7,7 +7,7 @@ import Bandaged
 import InputBandagedCube
 import Data.Maybe
 import Data.List
-import Heuristic
+import KorfHeuristic
 import Combinatorics
 import IndexHeuristics
 

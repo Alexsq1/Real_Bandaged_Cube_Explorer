@@ -91,8 +91,7 @@ class Plantilla(ThreeDScene):
 """ GENERACIÓN DEL VÍDEO: """
 
 #CALLING EXAMPLE: 
-# $ python manim_cube_visualizator.py UUUUUUUUURLRRRRRRRLFFFFFFFFDDDDDDDDDFRBLLLLLLBBLBBBBBB "L' U' L U L F' L2 U L U L' U' L F"
-
+# $ python manim_cube_visualizator.py 10 1.5 "low_quality"  "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB" "WHITE,#B90000,#009B48,#FFD500,#FF5900,#0045AD" "R' U F2" 
 
 config.quality = "low_quality"
 #config.quality = "high_quality"

@@ -1,19 +1,18 @@
 module Main where
 
-
+import InputAndSolve
+--import OneInput
 --import OneSolve
-import OneInput
-----import OneGen
---import InputAndSolve
---
 
+--import Moves
+--import Cube
 --import Bandaged
---import MoveGeneration
---import InputBandagedCube
 --import InputCube
---import qualified Data.Set as S
+--import InputBandagedCube
+--import SolvingStrategies
 
 main :: IO ()
 main = do
-    --InputAndSolve.inputAndSolve
-    OneInput.oneInput
+    InputAndSolve.inputAndSolve
+    --OneInput.oneInput
+    --OneSolve.oneSolve

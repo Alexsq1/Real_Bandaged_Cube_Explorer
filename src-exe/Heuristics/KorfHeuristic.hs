@@ -1,4 +1,4 @@
-module Heuristic(korfHeuristic, korfIndivHeuristics) where
+module KorfHeuristic(korfHeuristic, korfIndivHeuristics) where
 
 import GenKorfHeuristics
 import Bandaged

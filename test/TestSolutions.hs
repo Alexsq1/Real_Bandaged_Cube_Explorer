@@ -8,7 +8,7 @@ import Moves
 import Bandaged
 import InputBandagedCube
 import Data.Maybe
-import Heuristic
+import KorfHeuristic
 import MoveGeneration
 
 testSolutions :: IO()

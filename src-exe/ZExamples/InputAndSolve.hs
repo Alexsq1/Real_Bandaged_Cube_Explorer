@@ -6,18 +6,19 @@ import Bandaged
 
 import Visualizator
 import InputCube
+
 --import Moves(Algorithm(..))
 
---import Heuristic
+--import KorfHeuristic
 import SolvingStrategies
 
 inputAndSolve :: IO ()
 inputAndSolve = do
 
-    bc <- bandagedCubeScratchIO
-    --manimRecomendedVisualizer (stdCube bc) (Algorithm [])
+    (bc, scheme) <- bandagedCubeScratchIO
+    --manimRecomendedVisualizer (stdCube bc) scheme (Algorithm [])
 
     let solution2 = smartKorfSolver bc
-    putStrLn ("\n\nSolution found: " ++ (show solution2) ++ "\n\n")
+    putStrLn ("\n\nSolution found: " ++ (show $ fromJust solution2) ++ "\n\n")
 
-    manimRecomendedVisualizer (stdCube bc) (fromJust solution2)
+    manimRecomendedVisualizer (stdCube bc) scheme (fromJust solution2)

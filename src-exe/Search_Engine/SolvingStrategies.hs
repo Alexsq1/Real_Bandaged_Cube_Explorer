@@ -1,11 +1,11 @@
-module SolvingStrategies(iddfsSolver, kociembaSolver, korfSolver, smartKorfSolver) where
+module SolvingStrategies(iddfsSolver, kociembaSolver, smartKorfSolver) where
 
 
 import Bandaged(BandagedCube(..), solvedBC, tryToExecuteAlg)
 import Moves
 
 import Search
-import Heuristic
+import KorfHeuristic
 import MathematicalNotation(edgesState, cornerState)
 
 import MoveGeneration(sixAxis, kociembaMoves, notBlockedMoves)
@@ -34,10 +34,6 @@ kociembaSolver bc
         algStep1 = genericSearch bc (kociembaState) sixAxis (const 0)
         bcIntermediate = algStep1 >>= (\algUnpack -> tryToExecuteAlg bc algUnpack)
         algStep2 = bcIntermediate >>= (\bcUnpack -> genericSearch bcUnpack solvedBC kociembaMoves korfHeuristic)
-       
--- | Solves the cube optimally with the Korf algorithm. Generation with 6 faces.
-korfSolver :: BandagedCube -> Maybe Algorithm
-korfSolver bc = genericSearch bc (solvedBC) sixAxis korfHeuristic
 
 -- | Solves the cubo optimally with the Korf algorithm. Use only the movable faces
 smartKorfSolver :: BandagedCube -> Maybe Algorithm

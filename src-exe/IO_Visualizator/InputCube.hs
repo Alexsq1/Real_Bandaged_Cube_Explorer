@@ -11,12 +11,12 @@ import Data.List.Split(splitOn)
 import Data.List(intercalate)
 
 -- | Definitive IO for asking the user to generate a Bandaged Cube
-bandagedCubeScratchIO :: IO BandagedCube
+bandagedCubeScratchIO :: IO (BandagedCube, String)
 bandagedCubeScratchIO = do
 
     --Input of colours
     equivs <- faceAliases
-    --sch <- colourScheme equivs
+    sch <- colourScheme equivs
 
     --Input of the cube
     cube <- input54Stickers equivs
@@ -24,7 +24,7 @@ bandagedCubeScratchIO = do
     --Input of the blocks
     xs <- inputBlock equivs
 
-    return $ newBandagedCube cube xs
+    return $ (newBandagedCube cube xs, sch)
 
 
 --Example of list of tuples: [("U", "White"), ("F", "Green"), ("R", "Red"), ("L", "Orange"), ("B", "Blue"), ("D", "Yellow")]
@@ -104,6 +104,7 @@ colourScheme equiv = do
     putStrLn "Yellow: #FFD500"
     putStrLn "Orange: #FF5900"
     putStrLn "Blue: #0045AD"
+    putStrLn ""
 
     putStrLn ("Insert colour for U face (alias "++ (xsAlias !! 0) ++ ") (hexadecimal or by name, default #FFFFFF (white))")
     u0x <- getLine

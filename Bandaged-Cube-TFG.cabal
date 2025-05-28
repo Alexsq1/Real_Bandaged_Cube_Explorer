@@ -76,7 +76,7 @@ common common-exec-test
                     Visualizator,
                     Combinatorics,
                     GenKorfHeuristics,
-                    Heuristic,
+                    KorfHeuristic,
                     IndexHeuristics,
                     Search,
                     SolvingStrategies,

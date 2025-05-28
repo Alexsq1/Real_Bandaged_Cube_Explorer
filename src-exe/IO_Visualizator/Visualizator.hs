@@ -7,11 +7,14 @@ import System.Process (spawnProcess)
 
 -- | Generates a video with manim, with recomended options for rendering
 manimRecomendedVisualizer :: Cube -- ^ Initial position
+    -> String                     -- ^ Color scheme ("" for default)
     -> Algorithm                  -- ^ Algorithm executed
     -> IO()
 
-manimRecomendedVisualizer cube algorithm = do
+manimRecomendedVisualizer cube "" algorithm = do
     manimCustomVisualizer 10 1.5 "low_quality" cube "WHITE,#B90000,#009B48,#FFD500,#FF5900,#0045AD" algorithm
+manimRecomendedVisualizer cube scheme algorithm = do
+    manimCustomVisualizer 10 1.5 "low_quality" cube scheme algorithm
 
 -- | Generates a video with manim, allowing configuration
 manimCustomVisualizer :: Int -- ^ Seconds rotating over the diagonal

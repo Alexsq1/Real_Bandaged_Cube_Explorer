@@ -1,4 +1,4 @@
-module MoveGeneration(sixAxis, kociembaMoves, notBlockedMoves) where
+module MoveGeneration(sixAxis, freeFaces, kociembaMoves, notBlockedMoves) where
 
 import Moves
 import qualified Data.Set as S

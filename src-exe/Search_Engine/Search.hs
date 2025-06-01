@@ -2,7 +2,7 @@ module Search(genericSearch) where
 
 import Bandaged
 import Moves
-import Data.Maybe(fromJust, isNothing)
+import Data.Maybe(fromJust)
 import Data.List(nub)
 
 -- | SearchingState storages all the information needed to to a Search.
@@ -96,13 +96,14 @@ dfsSgle initialSS
                 (initialSS{minimumExceding = estimLength})
             else
                 initialSS
-        movesToIterate = filter (predCanonicSequence lstFace) movesValid
+        movesToIterate = filter (predValidCanonicSequence ini lstFace) movesValid
 
         --This makes canonical sequences
         
-        predCanonicSequence :: Face -> Turn -> Bool
-        predCanonicSequence lsface (Turn(f,_)) = 
-            (axisOfFace f /= axisOfFace lsface) || (f > lsface)
+        predValidCanonicSequence :: BandagedCube -> Face -> Turn -> Bool
+        predValidCanonicSequence bc lsface (Turn(f,_)) = 
+            ((axisOfFace f /= axisOfFace lsface) || (f > lsface)) &&
+            (validTurn bc f)
 
 -- | Search with dfs algorithm. Iterate over several move generation
 dfsMult :: SearchingState                       -- ^ Initial
@@ -111,13 +112,12 @@ dfsMult :: SearchingState                       -- ^ Initial
 
 dfsMult initialSS [] = initialSS                                    --ended iterating
 dfsMult initialSS (x:xs)                                            --keep iterations
-    | isNothing nextState = dfsMult initialSS xs                    --Not valid turn, breaks a block
+--    | isNothing nextState = dfsMult initialSS xs                    --Not valid turn, breaks a block
     | found thisBrach = thisBrach {solution = (x : solutionP)}      --Correct branch, recompose solution
-    | currD > maxD = initialSS                                      --pruning (difficult with good heuristics)            
     | otherwise = 
         dfsMult (initialSS {minimumExceding = min exc0 maybeNewExc}) xs                              --Incorrect branch, keep searching
     where
-        (SearchingState _ ini currD maxD _ _ _ _ _ _ exc0) = initialSS
+        (SearchingState _ ini currD _ _ _ _ _ _ _ exc0) = initialSS
         nextState = tryToTurn ini x
         (Turn(lastFaceExecuted, _)) = x
         thisBrach = dfsSgle (initialSS

@@ -1,8 +1,8 @@
 module Main where
 
-import InputAndSolve
+--import InputAndSolve
 --import OneInput
---import OneSolve
+import OneSolve
 
 --import Moves
 --import Cube
@@ -13,6 +13,6 @@ import InputAndSolve
 
 main :: IO ()
 main = do
-    InputAndSolve.inputAndSolve
+    --InputAndSolve.inputAndSolve
     --OneInput.oneInput
-    --OneSolve.oneSolve
+    OneSolve.oneSolve

@@ -85,7 +85,8 @@ common common-exec-test
                     OneInput,
                     OneSolve,
                     OneGen,
-                    InputAndSolve
+                    InputAndSolve,
+                    HundredSolves
 
 
 

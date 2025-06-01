@@ -1,6 +1,6 @@
 module InputAndSolve(inputAndSolve) where
 
-import Data.Maybe(fromJust)
+import Data.Maybe(fromJust, fromMaybe)
 
 import Bandaged
 
@@ -19,7 +19,7 @@ inputAndSolve = do
     --manimRecomendedVisualizer (stdCube bc) scheme (Algorithm [])
 
     let solution = smartKorfSolver bc
-    let Just (Algorithm moves) = solution
+    let (Algorithm moves) = fromMaybe (Algorithm[]) solution
     putStrLn ("\n\nSolution found: " ++ (show $ fromJust solution) ++ 
                 "\n" ++ (show (length moves)) ++ " moves" ++  "\n\n")
 

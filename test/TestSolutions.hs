@@ -11,26 +11,24 @@ import SolvingStrategies(smartKorfSolver)
 import MoveGeneration(freeFaces)
 
 import Debug.Trace
-import Test.QuickCheck
-
 testSolutions :: IO()
 testSolutions = do
     putStrLn "TESTS OF SOLUTIONS AND SEARCH ENGINE"
 
-    --putStrLn "Testing a 3x3x3"
-    --quickCheck (threeByThree 8)
+    putStrLn "Testing a 3x3x3"
+    quickCheck (threeByThree 8)
 
-    putStrLn "Testing a 2-gen"
-    quickCheck (twoGen 25)
+    --putStrLn "Testing a 2-gen"
+    --quickCheck (twoGen 25)
 
     --putStrLn "Testing a 3-gen RUF"
-    --quickCheck (threeGenAdj 15) --max 21
+    --quickCheck (threeGenAdj 12) --max 21
 --
     --putStrLn "Testing a 3-gen RUL"
-    --quickCheck (threeGenParalel 15) --max 24
+    --quickCheck (threeGenParalel 13) --max 24
 --
     --putStrLn "Testing a 4-gen RUFL"
-    --quickCheck (fourGen 13) --max ?
+    --quickCheck (fourGen 11) --max ?
 --
     --putStrLn "Testing a quad313"
     --quickCheck (quad313 30)
@@ -39,7 +37,7 @@ testSolutions = do
     --quickCheck (biCube 30)
 --
     --putStrLn "Testing an alcatraz"
-    --quickCheck (withMaxSuccess 100 (alcatraz 200))
+    --quickCheck (alcatraz 200)
 --
     --putStrLn "Testing a TheMaoiSha-252"
     --quickCheck (theMaoisha252 300)
@@ -93,29 +91,42 @@ biCube :: Int -> Property
 biCube n = korfSearchSolvesOptimally generator faces blocks n
     where
         faces = [R,U,F,L]
-        blocks = [[24,48],[52,47],[41,49],[37,50],[51,45],[53,44],
-            [3,26],[6,28],[0,30],[39,20],[32,23],[34,13],[6,28],
-            [43,16],[5,27]]
+        blocks = [[24,48],[52,47],[41,49],[37,50],[51,53],
+                [3,26],[6,28],[0,30],[39,20],[32,23],[34,13],
+                [43,16],[5,27]]
 
-        generator = genWithLookAhead (newBandagedCube newSolvedCube blocks) faces n 
-     
+        generator = subAlgsGenerator algs
+
+        algs = map (\t -> read t :: Algorithm) 
+            ["F' U L F' L' F2 R2 U2 L' U R' U2 L U' F' U' F R U L' U2 R",
+            "U F2 R F2 L' U' R U' L U2 R' U' R' F R U F' L'",
+            "F' U L F' L' F2 R2 U2 L' U R' U2 L U' F' U' F R'"]
 
 
 alcatraz :: Int -> Property
 alcatraz n = korfSearchSolvesOptimally generator faces blocks n
     where
         faces = [R,U,F]
-        blocks = [[3,28],[51,52,53],[32,23],[34,13],[16,37],[49,41],[50,43]]
-        generator = genWithLookAhead (newBandagedCube newSolvedCube blocks) faces n 
+        blocks = [[3,48],[51,52,53],[32,23],[34,13],[16,37],[49,41],[50,43]]
+        --generator = genWithLookAhead (newBandagedCube newSolvedCube blocks) faces n 
+        generator = subAlgsGenerator algs
+
+        algs = map (\t -> read t :: Algorithm) 
+            ["F U F' U2 R' U F2 R' F' R U F2 U' F R U F' U' F2 R2",
+            "U' R U R2 F R F' U' R' U F R U F' U' R' F R'",
+            "U' R U R' U F' U' F' R2 F2 R' U' R' U F' U F U'",
+            "U' R U R2 F R F' U' R' U F R U F' U' R' F R F2 U F U' ",
+            "U F' U' F2 R' F' R U F U' R' F' U' R U F R' F' R2 U' R' U "]   --22 moves
 
 theMaoisha252 :: Int -> Property
 theMaoisha252 n = korfSearchSolvesOptimally generator faces blocks n
     where
         faces = [R,U,F]
         blocks = [[51,52,53], [0,1,2,30,31], [21,22,23,40,41], [9,10,11,34,35,12,13,14], [6,7,8,28,29], [15,16,17,42,43]]
-        --alg1 = read "F' U' R' F2 R F U' R2 U R F' U R U2 R' F U F2 U' R' F' U' R' F' U2 F U R' F2 R F U' R F R2 F' U R U2 R' F' U' R' F' U' R2 U R F' U2 F U R' F U F2 U' R F R2 F' U' R' " :: Algorithm
+        alg = read "F' U' R' F2 R F U' R2 U R F' U R U2 R' F U F2 U' R' F' U' R' F' U2 F U R' F2 R F U' R F R2 F' U R U2 R' F' U' R' F' U' R2 U R F' U2 F U R' F U F2 U' R F R2 F' U' R' " :: Algorithm
     
-        generator = genWithLookAhead (newBandagedCube newSolvedCube blocks) faces n 
+--        generator = genWithLookAhead (newBandagedCube newSolvedCube blocks) faces n 
+        generator = subAlgsGenerator [alg, alg <> alg, alg <> alg <> alg, alg <> alg <> alg <> alg]
 
 korfSearchSolvesOptimally :: Gen Algorithm -> [Face] -> [[Int]] -> Int -> Property
 korfSearchSolvesOptimally customGenerator faces blocks maxLengthScramble =
@@ -125,7 +136,7 @@ korfSearchSolvesOptimally customGenerator faces blocks maxLengthScramble =
     forAll (customGenerator) 
         $ \scramble ->
             let
-                scrambeledCube = fromJust (tryToExecuteAlg origin scramble)
+                scrambeledCube = fromMaybe origin (tryToExecuteAlg origin scramble)
                 solve = fromJust (smartKorfSolver scrambeledCube)
                 Algorithm xs1 = scramble
                 Algorithm xs2 = solve

@@ -1,6 +1,6 @@
 module HundredSolves where
 
-import Test.QuickCheck
+--import Test.QuickCheck
 
 import Cube
 import Moves
@@ -9,7 +9,7 @@ import InputBandagedCube
 import Data.Maybe
 import Data.List (group, sort)
 import SolvingStrategies(smartKorfSolver)
-import MoveGeneration(freeFaces)
+--import MoveGeneration(freeFaces)
 
 
 

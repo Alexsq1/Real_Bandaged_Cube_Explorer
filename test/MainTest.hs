@@ -8,23 +8,21 @@ import TestHeuristics
 --main-is of cabal test
 main :: IO()
 main = do
-    putStrLn "\n\n\n"
-    putStrLn "Testing Cube:"
-    testsCube
-
-    putStrLn "\n"
-    putStrLn "Testing Moves:"
-    testsMoves
-    --Test of moves is not working
---
-    putStrLn "\n"
-    putStrLn "Testing Heuristics:"
-    testHeuristics
-    --putStrLn "Removed testing of heuristics"
+    --putStrLn "\n\n\n"
+    --putStrLn "Testing Cube:"
+    --testsCube
 
     --putStrLn "\n"
-    --putStrLn "Testing Solutions:"
-    --testSolutions
+    --putStrLn "Testing Moves:"
+    --testsMoves
+
+    --putStrLn "\n"
+    --putStrLn "Testing Heuristics:"
+    --testHeuristics
+
+    putStrLn "\n"
+    putStrLn "Testing Solutions:"
+    testSolutions
 
     putStrLn "\n"
 

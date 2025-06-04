@@ -39,17 +39,3 @@ firstOcurrence n xs = (i, xs2)
     where 
         i = fromJust (elemIndex n xs)
         xs2 = delete n xs
-
---variationsCardinal :: Int -> Int -> Int
---variationsCardinal n r = product [(n - r + 1 ) .. n]
---
----- | Generates the variations of n elements of a list
---variations :: Int           -- ^ Number of elems in each variation 
---            -> [Int]        -- ^ List of elements to choose
---            -> [[Int]]
---variations 0 _ = [[]]
---variations _ [] = [[]]
---variations k xs = [y:ys | (y,rest) <- select xs, ys <- variations (k-1) rest]
---    where
---        select [] = []
---        select (x:xss) = (x,xss) : [(y,x:ys) | (y,ys) <- select xss]

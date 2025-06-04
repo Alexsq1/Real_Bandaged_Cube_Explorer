@@ -112,7 +112,6 @@ piecesNotAfected bm = S.difference s0_53 (piecesAfected bm)
     where
         s0_53 = S.fromList [0..53]
 
-
 instance Arbitrary BandagedCube where
     arbitrary = do
         alg <- arbitrary

@@ -8,8 +8,7 @@ import Data.Group
 
 
 testsCube :: IO ()
-testsCube = do 
-    putStrLn "\nStarting tests of Cube: \n\n"
+testsCube = do
     quickCheck ( associativity)
     quickCheck ( neutral1)
     quickCheck ( neutral2)

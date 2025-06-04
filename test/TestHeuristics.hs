@@ -14,15 +14,37 @@ import IndexHeuristics
 
 testHeuristics :: IO()
 testHeuristics = do
-        quickCheck perfectHashingCP
-        quickCheck perfectHashingEP
-        quickCheck perfectHashingBC
+        quickCheck (perfectHashingPerms)
+        quickCheck (perfectHashingNPR)
+--        quickCheck perfectHashingCP
+--        quickCheck perfectHashingEP
+--        quickCheck perfectHashingBC
         putStrLn "Generating pattern databases, be patient"
         quickCheck admisibleCornerHeuristic
         quickCheck admisibleEdgeFstHeuristic
         quickCheck admisibleEdgeSndHeuristic
         quickCheck korfAdmissible
         
+
+perfectHashingPerms :: Property
+perfectHashingPerms = property (sort numbering == [minimum numbering .. maximum numbering])
+    where
+        perms = permutations [0 .. 7]
+        numbering = map (factorialNumbering) perms
+
+perfectHashingNPR :: Property
+perfectHashingNPR = property (sort numbering == [minimum numbering .. maximum numbering])
+    where
+        vars = variations 6 [0..11]
+        numbering = map (nprNumbering [0..11]) vars
+
+        variations :: Int -> [Int] -> [[Int]]
+        variations 0 _ = [[]]
+        variations _ [] = [[]]
+        variations k xs = [y:ys | (y,rest) <- select xs, ys <- variations (k-1) rest]
+            where
+                select [] = []
+                select (x:xss) = (x,xss) : [(y,x:ys) | (y,ys) <- select xss]
 
 perfectHashingCP :: Property
 perfectHashingCP = forAll (genCPs 2000) $
@@ -69,12 +91,10 @@ admisibleEdgeSndHeuristic alg = property (edgeH <= length xs)
             _ -> 1000
         
 korfAdmissible :: Algorithm -> Property
-korfAdmissible alg = property (h <= length xs)
+korfAdmissible alg = property (h <= lengthAlg alg)
     where
-        Algorithm xs = alg
         finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
         h = korfHeuristic finalSt
-
 
 gen1CP :: Gen [Int]
 gen1CP = shuffle [0 .. 7]

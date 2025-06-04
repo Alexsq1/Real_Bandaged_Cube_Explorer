@@ -12,6 +12,7 @@ testsMoves = do
     quickCheck (neutral2)
     quickCheck (inverse1)
     quickCheck (inverse2)
+    quickCheck (inversedoble)
 
 associativityMoves :: Algorithm -> Algorithm -> Algorithm -> Property
 associativityMoves a1 a2 a3 = (a1 <> (a2 <> a3)) === ((a1 <> a2) <> a3)
@@ -27,3 +28,6 @@ inverse1 a = (a <> (invert a)) === mempty
 
 inverse2 :: Algorithm -> Property
 inverse2 a = ((invert a) <> a) === mempty
+
+inversedoble :: Algorithm -> Property
+inversedoble a = ( (invert . invert) a) === a

@@ -15,8 +15,8 @@ testSolutions :: IO()
 testSolutions = do
     putStrLn "TESTS OF SOLUTIONS AND SEARCH ENGINE"
 
-    putStrLn "Testing a 3x3x3"
-    quickCheck (threeByThree 8)
+    --putStrLn "Testing a 3x3x3"
+    --quickCheck (threeByThree 8)
 
     --putStrLn "Testing a 2-gen"
     --quickCheck (twoGen 25)
@@ -24,8 +24,8 @@ testSolutions = do
     --putStrLn "Testing a 3-gen RUF"
     --quickCheck (threeGenAdj 12) --max 21
 --
-    --putStrLn "Testing a 3-gen RUL"
-    --quickCheck (threeGenParalel 13) --max 24
+    putStrLn "Testing a 3-gen RUL"
+    quickCheck (threeGenParalel 13) --max 24
 --
     --putStrLn "Testing a 4-gen RUFL"
     --quickCheck (fourGen 11) --max ?
@@ -46,31 +46,31 @@ testSolutions = do
 --korfSearchSolvesOptimally :: (Int -> Gen Algorithm) -> [Face] -> [[Int]] -> Int -> Property
 
 threeByThree :: Int -> Property
-threeByThree n = korfSearchSolvesOptimally generator faces [[]] n
+threeByThree n = korfSearchSolvesOptimally generator [[]] n
     where
         faces = [R .. ]
         generator = canonicAlgGenerator faces n
 
 twoGen :: Int -> Property
-twoGen n = korfSearchSolvesOptimally generator faces [[49,51,52,53]] n
+twoGen n = korfSearchSolvesOptimally generator [[49,51,52,53]] n
     where
         faces = [R, U]
         generator = canonicAlgGenerator faces n
 
 threeGenAdj :: Int -> Property
-threeGenAdj n = korfSearchSolvesOptimally generator faces [[51,52,53]] n
+threeGenAdj n = korfSearchSolvesOptimally generator [[51,52,53]] n
     where
         faces = [R,U,F]
         generator = canonicAlgGenerator faces n
 
 threeGenParalel :: Int -> Property
-threeGenParalel n = korfSearchSolvesOptimally generator faces [[49,51,53]] n
+threeGenParalel n = korfSearchSolvesOptimally generator [[49,51,53]] n
     where
         faces = [R,U,L]
         generator = canonicAlgGenerator faces n
 
 fourGen :: Int -> Property
-fourGen n = korfSearchSolvesOptimally generator faces [[51,53]] n
+fourGen n = korfSearchSolvesOptimally generator [[51,53]] n
     where
         faces = [R,U,F,L]
         generator = canonicAlgGenerator faces n
@@ -80,7 +80,7 @@ fourGen n = korfSearchSolvesOptimally generator faces [[51,53]] n
 --genWithLookAhead :: BandagedCube -> [Face] -> Int -> Gen Algorithm
 
 quad313 :: Int -> Property
-quad313 n = korfSearchSolvesOptimally generator faces blocks n
+quad313 n = korfSearchSolvesOptimally generator blocks n
     where
         faces = [R,U,F,L,D,B]
         blocks = [[0,21],[9,12],[6,15],[3,18]]
@@ -88,7 +88,7 @@ quad313 n = korfSearchSolvesOptimally generator faces blocks n
             
 
 biCube :: Int -> Property
-biCube n = korfSearchSolvesOptimally generator faces blocks n
+biCube n = korfSearchSolvesOptimally generator blocks n
     where
         faces = [R,U,F,L]
         blocks = [[24,48],[52,47],[41,49],[37,50],[51,53],
@@ -104,7 +104,7 @@ biCube n = korfSearchSolvesOptimally generator faces blocks n
 
 
 alcatraz :: Int -> Property
-alcatraz n = korfSearchSolvesOptimally generator faces blocks n
+alcatraz n = korfSearchSolvesOptimally generator blocks n
     where
         faces = [R,U,F]
         blocks = [[3,48],[51,52,53],[32,23],[34,13],[16,37],[49,41],[50,43]]
@@ -119,7 +119,7 @@ alcatraz n = korfSearchSolvesOptimally generator faces blocks n
             "U F' U' F2 R' F' R U F U' R' F' U' R U F R' F' R2 U' R' U "]   --22 moves
 
 theMaoisha252 :: Int -> Property
-theMaoisha252 n = korfSearchSolvesOptimally generator faces blocks n
+theMaoisha252 n = korfSearchSolvesOptimally generator blocks n
     where
         faces = [R,U,F]
         blocks = [[51,52,53], [0,1,2,30,31], [21,22,23,40,41], [9,10,11,34,35,12,13,14], [6,7,8,28,29], [15,16,17,42,43]]
@@ -128,10 +128,10 @@ theMaoisha252 n = korfSearchSolvesOptimally generator faces blocks n
 --        generator = genWithLookAhead (newBandagedCube newSolvedCube blocks) faces n 
         generator = subAlgsGenerator [alg, alg <> alg, alg <> alg <> alg, alg <> alg <> alg <> alg]
 
-korfSearchSolvesOptimally :: Gen Algorithm -> [Face] -> [[Int]] -> Int -> Property
-korfSearchSolvesOptimally customGenerator faces blocks maxLengthScramble =
+korfSearchSolvesOptimally :: Gen Algorithm -> [[Int]] -> Int -> Property
+korfSearchSolvesOptimally customGenerator blocks maxLengthScramble =
     let 
-        origin = newBandagedCube (newCubeFromList [0..53]) blocks
+        origin = newBandagedCube (newSolvedCube) blocks
     in
     forAll (customGenerator) 
         $ \scramble ->

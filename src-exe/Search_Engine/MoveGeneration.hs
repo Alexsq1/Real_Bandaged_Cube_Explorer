@@ -1,4 +1,4 @@
-module MoveGeneration(sixAxis, freeFaces, kociembaMoves, notBlockedMoves) where
+module MoveGeneration(sixAxis, freeFaces, kociembaMoves, notBlockedMoves, numberCanonicalSequences) where
 
 import Moves
 import qualified Data.Set as S
@@ -56,3 +56,28 @@ movableFaces bCube = S.toList (S.difference (S.fromList [R, U, F, L, D, B]) allB
         centerToLayer 52 = L
         centerToLayer 53 = D
         centerToLayer _ = N
+
+numberCanonicalSequences :: Int -> [Face] -> [(Int,Int)]
+numberCanonicalSequences n faces = map (\m -> (m, length (genAllCanonics m turns))) [1 .. n]
+    where
+        turns = [Turn(f,m) | f <- faces, m <- [1..3]]
+
+        genAllCanonics :: Int -> [Turn] -> [[Turn]]
+        genAllCanonics 1 xs = map (\m -> [m]) xs
+        genAllCanonics nMoves xs = concat (map (\m -> addOneMove m minusOne) xs)
+            where
+                minusOne = genAllCanonics (nMoves-1) xs
+        
+        addOneMove :: Turn -> [[Turn]] -> [[Turn]]
+        addOneMove m xs = map (\moves -> (m : moves)) sublist
+            where
+                sublist = filter (\alg -> case alg of
+                                            [] -> canJoinMoves m (Turn(N,0))  --never happens
+                                            (x:_) -> canJoinMoves m x
+                                        ) xs
+                
+        canJoinMoves :: Turn -> Turn -> Bool
+        canJoinMoves t1 t2 = (axisOfFace f1 /= axisOfFace f2) || f1 < f2
+            where
+                Turn (f1,_) = t1
+                Turn (f2,_) = t2

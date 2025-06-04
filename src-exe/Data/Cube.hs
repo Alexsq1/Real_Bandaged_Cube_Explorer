@@ -6,30 +6,17 @@ import Data.List(sortBy)
 
 import Test.QuickCheck
 
-{- Implementation of a Rubik's Cube as a group.
-Numbering the 54 stickers
--}
-
---A cube is a list of numbers 0-53. Maybe, use base 64 in the future
---Tried to use word8. Conclusion: difficult to make at the same efficiency. 
---Best: 3% less fast, with 35% less memory. Do map fromIntegral in each backpermute.
---Option to convert to word8 when slicing, to make npr keys with less memory
-
 newtype Cube = Cube (V.Vector Int) deriving (Show, Eq)
-
---Todo: user-friendly user-experience
 
 -- | Creates a cube by a 0-53 stickers list
 newCubeFromList :: [Int] -> Cube
 newCubeFromList xs = Cube $ V.fromList xs
 
 instance Semigroup Cube where
---    (Cube v1) <> (Cube v2) = Cube(V.backpermute v1 v2)
     (Cube v1) <> (Cube v2) = Cube(V.unsafeBackpermute v1 v2)
 
 instance Monoid Cube where
     mempty = Cube (V.fromList [0..53])
-    --Be careful when changing a representation
 
 -- | Checks if a cube is solved
 solved :: Cube -> Bool

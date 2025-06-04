@@ -33,7 +33,6 @@ staticReadAlg "" = Algorithm[]
 staticReadAlg (x:y:xs) = Algorithm[read ([x] ++ [y])] <> staticReadAlg xs
 staticReadAlg _ = Algorithm []
 
--- Transforms R U R' F2 into R1U1R3F2 (easier to read of turn to parse)
 canonic :: String -> String
 canonic str = insertOnes strPrimes
     where
@@ -85,7 +84,6 @@ simpTwoTurns :: Turn -> Turn -> [Turn]
 simpTwoTurns (Turn(face1, deg1)) (Turn(face2, deg2))
     | face1 == face2 && cancel = []
     | face1 == face2 = [simpOneTurn $ Turn(face1, sumD)]
-    --add when same axis
     | otherwise = [Turn(face1, deg1), Turn(face2, deg2)]
     where 
         sumD = deg1 + deg2

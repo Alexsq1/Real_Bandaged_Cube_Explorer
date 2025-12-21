@@ -2,7 +2,7 @@ module InputCube(bandagedCubeScratchIO) where
 
 import Cube
 import Bandaged
-import InputBandagedCube
+import CubeCreator(newBandagedCube)
 --import Visualizator
 --import Moves
 import ManimHsConversion

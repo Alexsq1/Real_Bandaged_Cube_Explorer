@@ -24,4 +24,4 @@ inputAndSolve = do
                 "\n" ++ (show (length moves)) ++ " moves" ++  "\n\n")
 
 
-    manimRecomendedVisualizer (stdCube bc) scheme (fromJust solution)
+--    manimRecomendedVisualizer (stdCube bc) scheme (fromJust solution)

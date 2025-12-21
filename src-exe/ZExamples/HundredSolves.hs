@@ -5,7 +5,7 @@ module HundredSolves where
 import Cube
 import Moves
 import Bandaged
-import InputBandagedCube
+import CubeCreator
 import Data.Maybe
 import Data.List (group, sort)
 import SolvingStrategies(smartKorfSolver)

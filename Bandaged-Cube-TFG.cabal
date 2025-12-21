@@ -70,7 +70,7 @@ common common-exec-test
                     Moves,
                     MathematicalNotation,
                     --Utils, 
-                    InputBandagedCube,
+                    CubeCreator,
                     InputCube,
                     ManimHsConversion,
                     Visualizator,
@@ -111,7 +111,7 @@ executable Bandaged-Cube-TFG
 
 
     -- Directories containing source files.
-    hs-source-dirs:   src-exe, src-exe/Data, src-exe/IO_Visualizator, src-exe/Search_Engine, src-exe/Heuristics, src-exe/ZExamples
+    hs-source-dirs:   src-exe, src-exe/Data, src-exe/IO_Visualizator, src-exe/BuildCubes, src-exe/Search_Engine, src-exe/Heuristics, src-exe/ZExamples
 
 test-suite Bandaged-Cube-TFG-test
     -- Import common warning flags.
@@ -122,7 +122,7 @@ test-suite Bandaged-Cube-TFG-test
     type:             exitcode-stdio-1.0
 
     -- Directories containing source files.
-    hs-source-dirs:   test, src-exe, src-exe/Data, src-exe/IO_Visualizator, src-exe/Search_Engine, src-exe/Heuristics, src-exe/ZExamples
+    hs-source-dirs:   test, src-exe, src-exe/Data, src-exe/IO_Visualizator, src-exe/BuildCubes, src-exe/Search_Engine, src-exe/Heuristics, src-exe/ZExamples
 
     main-is: MainTest.hs
 

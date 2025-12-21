@@ -1,4 +1,4 @@
-module InputBandagedCube(newBandagedCube, newSolvedBandagedCube, newSolvedCube) where
+module CubeCreator(newBandagedCube, newSolvedBandagedCube, newSolvedCube) where
 
 import Cube
 import Bandaged
@@ -11,7 +11,7 @@ newSolvedCube = newCubeFromList [0..53]
 
 -- | Creates a solved Bandaged with no blocks
 newSolvedBandagedCube :: BandagedCube
-newSolvedBandagedCube = newBandagedCube (newCubeFromList [0 .. 53]) [[]]
+newSolvedBandagedCube = newBandagedCube newSolvedCube [[]]
 
 -- | Creates a new Bandaged Cube, with a standard cube and the restrictions
 newBandagedCube :: Cube -> [[Int]] -> BandagedCube

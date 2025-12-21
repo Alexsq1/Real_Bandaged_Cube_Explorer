@@ -2,7 +2,7 @@ module OneSolve(oneSolve) where
 
 import Bandaged
 import Moves
-import InputBandagedCube
+import CubeCreator
 import KorfHeuristic
 import Data.Maybe
 import SolvingStrategies

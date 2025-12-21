@@ -2,7 +2,7 @@ module OneGen(oneGen) where
 
 import Bandaged
 import Moves
-import InputBandagedCube
+import CubeCreator
 import SolvingStrategies
 
 import Data.Maybe

@@ -2,7 +2,7 @@ module OneInput(oneInput) where
 
 import ManimHsConversion
 import SolvingStrategies
-import InputBandagedCube
+import CubeCreator
 --import KorfHeuristic
 --import Moves
 import Visualizator

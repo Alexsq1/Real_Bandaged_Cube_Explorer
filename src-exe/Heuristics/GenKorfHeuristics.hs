@@ -6,7 +6,7 @@ import Data.Word(Word8)
 
 import Bandaged
 import Moves
-import InputBandagedCube(newSolvedBandagedCube)
+import CubeCreator(newSolvedBandagedCube)
 import IndexHeuristics
 
 import Data.PSQueue as PS

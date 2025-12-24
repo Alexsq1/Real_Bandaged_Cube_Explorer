@@ -2,9 +2,9 @@ module InputAndSolve(inputAndSolve) where
 
 import Data.Maybe(fromJust, fromMaybe)
 
-import Bandaged
+--import Bandaged
 
-import Visualizator
+--import Visualizator
 import InputCube
 
 import Moves(Algorithm(..))
@@ -15,7 +15,8 @@ import LoadKorfHeuristics(loadVectors)
 inputAndSolve :: Int -> IO ()
 inputAndSolve n = do
 
-    (bc, scheme) <- bandagedCubeScratchIO
+    --(bc, scheme) <- bandagedCubeScratchIO
+    (bc, _) <- bandagedCubeScratchIO
     --manimRecomendedVisualizer (stdCube bc) scheme (Algorithm [])
     heurVectors <- loadVectors n
 

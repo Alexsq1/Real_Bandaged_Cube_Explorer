@@ -1,4 +1,4 @@
-module GenKorfHeuristics(stdVectors,genPDBs, Vector8(..)) where
+module CalculateKorfHeuristics(stdVectors) where
 
 import Bandaged
 import Moves
@@ -15,8 +15,6 @@ import qualified Data.Vector.Unboxed.Mutable as MV
 import Control.Monad.ST
 import Control.Monad(forM_)
 
---saving in files
-import qualified Data.ByteString as BS
 
 --import Debug.Trace (trace, traceShow)
 
@@ -42,47 +40,30 @@ type Vector8 = V.Vector Word8
 stdVectors :: Word8 -> (Vector8, Vector8, Vector8)
 stdVectors maxDepth = (c, e1, e2)
     where
-        c = cornersVector ini maxDepth
-        e1 = edgesFstVector ini maxDepth
-        e2 = edgesSndVector ini maxDepth
-        ini = newSolvedBandagedCube
-
--- | Generates PDBs until a maximum depth
-genPDBs :: Word8 -> IO()
-genPDBs maxDepth = do
-    BS.writeFile (root ++ "c.pdb") (cBS)
-    BS.writeFile (root ++ "e1.pdb") (e1BS)
-    BS.writeFile (root ++ "e2.pdb") (e2BS)
-    where
-        root = "src-exe/Heuristics/pdb/" ++ (show maxDepth) ++ "/" 
-        (c,e1,e2) = stdVectors maxDepth
-        cBS = BS.pack (V.toList c)
-        e1BS = BS.pack (V.toList e1)
-        e2BS = BS.pack (V.toList e2)
+        c = cornersVector maxDepth
+        e1 = edgesFstVector maxDepth
+        e2 = edgesSndVector maxDepth
 
 -- | Generate a pattern database of corners from a state to depth n
-cornersVector :: BandagedCube                                   -- ^ Initial state (solved recommended)
-                -> Word8                                        -- ^ Maximum depth
+cornersVector :: Word8                                        -- ^ Maximum depth
                 -> Vector8
-cornersVector bc n = applyChangesMV 88179840 (n+1) ch
+cornersVector n = applyChangesMV 88179840 (n+1) ch
     where
-        ch = bfsStoreChanges cornersKey n [R .. ] bc
+        ch = bfsStoreChanges cornersKey n [R .. ] newSolvedBandagedCube
 
 -- | Generate a pattern database of the first 6 edges from a state to depth n
-edgesFstVector :: BandagedCube                                  -- ^ Initial state (solved recommended)
-                -> Word8                                          -- ^ Maximum depth
+edgesFstVector :: Word8                                          -- ^ Maximum depth
                 -> Vector8
-edgesFstVector bc n = applyChangesMV 42577920 (n+1) ch
+edgesFstVector n = applyChangesMV 42577920 (n+1) ch
     where
-        ch = bfsStoreChanges edgesKeyFst n [R .. ] bc
+        ch = bfsStoreChanges edgesKeyFst n [R .. ] newSolvedBandagedCube
 
 -- | Generate a pattern database of the last 6 edges from a state to depth n
-edgesSndVector :: BandagedCube                                  -- ^ Initial state (solved recommended)
-                -> Word8                                        -- ^ Maximum depth
+edgesSndVector :: Word8                                        -- ^ Maximum depth
                 -> Vector8
-edgesSndVector bc n = applyChangesMV 42577920 (n+1) ch
+edgesSndVector n = applyChangesMV 42577920 (n+1) ch
     where
-        ch = bfsStoreChanges edgesKeySnd n [R .. ] bc
+        ch = bfsStoreChanges edgesKeySnd n [R .. ] newSolvedBandagedCube
 
 -- | Make the inmutable vector (with mutable operations) 
 applyChangesMV :: Int                                           -- ^ Size

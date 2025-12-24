@@ -1,3 +1,6 @@
+#PDBs:
+*.pdb
+
 #Haskell:
 
 dist

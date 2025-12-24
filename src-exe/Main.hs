@@ -1,10 +1,9 @@
 module Main where
 
---import InputAndSolve
-import GenKorfHeuristics(genPDBs)
+import InputAndSolve
+import StoreKorfHeuristics(genPDBs)
 
 main :: IO ()
 main = do
-    --InputAndSolve.inputAndSolve 1
-    --genPDBs (1 :: Word8)
-    genPDBs 1
+    InputAndSolve.inputAndSolve 1
+    --genPDBs 1

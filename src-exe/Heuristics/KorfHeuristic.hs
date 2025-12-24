@@ -1,11 +1,12 @@
 module KorfHeuristic(korfHeuristic, korfIndivHeuristics) where
 
-import GenKorfHeuristics
 import LoadKorfHeuristics
 import Bandaged
 import Data.Word(Word8)
 import qualified Data.Vector.Unboxed as V
 
+type Vector8 = V.Vector Word8
+type HVector = (Vector8, Vector8, Vector8)
 
 -- | DEFINITIVE method for estimating the minimal moves remaining at a position
 korfHeuristic :: HVector -> BandagedCube -> Int

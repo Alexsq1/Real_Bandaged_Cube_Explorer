@@ -62,8 +62,6 @@ common common-exec-test
                     process >= 1.6,
                     split >= 0.2,
                     bytestring >= 0.12.2.0,
-                    --binary >= 0.8.9.3,
-                    --cereal >= 0.5.8.3
     --Here, add the packages imported
 
 
@@ -78,7 +76,8 @@ common common-exec-test
                     ManimHsConversion,
                     Visualizator,
                     Combinatorics,
-                    GenKorfHeuristics,
+                    CalculateKorfHeuristics,
+                    StoreKorfHeuristics,
                     LoadKorfHeuristics,
                     KorfHeuristic,
                     IndexHeuristics,

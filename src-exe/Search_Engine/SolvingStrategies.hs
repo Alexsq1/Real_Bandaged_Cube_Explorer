@@ -7,7 +7,6 @@ import Moves
 import Search
 import KorfHeuristic
 import MathematicalNotation(edgesState, cornerState)
-import LoadKorfHeuristics(HVector)
 
 import MoveGeneration(sixAxis, kociembaMoves, notBlockedMoves)
 
@@ -16,7 +15,8 @@ import Data.List(sort)
 import Data.Word(Word8)
 import qualified Data.Vector.Unboxed as V
 
---type Vector8 = V.Vector Word8
+type Vector8 = V.Vector Word8
+type HVector = (Vector8, Vector8, Vector8)
 
 -- | Solves the cube with iddfs algorithm (deprecated in the future)
 iddfsSolver :: BandagedCube -> Maybe Algorithm

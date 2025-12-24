@@ -4,27 +4,35 @@ import Test.QuickCheck
 
 import Moves
 import Bandaged
-import InputBandagedCube
+--import InputBandagedCube
+import CubeCreator(newSolvedBandagedCube)
 import Data.Maybe
 import Data.List
 import KorfHeuristic
+import LoadKorfHeuristics(loadVectors, lookupAll)
 import Combinatorics
 import IndexHeuristics
+
+import Data.Word(Word8)
+import qualified Data.Vector.Unboxed as V
+
+type V8 = V.Vector (Word8)
+type HVector = (V8,V8,V8)
 
 
 testHeuristics :: IO()
 testHeuristics = do
         quickCheck (perfectHashingPerms)
         quickCheck (perfectHashingNPR)
---        quickCheck perfectHashingCP
---        quickCheck perfectHashingEP
---        quickCheck perfectHashingBC
-        putStrLn "Generating pattern databases, be patient"
-        quickCheck admisibleCornerHeuristic
-        quickCheck admisibleEdgeFstHeuristic
-        quickCheck admisibleEdgeSndHeuristic
-        quickCheck korfAdmissible
-        
+        quickCheck perfectHashingCP
+        quickCheck perfectHashingEP
+        quickCheck perfectHashingBC
+        let depth = 7
+        v <- (loadVectors depth)
+        quickCheck (admisibleCornerHeuristic v)
+        quickCheck (admisibleEdgeFstHeuristic v)
+        quickCheck (admisibleEdgeSndHeuristic v)
+        quickCheck (korfAdmissible v)
 
 perfectHashingPerms :: Property
 perfectHashingPerms = property (sort numbering == [minimum numbering .. maximum numbering])
@@ -52,53 +60,6 @@ perfectHashingCP = forAll (genCPs 2000) $
                     let indexs = map factorialNumbering perms
                     in length (nub indexs) == length indexs)
 
-perfectHashingEP :: Property
-perfectHashingEP = forAll (genEPHalves 2000) $
-                (\perms -> 
-                    let indexs = map (nprNumbering [0 .. 11]) perms
-                    in length (nub indexs) == length indexs)
-
-perfectHashingBC :: [BandagedCube] -> Property
-perfectHashingBC bcList = let hashes = map (\c -> (cornersKey c, edgesKeyFst c, edgesKeySnd c)) bcList
-                        in property (length (nub bcList) == length (nub hashes))
-
-
-admisibleCornerHeuristic :: Algorithm -> Property
-admisibleCornerHeuristic alg = property(cornerH <= length xs)
-    where
-        Algorithm xs = alg
-        finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
-        cornerH = case (korfIndivHeuristics finalSt) of
-            ([_, x, _]) -> x
-            _ -> 1000
-
-admisibleEdgeFstHeuristic :: Algorithm -> Property
-admisibleEdgeFstHeuristic alg = property (edgeH <= length xs)
-    where
-        Algorithm xs = alg
-        finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
-        edgeH = case (korfIndivHeuristics finalSt) of
-            ([_, x, _]) -> x
-            _ -> 1000
-
-admisibleEdgeSndHeuristic :: Algorithm -> Property
-admisibleEdgeSndHeuristic alg = property (edgeH <= length xs)
-    where
-        Algorithm xs = alg
-        finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
-        edgeH = case (korfIndivHeuristics finalSt) of
-            ([_, _, x]) -> x
-            _ -> 1000
-        
-korfAdmissible :: Algorithm -> Property
-korfAdmissible alg = property (h <= lengthAlg alg)
-    where
-        finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
-        h = korfHeuristic finalSt
-
-gen1CP :: Gen [Int]
-gen1CP = shuffle [0 .. 7]
-
 genCPs :: Int -> Gen [[Int]]
 genCPs n = go n []
     where
@@ -109,8 +70,14 @@ genCPs n = go n []
                 then go k acc
                 else go (k-1) (p:acc)
 
-gen1EP :: Gen [Int]
-gen1EP = shuffle [0 .. 11]
+gen1CP :: Gen [Int]
+gen1CP = shuffle [0 .. 7]
+
+perfectHashingEP :: Property
+perfectHashingEP = forAll (genEPHalves 2000) $
+                (\perms -> 
+                    let indexs = map (nprNumbering [0 .. 11]) perms
+                    in length (nub indexs) == length indexs)
 
 genEPHalves :: Int -> Gen [[Int]]
 genEPHalves n = go n []
@@ -122,3 +89,37 @@ genEPHalves n = go n []
             if p3 `elem` acc 
                 then go k acc
                 else go (k-1) (p3:acc)
+
+gen1EP :: Gen [Int]
+gen1EP = shuffle [0 .. 11]
+
+perfectHashingBC :: [BandagedCube] -> Property
+perfectHashingBC bcList = let hashes = map (\c -> (cornersKey c, edgesKeyFst c, edgesKeySnd c)) bcList
+                        in property (length (nub bcList) == length (nub hashes))
+
+admisibleCornerHeuristic :: HVector -> Algorithm -> Property
+admisibleCornerHeuristic v alg =
+    property((fromIntegral cornerH) <= (lengthAlg alg))
+        where
+            finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
+            (cornerH, _, _) = lookupAll v finalSt
+
+admisibleEdgeFstHeuristic :: HVector -> Algorithm -> Property
+admisibleEdgeFstHeuristic v alg =
+    property((fromIntegral edge1H) <= (lengthAlg alg))
+        where
+            finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
+            (_, edge1H, _) = lookupAll v finalSt
+
+admisibleEdgeSndHeuristic :: HVector -> Algorithm -> Property
+admisibleEdgeSndHeuristic v alg =
+    property((fromIntegral edge2H) <= (lengthAlg alg))
+        where
+            finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
+            (_, _, edge2H) = lookupAll v finalSt
+
+korfAdmissible :: HVector -> Algorithm -> Property
+korfAdmissible v alg = property (h <= (lengthAlg alg))
+    where
+        finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
+        h = korfHeuristic v finalSt

@@ -133,8 +133,8 @@ test-suite Bandaged-Cube-TFG-test
 
     other-modules:  TestCube, 
                     TestMoves,
-                    TestSolutions,
-                    TestHeuristics
+                    TestHeuristics,
+                    TestSolutions
 
     -- Test dependencies.
     build-depends:

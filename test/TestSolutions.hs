@@ -5,90 +5,93 @@ import Test.QuickCheck
 import Cube
 import Moves
 import Bandaged
-import InputBandagedCube
+import CubeCreator
 import Data.Maybe
 import SolvingStrategies(smartKorfSolver)
 import MoveGeneration(freeFaces)
+import LoadKorfHeuristics(loadVectors)
 
 import Debug.Trace
+import Data.Word(Word8)
+import qualified Data.Vector.Unboxed as V
+
+type V8 = V.Vector (Word8)
+type HVector = (V8,V8,V8)
+
 testSolutions :: IO()
 testSolutions = do
-    putStrLn "TESTS OF SOLUTIONS AND SEARCH ENGINE"
+    putStrLn "TESTS OF SEARCH ENGINE"
 
+    let depth = 7
+    v <- (loadVectors depth)
+    
     --putStrLn "Testing a 3x3x3"
-    --quickCheck (threeByThree 8)
+    --quickCheck (threeByThree v 8)
 
     --putStrLn "Testing a 2-gen"
-    --quickCheck (twoGen 25)
+    --quickCheck (twoGen v 25)
 
     --putStrLn "Testing a 3-gen RUF"
-    --quickCheck (threeGenAdj 12) --max 21
---
-    putStrLn "Testing a 3-gen RUL"
-    quickCheck (threeGenParalel 13) --max 24
---
+    --quickCheck (threeGenAdj v 14) --max 21
+
+    --putStrLn "Testing a 3-gen RUL"
+    --quickCheck (threeGenParalel v 14) --max 24
+
     --putStrLn "Testing a 4-gen RUFL"
-    --quickCheck (fourGen 11) --max ?
---
+    --quickCheck (fourGen v 12) --max ?
+
     --putStrLn "Testing a quad313"
-    --quickCheck (quad313 30)
---
+    --quickCheck (quad313 v 30)
+
     --putStrLn "Testing a BiCube"
-    --quickCheck (biCube 30)
---
+    --quickCheck (biCube v 30)
+
     --putStrLn "Testing an alcatraz"
-    --quickCheck (alcatraz 200)
---
-    --putStrLn "Testing a TheMaoiSha-252"
-    --quickCheck (theMaoisha252 300)
+    --quickCheck (alcatraz v 200)
 
---canonicAlgGenerator :: [Face] -> Int -> Gen Algorithm
---korfSearchSolvesOptimally :: (Int -> Gen Algorithm) -> [Face] -> [[Int]] -> Int -> Property
+    putStrLn "Testing a TheMaoiSha-252"
+    quickCheck (theMaoisha252 v 300)
 
-threeByThree :: Int -> Property
-threeByThree n = korfSearchSolvesOptimally generator [[]] n
+threeByThree :: HVector -> Int -> Property
+threeByThree v n = korfSearchSolvesOptimally v generator [[]]
     where
         faces = [R .. ]
         generator = canonicAlgGenerator faces n
 
-twoGen :: Int -> Property
-twoGen n = korfSearchSolvesOptimally generator [[49,51,52,53]] n
+twoGen :: HVector -> Int -> Property
+twoGen v n = korfSearchSolvesOptimally v generator [[49,51,52,53]]
     where
         faces = [R, U]
         generator = canonicAlgGenerator faces n
 
-threeGenAdj :: Int -> Property
-threeGenAdj n = korfSearchSolvesOptimally generator [[51,52,53]] n
+threeGenAdj :: HVector -> Int -> Property
+threeGenAdj v n = korfSearchSolvesOptimally v generator [[51,52,53]]
     where
         faces = [R,U,F]
         generator = canonicAlgGenerator faces n
 
-threeGenParalel :: Int -> Property
-threeGenParalel n = korfSearchSolvesOptimally generator [[49,51,53]] n
+threeGenParalel :: HVector -> Int -> Property
+threeGenParalel v n = korfSearchSolvesOptimally v generator [[49,51,53]]
     where
         faces = [R,U,L]
         generator = canonicAlgGenerator faces n
 
-fourGen :: Int -> Property
-fourGen n = korfSearchSolvesOptimally generator [[51,53]] n
+fourGen :: HVector -> Int -> Property
+fourGen v n = korfSearchSolvesOptimally v generator [[51,53]]
     where
         faces = [R,U,F,L]
         generator = canonicAlgGenerator faces n
 
---korfSearchSolvesOptimally :: (Int -> Gen Algorithm) -> [Face] -> [[Int]] -> Int -> Property
---canonicAlgGenerator :: [Face] -> Int -> Gen Algorithm
---genWithLookAhead :: BandagedCube -> [Face] -> Int -> Gen Algorithm
-
-quad313 :: Int -> Property
-quad313 n = korfSearchSolvesOptimally generator blocks n
+quad313 :: HVector -> Int -> Property
+quad313 v n = korfSearchSolvesOptimally v generator blocks
     where
         faces = [R,U,F,L,D,B]
         blocks = [[0,21],[9,12],[6,15],[3,18]]
         generator = genWithLookAhead (newBandagedCube newSolvedCube blocks) faces n 
             
 
-biCube :: Int -> Property
-biCube n = korfSearchSolvesOptimally generator blocks n
+biCube :: HVector -> Int -> Property
+biCube v n = korfSearchSolvesOptimally v generator blocks
     where
         faces = [R,U,F,L]
         blocks = [[24,48],[52,47],[41,49],[37,50],[51,53],
@@ -103,8 +106,8 @@ biCube n = korfSearchSolvesOptimally generator blocks n
             "F' U L F' L' F2 R2 U2 L' U R' U2 L U' F' U' F R'"]
 
 
-alcatraz :: Int -> Property
-alcatraz n = korfSearchSolvesOptimally generator blocks n
+alcatraz :: HVector -> Int -> Property
+alcatraz v n = korfSearchSolvesOptimally v generator blocks
     where
         faces = [R,U,F]
         blocks = [[3,48],[51,52,53],[32,23],[34,13],[16,37],[49,41],[50,43]]
@@ -118,8 +121,8 @@ alcatraz n = korfSearchSolvesOptimally generator blocks n
             "U' R U R2 F R F' U' R' U F R U F' U' R' F R F2 U F U' ",
             "U F' U' F2 R' F' R U F U' R' F' U' R U F R' F' R2 U' R' U "]   --22 moves
 
-theMaoisha252 :: Int -> Property
-theMaoisha252 n = korfSearchSolvesOptimally generator blocks n
+theMaoisha252 :: HVector -> Int -> Property
+theMaoisha252 v n = korfSearchSolvesOptimally v generator blocks
     where
         faces = [R,U,F]
         blocks = [[51,52,53], [0,1,2,30,31], [21,22,23,40,41], [9,10,11,34,35,12,13,14], [6,7,8,28,29], [15,16,17,42,43]]
@@ -128,8 +131,8 @@ theMaoisha252 n = korfSearchSolvesOptimally generator blocks n
 --        generator = genWithLookAhead (newBandagedCube newSolvedCube blocks) faces n 
         generator = subAlgsGenerator [alg, alg <> alg, alg <> alg <> alg, alg <> alg <> alg <> alg]
 
-korfSearchSolvesOptimally :: Gen Algorithm -> [[Int]] -> Int -> Property
-korfSearchSolvesOptimally customGenerator blocks maxLengthScramble =
+korfSearchSolvesOptimally :: HVector -> Gen Algorithm -> [[Int]] -> Property
+korfSearchSolvesOptimally v customGenerator blocks =
     let 
         origin = newBandagedCube (newSolvedCube) blocks
     in
@@ -137,7 +140,7 @@ korfSearchSolvesOptimally customGenerator blocks maxLengthScramble =
         $ \scramble ->
             let
                 scrambeledCube = fromMaybe origin (tryToExecuteAlg origin scramble)
-                solve = fromJust (smartKorfSolver scrambeledCube)
+                solve = fromJust (smartKorfSolver v scrambeledCube)
                 Algorithm xs1 = scramble
                 Algorithm xs2 = solve
             in

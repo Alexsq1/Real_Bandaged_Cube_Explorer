@@ -1,9 +1,9 @@
 module Main where
 
-import TestCube
-import TestMoves
+--import TestCube
+--import TestMoves
+--import TestHeuristics
 import TestSolutions
-import TestHeuristics
 
 --main-is of cabal test
 main :: IO()

@@ -1,13 +1,13 @@
-module GenKorfHeuristics(lookupAll, stdVectors) where
-
-import qualified Data.Set as S
-import Data.Maybe(isJust, fromJust)
-import Data.Word(Word8)
+module GenKorfHeuristics(stdVectors,genPDBs, Vector8(..)) where
 
 import Bandaged
 import Moves
 import CubeCreator(newSolvedBandagedCube)
 import IndexHeuristics
+
+import qualified Data.Set as S
+import Data.Maybe(isJust, fromJust)
+import Data.Word(Word8)
 
 import Data.PSQueue as PS
 import qualified Data.Vector.Unboxed as V
@@ -15,7 +15,8 @@ import qualified Data.Vector.Unboxed.Mutable as MV
 import Control.Monad.ST
 import Control.Monad(forM_)
 
-{-There should be a function to load the pdb in a file in this module-}
+--saving in files
+import qualified Data.ByteString as BS
 
 --import Debug.Trace (trace, traceShow)
 
@@ -38,21 +39,26 @@ import Control.Monad(forM_)
 type Vector8 = V.Vector Word8
 
 -- | Calculates a vector with the depths of a pattern database
-stdVectors :: (Vector8, Vector8, Vector8)
-stdVectors = (c, e1, e2)
+stdVectors :: Word8 -> (Vector8, Vector8, Vector8)
+stdVectors maxDepth = (c, e1, e2)
     where
-        --UGLY
-        maxDepth = 5
         c = cornersVector ini maxDepth
         e1 = edgesFstVector ini maxDepth
         e2 = edgesSndVector ini maxDepth
         ini = newSolvedBandagedCube
 
--- | Accesses the pattern database and return the minimum number of moves for each piece set
-lookupAll :: BandagedCube -> (Word8, Word8, Word8)
-lookupAll bc = (lookupCorners bc, lookupFstEdges bc, lookupSndEdges bc)
-
-
+-- | Generates PDBs until a maximum depth
+genPDBs :: Word8 -> IO()
+genPDBs maxDepth = do
+    BS.writeFile (root ++ "c.pdb") (cBS)
+    BS.writeFile (root ++ "e1.pdb") (e1BS)
+    BS.writeFile (root ++ "e2.pdb") (e2BS)
+    where
+        root = "src-exe/Heuristics/pdb/" ++ (show maxDepth) ++ "/" 
+        (c,e1,e2) = stdVectors maxDepth
+        cBS = BS.pack (V.toList c)
+        e1BS = BS.pack (V.toList e1)
+        e2BS = BS.pack (V.toList e2)
 
 -- | Generate a pattern database of corners from a state to depth n
 cornersVector :: BandagedCube                                   -- ^ Initial state (solved recommended)
@@ -61,8 +67,6 @@ cornersVector :: BandagedCube                                   -- ^ Initial sta
 cornersVector bc n = applyChangesMV 88179840 (n+1) ch
     where
         ch = bfsStoreChanges cornersKey n [R .. ] bc
-
---To be improved with only the movable faces in a bandaged
 
 -- | Generate a pattern database of the first 6 edges from a state to depth n
 edgesFstVector :: BandagedCube                                  -- ^ Initial state (solved recommended)
@@ -93,8 +97,6 @@ applyChangesMV sizeV defaultDepth changes = runST $ do
 
 myUpdate :: MV.MVector s Word8 -> [(Int, Word8)] -> ST s ()
 myUpdate v changes = forM_ changes $ (\(i, value) -> MV.write v i value)
-
-
 
 newtype GenerationState = GenerationState (Int, Face, BandagedCube)
 --(Key, LastFace, BCube)
@@ -173,21 +175,3 @@ nextLayerNonRepeating kGen (GenerationState(_, lastFace, bCube)) faces visited o
                             (lf, Just bc) <- possibleAccesibleStates, 
                             S.notMember (kGen bc) visited, 
                             S.notMember (kGen bc) onceEnqueued ]
-
-lookupCorners :: BandagedCube -> Word8
-lookupCorners = lookupPiece 0
-
-lookupFstEdges :: BandagedCube -> Word8
-lookupFstEdges = lookupPiece 1
-
-lookupSndEdges :: BandagedCube -> Word8
-lookupSndEdges = lookupPiece 2
-
-lookupPiece :: Int -> BandagedCube -> Word8
-lookupPiece n bc = 
-    let (c, e1, e2) = stdVectors
-    in case n of
-        0 -> (V.!) c (cornersKey bc)
-        1 -> (V.!) e1 (edgesKeyFst bc)
-        2 -> (V.!) e2 (edgesKeySnd bc)
-        _ -> 25

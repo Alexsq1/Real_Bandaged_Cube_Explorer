@@ -9,16 +9,17 @@ import InputCube
 
 import Moves(Algorithm(..))
 
---import KorfHeuristic
 import SolvingStrategies
+import LoadKorfHeuristics(loadVectors)
 
-inputAndSolve :: IO ()
-inputAndSolve = do
+inputAndSolve :: Int -> IO ()
+inputAndSolve n = do
 
     (bc, scheme) <- bandagedCubeScratchIO
     --manimRecomendedVisualizer (stdCube bc) scheme (Algorithm [])
+    heurVectors <- loadVectors n
 
-    let solution = smartKorfSolver bc
+    let solution = smartKorfSolver heurVectors bc
     let (Algorithm moves) = fromMaybe (Algorithm[]) solution
     putStrLn ("\n\nSolution found: " ++ (show $ fromJust solution) ++ 
                 "\n" ++ (show (length moves)) ++ " moves" ++  "\n\n")

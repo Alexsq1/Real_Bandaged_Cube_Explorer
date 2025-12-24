@@ -1,25 +1,24 @@
 module KorfHeuristic(korfHeuristic, korfIndivHeuristics) where
 
 import GenKorfHeuristics
+import LoadKorfHeuristics
 import Bandaged
+import Data.Word(Word8)
+import qualified Data.Vector.Unboxed as V
 
-
-{-
-The access to the pdb files will be made from here
--}
 
 -- | DEFINITIVE method for estimating the minimal moves remaining at a position
-korfHeuristic :: BandagedCube -> Int
-korfHeuristic bc = (fromIntegral hDef) :: Int
+korfHeuristic :: HVector -> BandagedCube -> Int
+korfHeuristic heurVec bc = (fromIntegral hDef) :: Int
     where
-        (c, e1, e2) = lookupAll bc
+        (c, e1, e2) = lookupAll heurVec bc
         hDef = maximum [c, e1, e2]
         --maybe not optimal this steps, lot of aux functions and conversions [] <-> ()
 
 --Used for debugging
-korfIndivHeuristics :: BandagedCube -> [Int]
-korfIndivHeuristics bc = (map fromIntegral hs) :: [Int]
+korfIndivHeuristics :: HVector -> BandagedCube -> [Int]
+korfIndivHeuristics hVec bc = (map fromIntegral hs) :: [Int]
     where
-        (c, e1, e2) = lookupAll bc
+        (c, e1, e2) = lookupAll hVec bc
         hs = [c, e1, e2]
 

@@ -34,7 +34,7 @@ fileName p d =
         Edge1 -> "e1.pdb"
         Edge2 -> "e2.pdb"
     where
-        root = "src-exe/Heuristics/pdb/" ++ (show d) ++ "/"
+        root = "pdb/" ++ (show d) ++ "/"
 
 readPDB :: String -> IO (Vector8)
 readPDB fname = do

@@ -7,9 +7,10 @@ import KorfHeuristic
 import Data.Maybe
 import SolvingStrategies
 --import Cube
+import LoadKorfHeuristics(loadVectors)
 
-oneSolve :: IO ()
-oneSolve = do
+oneSolve :: Int -> IO ()
+oneSolve n = do
 
     --GENERATING ALGS AND CHECKING 1 HEURISTIC
 
@@ -57,11 +58,11 @@ oneSolve = do
     putStrLn ("Scramble of length " ++ (show (lengthAlg alg)) ++ ": " ++ (show alg))
     let bcSolved = newBandagedCube (newSolvedCube) blocks
     let c1 = fromJust (tryToExecuteAlg bcSolved alg)
-    let solution1 = fromJust(smartKorfSolver c1)
-    let h = korfIndivHeuristics c1
+    v <- loadVectors n
+    let h = korfIndivHeuristics v c1
     putStrLn ("Individual heuristics: " ++ show(h))
+    let solution1 = fromJust(smartKorfSolver v c1)
     putStrLn ("Solution of length " ++ show (lengthAlg solution1) ++ " found: " ++ (show solution1))
-
 
 
 

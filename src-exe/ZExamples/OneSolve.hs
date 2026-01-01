@@ -3,9 +3,10 @@ module OneSolve(oneSolve) where
 import Bandaged
 import Moves
 import CubeCreator
-import KorfHeuristic
+--import KorfHeuristic
 import Data.Maybe
 import SolvingStrategies
+import Search(extractAlg)
 --import Cube
 import LoadKorfHeuristics(loadVectors)
 
@@ -55,14 +56,15 @@ oneSolve n = do
     
     ----SOLVING 1 CUBE
 
-    putStrLn ("Scramble of length " ++ (show (lengthAlg alg)) ++ ": " ++ (show alg))
+    --putStrLn ("Scramble of length " ++ (show (lengthAlg alg)) ++ ": " ++ (show alg))
     let bcSolved = newBandagedCube (newSolvedCube) blocks
     let c1 = fromJust (tryToExecuteAlg bcSolved alg)
     v <- loadVectors n
-    let h = korfIndivHeuristics v c1
-    putStrLn ("Individual heuristics: " ++ show(h))
-    let solution1 = fromJust(smartKorfSolver v c1)
-    putStrLn ("Solution of length " ++ show (lengthAlg solution1) ++ " found: " ++ (show solution1))
+    --let h = korfIndivHeuristics v c1
+    --putStrLn ("Individual heuristics: " ++ show(h))
+    let solutionSS = fromJust(smartKorfSolver v c1)
+    let solution1 = extractAlg solutionSS
+    putStrLn (show solution1)
 
 
 

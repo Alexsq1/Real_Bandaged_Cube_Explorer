@@ -1,8 +1,8 @@
 module Main where
 
---import StoreKorfHeuristics(genPDBs)
 import InputAndSolve
 --import OneSolve
+
 
 main :: IO ()
 main = do

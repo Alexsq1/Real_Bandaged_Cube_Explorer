@@ -1,79 +1,152 @@
-module Search(genericSearch) where
+module Search(genericSearch, SearchingState(..), extractAlg, digestSearch, SolutionInfo) where
 
 import Bandaged
 import Moves
 import Data.Maybe(fromJust)
-import Data.List(nub)
+import CubeCreator(newSolvedCube)
 
 -- | SearchingState storages all the information needed to to a Search.
-data SearchingState = SearchingState {found :: Bool, 
+data SearchingState = SearchingState {
+                    --Arguments
                             initialState :: BandagedCube, 
+                            condition :: (BandagedCube -> Bool),
+                            listMoves :: [Turn], 
+                            heuristic :: (BandagedCube -> Int),
+                    --Internal data
+                            found :: Bool, 
                             currentDepth :: Int,
                             maximumDepth :: Int,
-                            condition :: (BandagedCube -> Bool),
+                            minimumExceding :: Int,      --Maybe a word8, to be seen
                             solution :: [Turn], 
-                            validLayers :: [Face],
-                            listMoves :: [Turn], 
                             lastFace :: Face,
-                            heuristic :: (BandagedCube -> Int),
-                            minimumExceding :: Int      --Maybe a word8, to be seen
+                    --Statistical
+                            numVisited :: Integer,
+                            leafs :: Integer,
+                            numPruned :: Integer,
+                            exploredDepths :: [Int]
                             }
 
-{-
-REGARDING A SET OF VISITED STATES
-A lot of memory.
-Repeated states increase in higher depths.
-Idea: save the 3 keys of (corners,edgesFst, edgesSnd). 3 word8 (3 bytes) per state.
--}                            
-
 instance Show SearchingState where
-    show (SearchingState f ini currD maxD _ sol layers _ lstFace _ _) = 
+    show (SearchingState _ _ moves _ f currD maxD minExc sol _ visit lf pr depths) =
+        --"initial state: " ++ show ini ++  "\n" ++
+        "generation of moves: " ++ show moves ++ "\n" ++ 
         "found: " ++ show f ++  "\n" ++
-        "initial state: " ++ show ini ++  "\n" ++
         "current depth: " ++ show currD ++  "\n" ++
         "maximum depth: " ++ show maxD ++ "\n" ++
+        "minimum exceeding: " ++ show minExc ++ "\n" ++
         "solution: " ++ show sol ++ "\n" ++
-        "generation of moves: " ++ show layers ++
-        "last face executed: " ++ show lstFace
+        --"last face executed: " ++ show lstFace ++ "\n" ++ 
+        "visited states: " ++ show visit ++ "\n" ++ 
+        "leaf states: " ++ show lf ++ "\n" ++ 
+        "pruned states: " ++ show pr ++ "\n" ++ 
+        "explored dephts: " ++ show depths
+        --validLs = nub (map (\(Turn(f,_)) -> f ) moves)
+
+data SolutionInfo = SolutionInfo{
+                    solutionSI :: Algorithm, 
+                    lAlg :: Int,
+                    sizeTree :: Integer,
+                    visited :: Integer,
+                    branchingFactor :: Float,
+                    exploredRatio :: Float,
+                    prunedRatio :: Float,
+                    exploredDepthsSI :: [Int]
+}
+
+instance Show SolutionInfo where
+    show (SolutionInfo sol la sizeT v bf expl pr depths) = 
+        "algorithm: " ++ show sol ++ "\n" ++
+        "of length: " ++ show la ++ "\n" ++
+        "size of the searching tree: " ++ show sizeT ++ "\n" ++
+        "visited: " ++ show v ++ "\n" ++
+        "estimated branching factor: " ++ show bf ++ "\n" ++
+        "ratio of explored states: " ++ show expl ++ "\n" ++
+        "ratio of pruned states: " ++ show pr ++ "\n" ++
+        "explored depths: " ++ show depths ++ "\n"
+
+digestSearch :: SearchingState -> SolutionInfo
+digestSearch (SearchingState (BandagedCube _ blocks) _ listM _ _ _ _ _ sol _ visit _ pr depths) =
+    SolutionInfo {
+                    solutionSI = Algorithm sol,
+                    lAlg = length sol,
+                    sizeTree = sizeT,
+                    visited = visit,
+                    branchingFactor = estimBF,
+                    exploredRatio = expR,
+                    prunedRatio = (fromIntegral pr) / (fromIntegral visit),
+                    exploredDepthsSI = depths
+    }
+    where
+        n = 4
+        xs = [n, n + 1]
+        ss = map (\x -> dfsSgle
+            SearchingState {
+                initialState = BandagedCube {stdCube = newSolvedCube, restrictions = blocks},
+                condition = const False,
+                listMoves = listM,
+                heuristic = const 0,
+                found = False,
+                currentDepth = 0,
+                maximumDepth = x,
+                minimumExceding = 0,
+                solution = [],
+                lastFace = N,
+                numVisited = 0,
+                leafs = 0,
+                numPruned = 0,
+                exploredDepths = []
+            }
+            ) xs
+        sizesDepths = map (fromIntegral . leafs) ss
+        estimBF = (sizesDepths !! 1) / (sizesDepths !! 0)
+        sizeT = floor(estimBF ^ (length sol))
+        expR = (fromIntegral visit) / (fromIntegral sizeT)
+
+-- | Extracts the alg from a solution info
+extractAlg :: SolutionInfo -> Algorithm
+extractAlg = solutionSI
 
 
 -- | Recieves data, makes a generic bounded search and compose the solution
 genericSearch :: BandagedCube               -- ^ Initial state
                 -> (BandagedCube -> Bool)   -- ^ Condition to determine a Node is found
-                -- -> [Face]                   -- ^ List of Turns to generate a new node
                 -> [Turn]                   -- ^ List of Turns to generate a new node
                 -> (BandagedCube -> Int)    -- ^ Heuristic (must be admissible)
-                -> Maybe Algorithm          -- ^ The solution
+                -> Maybe SolutionInfo        -- ^ The solution
 
 genericSearch ini cond validMoves h
-    | found search = Just (Algorithm (solution search))     --Solution found
-    | otherwise = Nothing                                   --Solution not found
+    | found search = Just (digestSearch search)                --Solution found
+    | otherwise = Nothing                                      --Solution not found
     where
-        --nums = [1 .. 3]
-        --gen1 = [ Turn(f, n) | f <- validLs, n <- nums]
-        validLs = nub (map (\(Turn(f,_)) -> f ) validMoves)
-
-        initialSS = SearchingState{found = False, initialState = ini,
-                                    currentDepth = 0, maximumDepth = h ini, 
+        initialSS = SearchingState{
+                                    initialState = ini,
                                     condition = cond,
-                                    solution = [], validLayers = validLs, 
                                     listMoves = validMoves, 
-                                    lastFace = N, 
                                     heuristic = h,
-                                    minimumExceding = maxBound :: Int}
-                                    
-                                    --Start initial max depth with heuristic of initial node
+                                    found = False,
+                                    currentDepth = 0,
+                                    maximumDepth = h ini, 
+                                    minimumExceding = maxBound :: Int,
+                                    solution = [], 
+                                    lastFace = N,
+                                    numVisited = 0,
+                                    leafs = 0,
+                                    numPruned = 0,
+                                    exploredDepths = [h ini]
+                                    }                          
         search = idaStar initialSS
 
 idaStar :: SearchingState -> SearchingState
 idaStar initSS
     | found thisSearchSS = thisSearchSS
-    | (nextDepth > treshold) = idaStar (initSS {maximumDepth = nextDepth})     --Update max depth with minimum node that exceeded the max.
+    | (nextDepth > currMaxDepth) = idaStar (initSS                                      --Update max depth with minimum node that exceeded the max.
+                                        {maximumDepth = nextDepth,
+                                        exploredDepths = listDepths ++ [nextDepth]
+                                        })
     | otherwise = initSS
---    | otherwise = idaStar (initSS {maximumDepth = nextDepth + 1})               --Dangerous. If there is no solution, infinite recursion
     where
+        (SearchingState _ _ _ _ _ _ currMaxDepth _ _ _ _ _ _ listDepths) = initSS
         thisSearchSS = dfsSgle initSS
-        treshold = maximumDepth initSS
         nextDepth = minimumExceding thisSearchSS
 
 -- | Search with dfs from one node
@@ -82,18 +155,22 @@ dfsSgle :: SearchingState                           -- ^ Initial Searching State
 
 dfsSgle initialSS
     | predicate ini = 
-        initialSS {found = True}                                                --solution found       
-    | currD > maxD || (currD + h ini > maxD) =                                --pruning, reached maximum depth
+        initialSS {found = True, numVisited = 1 + v}                      --solution found       
+    | currD > maxD =                                                            --reached maximum depth (impossible?)
         prunedSS
+    | (estimLength > maxD) =                                                    --pruning, reached maximum depth
+        prunedSS
+    | currD == maxD =                                                           --maxD and condition not satisfied, stop searching
+        initialSS {numVisited = 1 + v, leafs = 1 + lf}
     | otherwise =                                                               --intermediate, keep searching
-        dfsMult initialSS movesToIterate
+        dfsMult initialSS{numVisited = 1 + v} movesToIterate
     where
-        (SearchingState _ ini currD maxD predicate _ _ movesValid lstFace h exc) = initialSS
+        (SearchingState ini predicate movesValid h _ currD maxD exc _ lstFace v lf pr _) = initialSS
         estimLength = currD + h ini
 
         prunedSS = if ((estimLength > maxD) && (estimLength < exc))
             then
-                (initialSS{minimumExceding = estimLength})
+                (initialSS{minimumExceding = estimLength, numVisited = 1 + v, numPruned = 1 + pr})
             else
                 initialSS
         movesToIterate = filter (predValidCanonicSequence ini lstFace) movesValid
@@ -112,12 +189,15 @@ dfsMult :: SearchingState                       -- ^ Initial
 
 dfsMult initialSS [] = initialSS                                    --ended iterating
 dfsMult initialSS (x:xs)                                            --keep iterations
---    | isNothing nextState = dfsMult initialSS xs                    --Not valid turn, breaks a block
     | found thisBrach = thisBrach {solution = (x : solutionP)}      --Correct branch, recompose solution
-    | otherwise = 
-        dfsMult (initialSS {minimumExceding = min exc0 maybeNewExc}) xs                              --Incorrect branch, keep searching
+    | otherwise =                                                   --Incorrect branch, keep searching
+        dfsMult (initialSS {minimumExceding = min exc0 maybeNewExc,
+                            numVisited = numVisited thisBrach,
+                            numPruned = numPruned thisBrach,
+                            leafs = leafs thisBrach
+        }) xs
     where
-        (SearchingState _ ini currD _ _ _ _ _ _ _ exc0) = initialSS
+        (SearchingState ini _ _ _ _ currD _ exc0 _ _ _ _ _ _) = initialSS
         nextState = tryToTurn ini x
         (Turn(lastFaceExecuted, _)) = x
         thisBrach = dfsSgle (initialSS
@@ -125,8 +205,7 @@ dfsMult initialSS (x:xs)                                            --keep itera
             currentDepth = currD + 1,
             lastFace = lastFaceExecuted,
             minimumExceding = exc0
-            } 
-            )
+            })
 
         maybeNewExc = minimumExceding thisBrach
         solutionP = solution thisBrach

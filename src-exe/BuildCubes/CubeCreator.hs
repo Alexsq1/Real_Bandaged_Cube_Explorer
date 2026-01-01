@@ -13,6 +13,10 @@ newSolvedCube = newCubeFromList [0..53]
 newSolvedBandagedCube :: BandagedCube
 newSolvedBandagedCube = newBandagedCube newSolvedCube [[]]
 
+-- | Creates a solved Bandaged cube with blocks
+--newSolvedBlockedCube :: [[Int]] -> BandagedCube
+--newSolvedBlockedCube = newBandagedCube newSolvedCube
+
 -- | Creates a new Bandaged Cube, with a standard cube and the restrictions
 newBandagedCube :: Cube -> [[Int]] -> BandagedCube
 newBandagedCube cubeOrigin blocks = BandagedCube {stdCube = cubeOrigin, restrictions = postProcessedBlocks}

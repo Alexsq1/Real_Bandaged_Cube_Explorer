@@ -10,6 +10,7 @@ import Data.Maybe
 import SolvingStrategies(smartKorfSolver)
 import MoveGeneration(freeFaces)
 import LoadKorfHeuristics(loadVectors)
+import Search(extractAlg)
 
 import Debug.Trace
 import Data.Word(Word8)
@@ -28,8 +29,8 @@ testSolutions = do
     --putStrLn "Testing a 3x3x3"
     --quickCheck (threeByThree v 8)
 
-    --putStrLn "Testing a 2-gen"
-    --quickCheck (twoGen v 25)
+    putStrLn "Testing a 2-gen"
+    quickCheck (twoGen v 25)
 
     --putStrLn "Testing a 3-gen RUF"
     --quickCheck (threeGenAdj v 14) --max 21
@@ -49,8 +50,8 @@ testSolutions = do
     --putStrLn "Testing an alcatraz"
     --quickCheck (alcatraz v 200)
 
-    putStrLn "Testing a TheMaoiSha-252"
-    quickCheck (theMaoisha252 v 300)
+    --putStrLn "Testing a TheMaoiSha-252"
+    --quickCheck (theMaoisha252 v 300)
 
 threeByThree :: HVector -> Int -> Property
 threeByThree v n = korfSearchSolvesOptimally v generator [[]]
@@ -140,7 +141,8 @@ korfSearchSolvesOptimally v customGenerator blocks =
         $ \scramble ->
             let
                 scrambeledCube = fromMaybe origin (tryToExecuteAlg origin scramble)
-                solve = fromJust (smartKorfSolver v scrambeledCube)
+                solutionSS = fromJust (smartKorfSolver v scrambeledCube)
+                solve = extractAlg solutionSS
                 Algorithm xs1 = scramble
                 Algorithm xs2 = solve
             in

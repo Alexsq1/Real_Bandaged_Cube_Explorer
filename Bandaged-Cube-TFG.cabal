@@ -86,7 +86,7 @@ common common-exec-test
                     MoveGeneration,
                     --Solvable,
                     --OneInput,
-                    --OneSolve,
+                    OneSolve,
                     --OneGen,
                     InputAndSolve
                     --,HundredSolves

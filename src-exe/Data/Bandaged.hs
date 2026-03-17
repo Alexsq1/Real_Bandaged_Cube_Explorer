@@ -1,4 +1,4 @@
-module Bandaged(BandagedCube(..), solvedBC, deleteBlocks, tryToTurn, tryToExecuteAlg, validTurn, unsafeExecutionAlg, divideTurn) where
+module Bandaged(BandagedCube(..), solvedBC, tryToTurn, tryToExecuteAlg, validTurn, unsafeExecutionAlg, divideTurn) where
 
 import Cube
 import Moves
@@ -42,10 +42,6 @@ intToStrPiece n
 
 solvedBC :: BandagedCube -> Bool
 solvedBC (BandagedCube c _) = solved c
-
--- | Given a Bandaged Cube, returns the cube without blocks
-deleteBlocks :: BandagedCube -> Cube
-deleteBlocks bc = stdCube bc
 
 -- | Execute an algorithm on a Bandaged Cube when it does not break any block
 tryToExecuteAlg :: BandagedCube -> Algorithm -> Maybe BandagedCube

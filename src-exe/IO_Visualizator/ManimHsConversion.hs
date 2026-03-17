@@ -24,7 +24,10 @@ cubeFromManimCodification :: [(String, String)] -- ^ Equivalence, like [(\"U\", 
             -> [String]                         -- ^ List of colours, like [\"White\", \"Green\", ...]
             -> Cube
 
-cubeFromManimCodification equivalence str = newCubeFromList perm
+cubeFromManimCodification equivalence str 
+    | length str /=54 = error "Error in input: recieved /= 54 stickers"
+    | any (\x -> not (elem x (map snd equivalence))) str = error "Found a sticket that is not a defined colour"
+    | otherwise = newCubeFromList perm
     where
         perm = (stringToNum . reorder . swapByEquivalent equivalence) str
 
@@ -35,6 +38,8 @@ cubeFromManimCodification equivalence str = newCubeFromList perm
                 arrangement = [6,18,38,0,36,47,2,45,11,8,9,20,29,
                                 26,15,35,17,51,33,53,42,27,44,24,3,37,1,46,5,10,7,19,21,41,
                                 23,12,48,14,50,39,28,25,32,16,34,52,30,43,4,22,13,49,40,31]
+                --equivalence = zip ["U", "F", "R", "B", "L", "D"] (map (\x -> str !! x) [4, 22, 13, 49, 40, 31])
+--to eliminate equivalence (calculate it based on centers)
 
 -- | Given tuples of equivalences, makes all the equivalences.
 swapByEquivalent :: [(String, String)] -> [String] -> [String]
@@ -45,7 +50,7 @@ takeEquiv :: Eq a => [(a,a)] -> a -> a
 takeEquiv [] n = n
 takeEquiv ((x,y):xs) current
     | y == current = x
-    | x == current = y
+    | x == current = y      --to be deleted after inputcube disapears
     | otherwise = takeEquiv xs current
 
 -- | given ["URF", "UR", "UL"] returns the ints values [0, 1, 2, 24, 25, 28, 29]
@@ -85,7 +90,7 @@ edgeToInts [_] = []
 edgeToInts (f1 : f2 : _)
     | (not . null) opt1 = opt1
     | (not . null) opt2 = opt2
-    | otherwise = []
+    | otherwise = error "Error in recieving edges: duplicated or opposite stickers in the same piece"
 
     where
         opt1 = tryToMatch f1 f2
@@ -121,7 +126,7 @@ cornerToInts (f1 : f2 : f3 : _)
     | (not . null) opt4 = (opt4 !! 1) : (opt4 !! 0) : (opt4 !! 2) : []
     | (not . null) opt5 = (opt5 !! 0) : (opt5 !! 2) : (opt5 !! 1) : []
     | (not . null) opt6 = (opt6 !! 2) : (opt6 !! 1) : (opt6 !! 0) : []
-    | otherwise = []
+    | otherwise = error "Error in recieving corners: duplicated or opposite stickers in the same piece"
 --cornerToInts _ = []
     where
         opt1 = tryToMatch f1 f2 f3

@@ -53,7 +53,7 @@ common warnings
 
 common common-exec-test
     -- Other library packages from which modules are imported.
-    build-depends:  base ^>=4.21.0.0, 
+    build-depends:  base >=4.20.1.0, 
                     QuickCheck >= 2.14,
                     groups >= 0.5,
                     containers >= 0.7,

@@ -1,8 +1,8 @@
 module Main where
 
---import TestCube
---import TestMoves
---import TestHeuristics
+import TestCube
+import TestMoves
+import TestHeuristics
 import TestSolutions
 
 --main-is of cabal test
@@ -16,13 +16,13 @@ main = do
     --putStrLn "Testing Moves:"
     --testsMoves
 
-    --putStrLn "\n"
-    --putStrLn "Testing Heuristics:"
-    --testHeuristics
-
     putStrLn "\n"
-    putStrLn "Testing Solutions:"
-    testSolutions
+    putStrLn "Testing Heuristics:"
+    testHeuristics
+
+    --putStrLn "\n"
+    --putStrLn "Testing Solutions:"
+    --testSolutions
 
     putStrLn "\n"
 

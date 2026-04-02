@@ -65,7 +65,8 @@ common common-exec-test
     --Here, add the packages imported
 
 
-    other-modules:  Bandaged,
+    other-modules:  
+                    Bandaged,
                     ExpandBlocks,
                     Cube, 
                     Moves,
@@ -114,7 +115,14 @@ executable Bandaged-Cube-TFG
 
 
     -- Directories containing source files.
-    hs-source-dirs:   src-exe, src-exe/Data, src-exe/IO_Visualizator, src-exe/BuildCubes, src-exe/Search_Engine, src-exe/Heuristics, src-exe/ZExamples
+    hs-source-dirs:   
+                    src-exe,
+                    src-exe/Data,
+                    src-exe/IO_Visualizator,
+                    src-exe/BuildCubes,
+                    src-exe/Search_Engine,
+                    src-exe/Heuristics,
+                    src-exe/ZExamples
 
 test-suite Bandaged-Cube-TFG-test
     -- Import common warning flags.

@@ -1,7 +1,7 @@
 module IndexHeuristics(cornersKey, edgesKey, edgesKeyFst, edgesKeySnd) where
 
 import Bandaged
-import Combinatorics(nprNumbering, factorialNumbering)
+import Combinatorics(nprEncode, factorialEncode, baseToNum, base)
 import MathematicalNotation(cornerState, edgesState)
 import Data.List(sortBy)
 
@@ -10,8 +10,8 @@ cornersKey :: BandagedCube -> Int
 cornersKey bc = (permKey * 3 ^ (7 :: Int)) + orKey
     where
         (perm, ori) = cornerState bc
-        permKey = factorialNumbering perm
-        orKey = sum [(3 ^ i * ori !! (6 - i)) | i <- [0 .. 6]]
+        permKey = factorialEncode perm
+        orKey = baseToNum (base 3) (init ori)
 
 -- | Returns the key of the first 6 edges
 edgesKeyFst :: BandagedCube -> Int
@@ -38,5 +38,5 @@ edgesKey bc = (keyFst, keySnd)
 indexHalfE :: [Int] -> [Int] -> Int
 indexHalfE perm0 ori0 = (permKey * 2 ^ (6 :: Int)) + orKey
     where
-        permKey = nprNumbering [0..11] perm0
-        orKey = sum [(2 ^ i * ori0 !! (5 - i)) | i <- [0 .. 5]]
+        permKey = nprEncode (12,6) perm0
+        orKey = baseToNum (base 2) ori0

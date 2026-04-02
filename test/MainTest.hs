@@ -20,9 +20,9 @@ main = do
     putStrLn "Testing Heuristics:"
     testHeuristics
 
-    --putStrLn "\n"
-    --putStrLn "Testing Solutions:"
-    --testSolutions
+    putStrLn "\n"
+    putStrLn "Testing Solutions:"
+    testSolutions
 
     putStrLn "\n"
 

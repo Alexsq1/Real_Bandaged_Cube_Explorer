@@ -66,31 +66,37 @@ common common-exec-test
 
 
     other-modules:  
+                    ----Data
                     Bandaged,
-                    ExpandBlocks,
                     Cube, 
                     Moves,
                     MathematicalNotation,
+                    ----BuildCubes
+                    ExpandBlocks,
                     CubeCreator,
+                    ----IOV
                     InputCube,
                     ManimHsConversion,
                     Visualizator,
+                    ----Heuristics
                     Combinatorics,
                     CalculateKorfHeuristics,
                     StoreKorfHeuristics,
                     LoadKorfHeuristics,
                     KorfHeuristic,
                     IndexHeuristics,
+                    ----Search
                     Search,
                     SolvingStrategies,
                     MoveGeneration,
                     Solvability,
+                    ----Examples
                     InputAndSolve,
                     OneSolve,
-                    --OneInput,
-                    --OneGen,
-                    HeuristicsProfile
-                    --,HundredSolves
+                    ----OneInput,
+                    ----OneGen,
+                    ----HeuristicsProfile
+                    ----,HundredSolves
 
 
 

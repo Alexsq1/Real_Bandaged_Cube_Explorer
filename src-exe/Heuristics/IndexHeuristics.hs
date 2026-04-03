@@ -1,12 +1,12 @@
 module IndexHeuristics(cornersKey, edgesKey, edgesKeyFst, edgesKeySnd) where
 
-import Bandaged
+import Cube(Cube(..))
 import Combinatorics(nprEncode, factorialEncode, encodeCO, encodeEO)
 import MathematicalNotation(cornerState, edgesState)
 import Data.List(sortBy)
 
 -- | Returns the key of the corners of a BCube (in range [0, 88179838])
-cornersKey :: BandagedCube -> Int
+cornersKey :: Cube -> Int
 cornersKey bc = (permKey * 3 ^ (7 :: Int)) + orKey
     where
         (perm, ori) = cornerState bc
@@ -16,15 +16,15 @@ cornersKey bc = (permKey * 3 ^ (7 :: Int)) + orKey
         --orKey = baseToNum [729,243,81,27,9,3,1] (init ori)
 
 -- | Returns the key of the first 6 edges (in range [0,42577919])
-edgesKeyFst :: BandagedCube -> Int
+edgesKeyFst :: Cube -> Int
 edgesKeyFst c = fst (edgesKey c)
 
 -- | Returns the key of the second 6 edges
-edgesKeySnd :: BandagedCube -> Int
+edgesKeySnd :: Cube -> Int
 edgesKeySnd c = snd (edgesKey c)
 
 -- | Returns the key of the halves of the edges of BCube
-edgesKey :: BandagedCube -> (Int, Int)
+edgesKey :: Cube -> (Int, Int)
 edgesKey bc = (keyFst, keySnd)
     where
         (perm, ori) = edgesState bc

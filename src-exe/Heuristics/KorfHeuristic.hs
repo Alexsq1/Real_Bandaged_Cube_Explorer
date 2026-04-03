@@ -10,7 +10,7 @@ type HVector = (Vector8, Vector8, Vector8)
 
 -- | DEFINITIVE method for estimating the minimal moves remaining at a position
 korfHeuristic :: HVector -> BandagedCube -> Int
-korfHeuristic heurVec bc = (fromIntegral hDef) :: Int
+korfHeuristic heurVec (BandagedCube bc _) = (fromIntegral hDef) :: Int
     where
         (c, e1, e2) = lookupAll heurVec bc
         hDef = maximum [c, e1, e2]
@@ -18,7 +18,7 @@ korfHeuristic heurVec bc = (fromIntegral hDef) :: Int
 
 --Used for debugging
 korfIndivHeuristics :: HVector -> BandagedCube -> [Int]
-korfIndivHeuristics hVec bc = (map fromIntegral hs) :: [Int]
+korfIndivHeuristics hVec (BandagedCube bc _) = (map fromIntegral hs) :: [Int]
     where
         (c, e1, e2) = lookupAll hVec bc
         hs = [c, e1, e2]

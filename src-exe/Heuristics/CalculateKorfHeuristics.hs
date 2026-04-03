@@ -1,12 +1,13 @@
 module CalculateKorfHeuristics(stdVectors) where
 
-import Bandaged
-import Moves
-import CubeCreator(newSolvedBandagedCube)
+--import Bandaged
+import Cube(Cube(..))
+import Moves(Turn(..), Face(..), applyMove, axisOfFace)
+import CubeCreator(newSolvedCube)
 import IndexHeuristics
 
 import qualified Data.Set as S
-import Data.Maybe(isJust, fromJust)
+import Data.Maybe(fromJust)
 import Data.Word(Word8)
 
 import Data.PSQueue as PS
@@ -49,21 +50,21 @@ cornersVector :: Word8                                        -- ^ Maximum depth
                 -> Vector8
 cornersVector n = applyChangesMV 88179840 (n+1) ch
     where
-        ch = bfsStoreChanges cornersKey n [R .. ] newSolvedBandagedCube
+        ch = bfsStoreChanges cornersKey n [R .. ] newSolvedCube
 
 -- | Generate a pattern database of the first 6 edges from a state to depth n
 edgesFstVector :: Word8                                          -- ^ Maximum depth
                 -> Vector8
 edgesFstVector n = applyChangesMV 42577920 (n+1) ch
     where
-        ch = bfsStoreChanges edgesKeyFst n [R .. ] newSolvedBandagedCube
+        ch = bfsStoreChanges edgesKeyFst n [R .. ] newSolvedCube
 
 -- | Generate a pattern database of the last 6 edges from a state to depth n
 edgesSndVector :: Word8                                        -- ^ Maximum depth
                 -> Vector8
 edgesSndVector n = applyChangesMV 42577920 (n+1) ch
     where
-        ch = bfsStoreChanges edgesKeySnd n [R .. ] newSolvedBandagedCube
+        ch = bfsStoreChanges edgesKeySnd n [R .. ] newSolvedCube
 
 -- | Make the inmutable vector (with mutable operations) 
 applyChangesMV :: Int                                           -- ^ Size
@@ -79,7 +80,7 @@ applyChangesMV sizeV defaultDepth changes = runST $ do
 myUpdate :: MV.MVector s Word8 -> [(Int, Word8)] -> ST s ()
 myUpdate v changes = forM_ changes $ (\(i, value) -> MV.write v i value)
 
-newtype GenerationState = GenerationState (Int, Face, BandagedCube)
+newtype GenerationState = GenerationState (Int, Face, Cube)
 --(Key, LastFace, BCube)
 
 instance Eq GenerationState where 
@@ -95,12 +96,12 @@ instance Show GenerationState where
 
 type SetVisitedKeys = S.Set Int
 
-bfsStoreChanges :: (BandagedCube -> Int) -> Word8 -> [Face] -> BandagedCube -> [(Int, Word8)]
+bfsStoreChanges :: (Cube -> Int) -> Word8 -> [Face] -> Cube -> [(Int, Word8)]
 bfsStoreChanges kGen maxDepth faces initBC = bfs kGen maxDepth (PS.singleton gs0 0) faces S.empty S.empty []
     where
         gs0 = GenerationState (kGen initBC, N, initBC)
 
-bfs ::  (BandagedCube -> Int) -> Word8 
+bfs ::  (Cube -> Int) -> Word8 
     -> PS.PSQ GenerationState Word8 -> [Face] 
     -> SetVisitedKeys -> SetVisitedKeys -> [(Int, Word8)] 
     -> [(Int, Word8)]
@@ -143,16 +144,17 @@ insertList :: (Ord k, Ord p) => [(k , p)] -> PSQ k p -> PSQ k p
 insertList [] pq = pq
 insertList ((k , p):xs) pq = PS.insert k p (insertList xs pq)
 
-nextLayerNonRepeating :: (BandagedCube -> Int)
+nextLayerNonRepeating :: (Cube -> Int)
                         -> GenerationState -> [Face] 
                         -> SetVisitedKeys -> SetVisitedKeys -> [GenerationState]
                         
 nextLayerNonRepeating kGen (GenerationState(_, lastFace, bCube)) faces visited onceEnqueued = newStatesFiltered
     where
-        moves = [ (f, Turn(f, m)) | f <- faces, m <- [1 .. 3], (axisOfFace f /= axisOfFace lastFace) || (f > lastFace),validTurn bCube f]
-        possibleAccesibleStates = [(lf, tryToTurn bCube m) | (lf, m) <- moves, isJust (tryToTurn bCube m)]
+        moves = [ (f, Turn(f, m)) | f <- faces, m <- [1 .. 3], (axisOfFace f /= axisOfFace lastFace) || (f > lastFace)]
+        --possibleAccesibleStates = [(lf, tryToTurn bCube m) | (lf, m) <- moves, isJust (applyTurn bCube m)]
+        possibleAccesibleStates = [(lf, applyMove bCube m) | (lf, m) <- moves]
 
         newStatesFiltered = [  GenerationState (kGen bc, lf, bc) | 
-                            (lf, Just bc) <- possibleAccesibleStates, 
+                            (lf, bc) <- possibleAccesibleStates, 
                             S.notMember (kGen bc) visited, 
                             S.notMember (kGen bc) onceEnqueued ]

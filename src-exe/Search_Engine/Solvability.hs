@@ -1,11 +1,12 @@
 module Solvability(isSolvable, numSwaps) where
 
-import Bandaged
+import Cube(Cube)
+import Bandaged(BandagedCube(..))
 import MathematicalNotation
 import Data.List(sort)
 
 isSolvable :: BandagedCube -> Bool
-isSolvable b = fdtalTheorem b
+isSolvable (BandagedCube b _) = fdtalTheorem b
 
 {- 
 Good input: no repeated pieces, 54 stickers
@@ -20,7 +21,7 @@ Joint pieces adyacent in solved state (solvable)
 --                            && all (\b -> minimum b >= 0 && maximum b < 54) blocks
 
 
-fdtalTheorem :: BandagedCube -> Bool
+fdtalTheorem :: Cube -> Bool
 fdtalTheorem b = ((sum co) `mod` 3 == 0) && 
               ((sum eo) `mod` 2 == 0) &&
               ((numSwaps cp) `mod` 2) == ((numSwaps ep) `mod` 2)

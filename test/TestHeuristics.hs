@@ -98,7 +98,7 @@ gen1EP :: Gen [Int]
 gen1EP = shuffle [0 .. 11]
 
 perfectHashingBC :: [BandagedCube] -> Property
-perfectHashingBC bcList = let hashes = map (\c -> (cornersKey c, edgesKeyFst c, edgesKeySnd c)) bcList
+perfectHashingBC bcList = let hashes = map (\(BandagedCube c _) -> (cornersKey c, edgesKeyFst c, edgesKeySnd c)) bcList
                         in property (length (nub bcList) == length (nub hashes))
 
 nprInverse1 :: Property
@@ -123,21 +123,21 @@ admisibleCornerHeuristic v alg =
     property((fromIntegral cornerH) <= (lengthAlg alg))
         where
             finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
-            (cornerH, _, _) = lookupAll v finalSt
+            (cornerH, _, _) = lookupAll v (stdCube finalSt)
 
 admisibleEdgeFstHeuristic :: HVector -> Algorithm -> Property
 admisibleEdgeFstHeuristic v alg =
     property((fromIntegral edge1H) <= (lengthAlg alg))
         where
             finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
-            (_, edge1H, _) = lookupAll v finalSt
+            (_, edge1H, _) = lookupAll v (stdCube finalSt)
 
 admisibleEdgeSndHeuristic :: HVector -> Algorithm -> Property
 admisibleEdgeSndHeuristic v alg =
     property((fromIntegral edge2H) <= (lengthAlg alg))
         where
             finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
-            (_, _, edge2H) = lookupAll v finalSt
+            (_, _, edge2H) = lookupAll v (stdCube finalSt)
 
 korfAdmissible :: HVector -> Algorithm -> Property
 korfAdmissible v alg = property (h <= (lengthAlg alg))

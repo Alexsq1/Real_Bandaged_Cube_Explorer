@@ -1,6 +1,6 @@
 module LoadKorfHeuristics(loadVectors, lookupAll) where
 
-import Bandaged
+import Cube(Cube(..))
 import IndexHeuristics
 
 import qualified Data.ByteString as BS
@@ -21,10 +21,10 @@ loadVectors depth = do
     return (v1, v2, v3)
 
 -- | Accesses the pattern database and return the minimum number of moves for each piece set
-lookupAll :: HVector -> BandagedCube -> (Word8, Word8, Word8)
+lookupAll :: HVector -> Cube -> (Word8, Word8, Word8)
 lookupAll (c,e1,e2) bc = (vAccess c cornersKey bc, vAccess e1 edgesKeyFst bc, vAccess e2 edgesKeySnd bc)
 
-vAccess :: Vector8 -> (BandagedCube -> Int) -> BandagedCube -> Word8
+vAccess :: Vector8 -> (Cube -> Int) -> Cube -> Word8
 vAccess v kIndex bc = (V.!) v (kIndex bc)
 
 fileName :: Piece -> Int -> String

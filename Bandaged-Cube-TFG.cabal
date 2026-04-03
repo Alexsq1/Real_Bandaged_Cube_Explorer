@@ -85,10 +85,11 @@ common common-exec-test
                     SolvingStrategies,
                     MoveGeneration,
                     Solvability,
-                    --OneInput,
+                    InputAndSolve,
                     OneSolve,
+                    --OneInput,
                     --OneGen,
-                    InputAndSolve
+                    HeuristicsProfile
                     --,HundredSolves
 
 

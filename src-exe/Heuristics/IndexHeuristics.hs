@@ -1,19 +1,21 @@
 module IndexHeuristics(cornersKey, edgesKey, edgesKeyFst, edgesKeySnd) where
 
 import Bandaged
-import Combinatorics(nprEncode, factorialEncode, baseToNum, base)
+import Combinatorics(nprEncode, factorialEncode, encodeCO, encodeEO)
 import MathematicalNotation(cornerState, edgesState)
 import Data.List(sortBy)
 
--- | Returns the key of the corners of a BCube
+-- | Returns the key of the corners of a BCube (in range [0, 88179838])
 cornersKey :: BandagedCube -> Int
 cornersKey bc = (permKey * 3 ^ (7 :: Int)) + orKey
     where
         (perm, ori) = cornerState bc
         permKey = factorialEncode perm
-        orKey = baseToNum (base 3) (init ori)
+        orKey = encodeCO ori
+        --orKey = baseToNum (base 3) (init ori)
+        --orKey = baseToNum [729,243,81,27,9,3,1] (init ori)
 
--- | Returns the key of the first 6 edges
+-- | Returns the key of the first 6 edges (in range [0,42577919])
 edgesKeyFst :: BandagedCube -> Int
 edgesKeyFst c = fst (edgesKey c)
 
@@ -38,8 +40,11 @@ edgesKey bc = (keyFst, keySnd)
 indexHalfE :: [Int] -> [Int] -> Int
 indexHalfE perm0 ori0 = (permKey * 2 ^ (6 :: Int)) + orKey
     where
-        permKey = nprEncode (12,6) perm0
-        orKey = baseToNum (base 2) ori0
+        permKey = nprEncode perm0
+        orKey = encodeEO ori0
+        --orKey = baseToNum (base 2) o
+        --orKey = baseToNum [32,16,8,4,2,1] ori0
+
 
 --Refactor: fucntions for perm, functions for or, functions for mix
 --Needing a function that takes 3 keys and recompose a cube (for non-used pieces, take 0)

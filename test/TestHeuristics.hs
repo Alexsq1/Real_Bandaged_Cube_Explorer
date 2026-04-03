@@ -48,7 +48,7 @@ perfectHashingNPR :: Property
 perfectHashingNPR = property (sort numbering == [minimum numbering .. maximum numbering])
     where
         vars = variations 6 [0..11]
-        numbering = map (nprEncode (12,6)) vars
+        numbering = map (nprEncode) vars
 
         variations :: Int -> [Int] -> [[Int]]
         variations 0 _ = [[]]
@@ -80,7 +80,7 @@ gen1CP = shuffle [0 .. 7]
 perfectHashingEP :: Property
 perfectHashingEP = forAll (genEPHalves 2000) $
                 (\perms -> 
-                    let indexs = map (nprEncode (12,6)) perms
+                    let indexs = map (nprEncode) perms
                     in length (nub indexs) == length indexs)
 
 genEPHalves :: Int -> Gen [[Int]]
@@ -103,20 +103,20 @@ perfectHashingBC bcList = let hashes = map (\c -> (cornersKey c, edgesKeyFst c, 
 
 nprInverse1 :: Property
 nprInverse1 = forAll gen1EP $ \x ->
-    ((nprDecode (12,6)) . (nprEncode (12,6))) (take 6 x) == take 6 x &&
-    ((nprDecode (12,6)) . (nprEncode (12,6))) (drop 6 x) == drop 6 x
+    ((nprDecode) . (nprEncode)) (take 6 x) == take 6 x &&
+    ((nprDecode) . (nprEncode)) (drop 6 x) == drop 6 x
 
 nprInverse2 :: Int -> Property
 nprInverse2 n = n >= 0 && n < 665273 ==>
-    ((nprEncode (12,6)) . (nprDecode (12,6))) n == n
+    ((nprEncode) . (nprDecode)) n == n
 
 factInverse1 :: Property
 factInverse1 = forAll gen1CP $ \x ->
-    ((factorialDecode 8) . (factorialEncode)) x == x
+    ((factorialDecode) . (factorialEncode)) x == x
 
 factInverse2 :: Int -> Property
 factInverse2 n = n >= 0 && n < 40320 ==>
-    (factorialEncode . (factorialDecode 8)) n == n
+    (factorialEncode . (factorialDecode)) n == n
 
 admisibleCornerHeuristic :: HVector -> Algorithm -> Property
 admisibleCornerHeuristic v alg =

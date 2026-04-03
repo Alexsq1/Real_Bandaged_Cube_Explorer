@@ -1,4 +1,4 @@
-module Search(genericSearch, SearchingState(..), extractAlg, digestSearch, SolutionInfo) where
+module Search(genericSearch, SearchingState(..), extractAlg, digestSearch, SolutionInfo(..)) where
 
 import Bandaged
 import Moves

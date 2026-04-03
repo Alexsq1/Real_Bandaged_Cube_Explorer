@@ -40,3 +40,6 @@ indexHalfE perm0 ori0 = (permKey * 2 ^ (6 :: Int)) + orKey
     where
         permKey = nprEncode (12,6) perm0
         orKey = baseToNum (base 2) ori0
+
+--Refactor: fucntions for perm, functions for or, functions for mix
+--Needing a function that takes 3 keys and recompose a cube (for non-used pieces, take 0)

@@ -1,4 +1,4 @@
-module Combinatorics(factorialEncode, factorialDecode, nprEncode, nprDecode, baseToNum, base) where
+module Combinatorics(factorialEncode, factorialDecode, nprEncode, nprDecode, baseToNum, numToBase, base) where
 
 import Data.List(elemIndex, delete, (\\), insert)
 import Data.Maybe(fromJust)
@@ -57,7 +57,7 @@ baseToNum :: [Int]                  -- ^ Base multiplicators in increasing order
 baseToNum b els = sum $ zipWith (*) ((reverse . (take (length els))) b) els
 
 -- | Recieves base elements and number, writes the number in that base
-numToBase :: [Int]                  -- ^ Base multiplicators in increasing order
+numToBase :: [Int]                  -- ^ Base multiplicators in increasing order (can't be lazy)
             -> Int                  -- ^ Number
             -> [Int]
 numToBase ys = ntb (reverse ys)

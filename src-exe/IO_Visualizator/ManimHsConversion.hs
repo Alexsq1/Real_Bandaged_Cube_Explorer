@@ -26,7 +26,7 @@ cubeFromManimCodification :: [(String, String)] -- ^ Equivalence, like [(\"U\", 
 
 cubeFromManimCodification equivalence str 
     | length str /=54 = error "Error in input: recieved /= 54 stickers"
-    | any (\x -> not (elem x (map snd equivalence))) str = error "Found a sticket that is not a defined colour"
+    | any (\x -> not (elem x (map snd equivalence))) str = error "Found a sticker that is not a defined colour"
     | otherwise = newCubeFromList perm
     where
         perm = (stringToNum . reorder . swapByEquivalent equivalence) str

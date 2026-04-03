@@ -8,7 +8,7 @@ import CubeCreator(newBandagedCube)
 import ManimHsConversion
 
 import Data.List.Split(splitOn)
-import Data.List(intercalate)
+import Data.List(intercalate, sort)
 
 -- | Definitive IO for asking the user to generate a Bandaged Cube
 bandagedCubeScratchIO :: IO (BandagedCube, String)
@@ -23,9 +23,27 @@ bandagedCubeScratchIO = do
 
     --Input of the blocks
     xs <- inputBlock equivs
+    let provisionalCube = newBandagedCube cube xs
+    if (goodInput provisionalCube) 
+        then return $ (provisionalCube, sch)
+        else (
+            do
+                putStrLn "Cube with repeated pieces or invalid input"
+                next <- bandagedCubeScratchIO
+                return (next)
+        )
 
-    return $ (newBandagedCube cube xs, sch)
 
+goodInput :: BandagedCube -> Bool
+goodInput (BandagedCube bc blocks) = (sort . allPieces) bc == [0..53]
+                            && all (\b -> minimum b >= 0 && maximum b < 54) blocks
+{- Input failures:
+repeated face aliases (raises other exception, to be deprecated)
+impossible colours : covered
+repeated pieces: now covered
+unsolvable states: done before searching. Some are now covered
+
+ -}
 
 --Example of list of tuples: [("U", "White"), ("F", "Green"), ("R", "Red"), ("L", "Orange"), ("B", "Blue"), ("D", "Yellow")]
 -- | An IO that guides the user to insert the face aliases

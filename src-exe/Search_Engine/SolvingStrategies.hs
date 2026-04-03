@@ -2,19 +2,13 @@
 module SolvingStrategies(smartKorfSolver) where
 
 
---import Bandaged(BandagedCube(..), solvedBC, tryToExecuteAlg)
 import Bandaged(BandagedCube(..), solvedBC)
---import Moves
+import Solvability(isSolvable)
 
 import Search
 import KorfHeuristic
---import MathematicalNotation(edgesState, cornerState)
-
---import MoveGeneration(sixAxis, kociembaMoves, notBlockedMoves)
 import MoveGeneration(notBlockedMoves)
 
---import Data.Maybe(fromJust, isJust)
---import Data.List(sort)
 import Data.Word(Word8)
 import qualified Data.Vector.Unboxed as V
 
@@ -47,7 +41,11 @@ type HVector = (Vector8, Vector8, Vector8)
 
 -- | Solves the cube optimally with the Korf algorithm. Use only the movable faces
 smartKorfSolver :: HVector -> BandagedCube -> Maybe SolutionInfo
-smartKorfSolver hVec bc = genericSearch bc (solvedBC) (notBlockedMoves bc) (korfHeuristic hVec)
+smartKorfSolver hVec bc 
+    | isSolvable bc = genericSearch bc (solvedBC) (notBlockedMoves bc) (korfHeuristic hVec)
+    | otherwise = Nothing
+--Here call to checking if solvable
+
 --adjust korfHeuristic
 
 -- | Allows the Korf algorithm to specify the layers used to generate moves

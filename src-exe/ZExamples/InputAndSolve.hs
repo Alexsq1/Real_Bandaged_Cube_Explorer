@@ -1,18 +1,15 @@
 module InputAndSolve(inputAndSolve) where
 
---import Data.Maybe(fromJust, fromMaybe)
-import Data.Maybe(fromJust)
-
---import Bandaged
+import Data.Maybe(fromMaybe, isJust)
 
 --import Visualizator
-import InputCube
+import InputCube(bandagedCubeScratchIO)
 
 import Moves(Algorithm(..))
 
 import SolvingStrategies
 import LoadKorfHeuristics(loadVectors)
-import Search(extractAlg)
+import Search(extractAlg, SolutionInfo(..))
 
 inputAndSolve :: Int -> IO ()
 inputAndSolve n = do
@@ -23,11 +20,15 @@ inputAndSolve n = do
     --manimRecomendedVisualizer (stdCube bc) scheme (Algorithm [])
     heurVectors <- loadVectors n
 
-    let solutionSS = fromJust (smartKorfSolver heurVectors bc)
-    let algSolution = (extractAlg solutionSS)
-    let (Algorithm moves) = algSolution
+    let possibleSolution = (smartKorfSolver heurVectors bc)
+    let solutionSS = fromMaybe (SolutionInfo { solutionSI = Algorithm [],
+                                 lAlg = 0, sizeTree = 0, visited = 0, branchingFactor = 0,
+                                  exploredRatio = 0, prunedRatio = 0, exploredDepthsSI  = []})
+                                  possibleSolution
+    --let solutionSS = smartKorfSolver heurVectors bc
 
-    putStrLn ("Solution algorithm: " ++ show (Algorithm moves))
-    putStrLn ("\nSolution data: \n" ++ (show solutionSS))
+    putStrLn ("Exists solution? " ++ show (isJust possibleSolution))
+    putStrLn ("Solution algorithm: " ++ show ((extractAlg)  solutionSS))
+    --putStrLn ("\nSolution data: \n" ++ (show solutionSS))
 
 --    manimRecomendedVisualizer (stdCube bc) scheme (fromJust solution)

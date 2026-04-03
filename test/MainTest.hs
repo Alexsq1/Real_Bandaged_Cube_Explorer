@@ -8,13 +8,13 @@ import TestSolutions
 --main-is of cabal test
 main :: IO()
 main = do
-    --putStrLn "\n\n\n"
-    --putStrLn "Testing Cube:"
-    --testsCube
+    putStrLn "\n\n\n"
+    putStrLn "Testing Cube:"
+    testsCube
 
-    --putStrLn "\n"
-    --putStrLn "Testing Moves:"
-    --testsMoves
+    putStrLn "\n"
+    putStrLn "Testing Moves:"
+    testsMoves
 
     putStrLn "\n"
     putStrLn "Testing Heuristics:"

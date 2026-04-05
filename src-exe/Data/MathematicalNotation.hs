@@ -1,6 +1,6 @@
-module MathematicalNotation(cornerState, edgesState, edgesSplittedState) where
+module MathematicalNotation(cornerState, edgesState, edgesSplittedState, mathToCube) where
 
-import Cube(Cube(..), corners, edges)
+import Cube(Cube(..), corners, edges, newCubeFromList)
 --import Bandaged(BandagedCube(..))
 
 -- | Returns the state of corners in "mathematical" notation
@@ -30,11 +30,21 @@ edgesSplittedState c = (s1, s2)
         s1 = (take 6 p, take 6 o)
         s2 = (drop 6 p, drop 6 o)
 
-recompose :: ([Int], [Int]) -> ([Int], [Int]) -> Cube
---recompose (cp, co) (ep, eo) = undefined
-recompose = undefined
+-- | Takes lists of (cp, co) (ep, eo) and recompose a cube
+mathToCube :: ([Int], [Int]) ->  -- ^ (CP, CO) or (corner permutation, corner orientation)
+            ([Int], [Int])      -- ^ (EP, EO) or (edge permutation, edge orientation)
+            -> Cube
+mathToCube (cp, co) (ep, eo) = newCubeFromList (adjustedCorners ++ adjustedEdges ++ centers)
+    where
+        partialCorners = map (\x -> [3*x, 3 * x + 1, 3 * x + 2]) cp
+        partialEdges = map (\x -> [2*x + 24, 2 * x + 25]) ep
+        adjustedCorners = concat $ zipWith cyclePiece partialCorners co
+        adjustedEdges = concat $ zipWith cyclePiece partialEdges eo
+        centers = [48..53]
 
---it is only for heuristic generation, blocks are irrelevant
---need a cycling function for orientation (max 2, ugly hardcoded)
---must be fast. rest may be easy (*2, *3)
---don't forget centers
+cyclePiece :: [Int] -> Int -> [Int]
+cyclePiece x 0 = x
+cyclePiece [a,b] 1 = [b,a]
+cyclePiece [a,b,c] 1 = [c,a,b]
+cyclePiece [a,b,c] 2 = [b,c,a]
+cyclePiece x _ = x

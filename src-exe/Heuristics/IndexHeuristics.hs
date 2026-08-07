@@ -5,7 +5,9 @@ import Combinatorics(factorialEncode, nprEncode, factorialDecode, nprDecode, enc
 import MathematicalNotation(cornerState, edgesState, mathToCube)
 import Data.List(sortBy)
 
--- | Returns the key of the corners of a BCube (in range [0, 88179838])
+--Max. Int: 2 ^63 -1 = 9.223.372.036.854.775.807. Keys are in range
+
+-- | Returns the key of the corners of a BCube (in range [0, 88179839])
 cornersKey :: Cube -> Int
 cornersKey bc = (permKey * 3 ^ (7 :: Int)) + orKey
     where
@@ -55,5 +57,3 @@ keysToCube (ck, e1k, e2k) = mathToCube (cp, co) (ep, eo)
        ep = nprDecode e1pk ++ nprDecode e2pk
        eo = decodeEO e1ok ++ decodeEO e2ok
 
-
---Needing a function that takes 3 keys and recompose a cube (for non-used pieces, take 0)

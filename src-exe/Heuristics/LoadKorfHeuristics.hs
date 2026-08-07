@@ -11,23 +11,27 @@ import qualified Data.Vector.Unboxed as V
 data Piece = Corner | Edge1 | Edge2 deriving(Show, Eq, Ord, Enum)
 
 type Vector8 = V.Vector Word8
-type HVector = (Vector8, Vector8, Vector8)
+type HVector = (Word8, Vector8, Vector8, Vector8)
 
-loadVectors :: Int -> IO (HVector)
+loadVectors :: Word8 -> IO (HVector)
 loadVectors depth = do 
     v1 <- readPDB (fileName Corner depth)
     v2 <- readPDB (fileName Edge1 depth)
     v3 <- readPDB (fileName Edge2 depth)
-    return (v1, v2, v3)
+    return (fromIntegral depth, v1, v2, v3)
 
 -- | Accesses the pattern database and return the minimum number of moves for each piece set
 lookupAll :: HVector -> Cube -> (Word8, Word8, Word8)
-lookupAll (c,e1,e2) bc = (vAccess c cornersKey bc, vAccess e1 edgesKeyFst bc, vAccess e2 edgesKeySnd bc)
+lookupAll (n,c,e1,e2) bc = (vAccess n c cornersKey bc, vAccess n e1 edgesKeyFst bc, vAccess n e2 edgesKeySnd bc)
 
-vAccess :: Vector8 -> (Cube -> Int) -> Cube -> Word8
-vAccess v kIndex bc = (V.!) v (kIndex bc)
+vAccess :: Word8 -> Vector8 -> (Cube -> Int) -> Cube -> Word8
+vAccess n v kIndex bc
+    | vecAcc == 255 = n+1
+    | otherwise = vecAcc
+    where
+        vecAcc = (V.!) v (kIndex bc)
 
-fileName :: Piece -> Int -> String
+fileName :: Piece -> Word8 -> String
 fileName p d = 
     root ++ case p of
         Corner -> "c.pdb"

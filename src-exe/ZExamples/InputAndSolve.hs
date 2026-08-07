@@ -10,8 +10,9 @@ import Moves(Algorithm(..))
 import SolvingStrategies
 import LoadKorfHeuristics(loadVectors)
 import Search(extractAlg, SolutionInfo(..))
+import Data.Word(Word8)
 
-inputAndSolve :: Int -> IO ()
+inputAndSolve :: Word8 -> IO ()
 inputAndSolve n = do
 
     --(bc, scheme) <- bandagedCubeScratchIO
@@ -29,6 +30,6 @@ inputAndSolve n = do
 
     putStrLn ("Exists solution? " ++ show (isJust possibleSolution))
     putStrLn ("Solution algorithm: " ++ show ((extractAlg)  solutionSS))
-    --putStrLn ("\nSolution data: \n" ++ (show solutionSS))
+    putStrLn ("\nSolution data: \n" ++ (show solutionSS))
 
 --    manimRecomendedVisualizer (stdCube bc) scheme (fromJust solution)

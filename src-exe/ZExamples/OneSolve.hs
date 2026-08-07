@@ -9,8 +9,9 @@ import SolvingStrategies
 import Search(extractAlg)
 --import Cube
 import LoadKorfHeuristics(loadVectors)
+import Data.Word(Word8)
 
-oneSolve :: Int -> IO ()
+oneSolve :: Word8 -> IO ()
 oneSolve n = do
 
     --GENERATING ALGS AND CHECKING 1 HEURISTIC

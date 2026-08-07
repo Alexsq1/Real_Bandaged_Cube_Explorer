@@ -6,14 +6,14 @@ import Bandaged(BandagedCube(..), solvedBC)
 import Solvability(isSolvable)
 
 import Search
-import KorfHeuristic
+import KorfHeuristic(korfHeuristic)
 import MoveGeneration(notBlockedMoves)
 
 import Data.Word(Word8)
 import qualified Data.Vector.Unboxed as V
 
 type Vector8 = V.Vector Word8
-type HVector = (Vector8, Vector8, Vector8)
+type HVector = (Word8, Vector8, Vector8, Vector8)
  
 -- -- | Solves the cube with iddfs algorithm (deprecated in the future)
 -- iddfsSolver :: BandagedCube -> Maybe SearchingState

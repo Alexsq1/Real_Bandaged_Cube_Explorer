@@ -12,7 +12,6 @@ cornerState cube  = (perm, ori)
         perm = map (\(_,x) -> x `div` 3) xs2
         ori = map (\(x,_) -> x `mod` 3) xs2
 
-
 -- | Returns the state of edges in "mathematical" notation
 edgesState :: Cube -> ([Int], [Int])
 edgesState cube = (perm, ori)

@@ -6,7 +6,7 @@ import qualified Data.Set as S
 import Data.Maybe(isNothing, fromJust)
 import Data.List(intercalate)
 
-import Test.QuickCheck
+--import Test.QuickCheck
 
 -- | A Bandaged Cube is a Cube with a set of sets of restrictions.
 data BandagedCube = BandagedCube {stdCube :: Cube, restrictions :: S.Set (S.Set Int)} deriving Eq
@@ -108,9 +108,3 @@ piecesNotAfected bm = S.difference s0_53 (piecesAfected bm)
     where
         s0_53 = S.fromList [0..53]
 
-instance Arbitrary BandagedCube where
-    arbitrary = do
-        alg <- arbitrary
-        let bcs = BandagedCube {stdCube = newCubeFromList [0 .. 53], 
-            restrictions = S.singleton (S.empty)}
-        return (fromJust (tryToExecuteAlg bcs alg))

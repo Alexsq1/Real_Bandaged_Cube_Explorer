@@ -14,6 +14,16 @@ testsMoves = do
     quickCheck (inverse2)
     quickCheck (inversedoble)
 
+-- | Generator of Turn: random move
+instance Arbitrary Turn where
+    arbitrary = elements possibleTurns
+
+-- | Generator of Algorithm: random moves
+instance Arbitrary Algorithm where
+    arbitrary = do
+        xs <- listOf arbitrary
+        return (Algorithm xs <> mempty)
+        --The mempty forces to simplify
 associativityMoves :: Algorithm -> Algorithm -> Algorithm -> Property
 associativityMoves a1 a2 a3 = (a1 <> (a2 <> a3)) === ((a1 <> a2) <> a3)
 
@@ -31,3 +41,6 @@ inverse2 a = ((invert a) <> a) === mempty
 
 inversedoble :: Algorithm -> Property
 inversedoble a = ( (invert . invert) a) === a
+
+-- TODO: Cube generator by applying random moves to it
+

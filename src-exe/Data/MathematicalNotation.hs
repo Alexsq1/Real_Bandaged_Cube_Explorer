@@ -3,7 +3,7 @@ module MathematicalNotation(cornerState, edgesState, edgesSplittedState, mathToC
 import Cube(Cube(..), corners, edges, newCubeFromList)
 --import Bandaged(BandagedCube(..))
 
--- | Returns the state of corners in "mathematical" notation
+-- | Returns the state of corners in "mathematical" notation (CP, CO)
 cornerState :: Cube -> ([Int], [Int])
 cornerState cube  = (perm, ori)
     where
@@ -12,7 +12,7 @@ cornerState cube  = (perm, ori)
         perm = map (\(_,x) -> x `div` 3) xs2
         ori = map (\(x,_) -> x `mod` 3) xs2
 
--- | Returns the state of edges in "mathematical" notation
+-- | Returns the state of edges in "mathematical" notation (EP, EO)
 edgesState :: Cube -> ([Int], [Int])
 edgesState cube = (perm, ori)
     where
@@ -21,7 +21,7 @@ edgesState cube = (perm, ori)
         perm = map (\(_,x) -> (x - 24) `div` 2) xs2
         ori = map (\(x,_) -> x `mod` 2) xs2
 
--- | Returns the state of edges splitted in "mathematical" notation
+-- | Returns the state of edges splitted in "mathematical" notation ((EP1, EO1), (EP2,EO2))
 edgesSplittedState :: Cube -> (([Int], [Int]), ([Int], [Int]))
 edgesSplittedState c = (s1, s2)
     where

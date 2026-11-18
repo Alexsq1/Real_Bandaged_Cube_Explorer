@@ -4,7 +4,7 @@ import Data.Group
 import qualified Data.Vector.Unboxed as V
 import Data.List(sortBy)
 
-import Test.QuickCheck
+--import Test.QuickCheck
 
 newtype Cube = Cube (V.Vector Int) deriving (Show, Eq)
 
@@ -58,8 +58,8 @@ centers = slicePieces [48 .. 53]
 allPieces :: Cube -> [Int]
 allPieces (Cube xs) = V.toList xs
 
-instance Arbitrary Cube where
-    arbitrary = do
-        xs <- shuffle [0..53]
-        return $ newCubeFromList xs
+--instance Arbitrary Cube where
+--    arbitrary = do
+--        xs <- shuffle [0..53]
+--        return $ newCubeFromList xs
     --Random stickers permutations. Can be improved with real perms

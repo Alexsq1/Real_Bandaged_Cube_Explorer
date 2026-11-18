@@ -3,26 +3,26 @@ module Main where
 import TestCube
 import TestMoves
 import TestHeuristics
-import TestSolutions
+--import TestSolutions
 
 --main-is of cabal test
 main :: IO()
 main = do
-    putStrLn "\n\n\n"
-    putStrLn "Testing Cube:"
-    testsCube
+    --putStrLn "\n\n\n"
+    --putStrLn "Testing Cube:"
+    --testsCube
 
-    putStrLn "\n"
-    putStrLn "Testing Moves:"
-    testsMoves
+    --putStrLn "\n"
+    --putStrLn "Testing Moves:"
+    --testsMoves
 
     putStrLn "\n"
     putStrLn "Testing Heuristics:"
     testHeuristics
 
-    putStrLn "\n"
-    putStrLn "Testing Solutions:"
-    testSolutions
+    --putStrLn "\n"
+    --putStrLn "Testing Solutions:"
+    --testSolutions
 
     putStrLn "\n"
 

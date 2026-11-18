@@ -1,7 +1,7 @@
 module Main where
 
 import InputAndSolve
---import StoreKorfHeuristics
+import StoreKorfHeuristics
 --import OneSolve
 --import HeuristicsProfile
 

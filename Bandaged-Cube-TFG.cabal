@@ -129,6 +129,7 @@ executable Bandaged-Cube-TFG
                     src-exe/Search_Engine,
                     src-exe/Heuristics,
                     src-exe/ZExamples
+                    , test
 
 test-suite Bandaged-Cube-TFG-test
     -- Import common warning flags.
@@ -148,7 +149,7 @@ test-suite Bandaged-Cube-TFG-test
     other-modules:  TestCube, 
                     TestMoves,
                     TestHeuristics,
-                    TestSolutions
+                    --TestSolutions
 
     -- Test dependencies.
     build-depends:

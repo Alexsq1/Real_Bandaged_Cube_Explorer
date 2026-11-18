@@ -2,9 +2,12 @@ module TestCube (testsCube) where
 
 import Test.QuickCheck
 import Cube
---import Test.QuickCheck.Gen
+import Moves
+import CubeCreator
+import MathematicalNotation
 import Data.Group
-
+import TestMoves
+--import Test.QuickCheck.Gen
 
 
 testsCube :: IO ()
@@ -15,9 +18,27 @@ testsCube = do
     quickCheck ( inverse1)
     quickCheck ( inverse2)
     quickCheck (inversedoble)
+    quickCheck mathNotationCorrect1
 
      --add new properties to test
 
+-- | GENERATOR OF CUBE: apply a random sequence of moves from the solved state
+
+instance Arbitrary Cube where
+    arbitrary = do
+        alg <- arbitrary
+        let cOrig = newSolvedCube
+        let cLast = applyMove cOrig alg
+        return cLast
+
+-- GENERATOR OF BANDAGED CUBE: take an arbitrary cube with no blocks (useless)
+--instance Arbitrary BandagedCube where
+--    arbitrary = do
+--        --alg <- arbitrary
+--        cube <- arbitrary
+--        let bcs = BandagedCube {stdCube = cube, 
+--            restrictions = S.singleton (S.empty)}
+--        return (fromJust (tryToExecuteAlg bcs alg))
 
 --define properties:
 
@@ -42,12 +63,17 @@ inversedoble :: Cube -> Property
 inversedoble c = ( (invert . invert) c) === c
 
 
-
 {-
-PROBAR
-props matemáticas de grupos (orden), algoritmos que resuelven,
-...
+ - to be tested:
+ - mathematical properties of group theory:
+ - order of a perm
 -}
 
 
-
+-- | Given a cube, calculates its mathematical notation and recomposes it
+mathNotationCorrect1 :: Cube -> Property
+mathNotationCorrect1 c = mathToCube (cp,co) (ep,eo) === c
+    where
+        (cp, co) = cornerState c
+        (ep, eo) = edgesState c
+-- the second version is in TestHeuristics, for the generators (todo: refactor)

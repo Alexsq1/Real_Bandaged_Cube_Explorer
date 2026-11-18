@@ -17,4 +17,4 @@ genPDBs maxDepth = do
     BS.writeFile (root ++ "e1.pdb") (e1BS)
     BS.writeFile (root ++ "e2.pdb") (e2BS)
     where
-        root = "pdb/" ++ (show maxDepth) ++ "/" 
+        root = "src-exe/Heuristics/pdb/" ++ (show maxDepth) ++ "/" 

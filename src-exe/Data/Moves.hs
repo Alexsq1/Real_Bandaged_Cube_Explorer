@@ -3,7 +3,7 @@ module Moves (Turn(..), Algorithm(..), Face(..), Axis(..), algToPerm, possibleTu
 import Data.Group
 import Cube
 
-import Test.QuickCheck
+--import Test.QuickCheck
 
 -- | A face of a Cube (R, U, F, L, D, B)
 data Face = N | R | U | F | L | D | B deriving(Show, Eq, Ord, Read, Enum)
@@ -177,12 +177,3 @@ axisOfFace D = UD
 axisOfFace F = FB
 axisOfFace B = FB
 axisOfFace N = NN
-
-instance Arbitrary Turn where
-    arbitrary = elements possibleTurns
-
-instance Arbitrary Algorithm where
-    arbitrary = do
-        xs <- listOf arbitrary
-        return (Algorithm xs <> mempty)
-        --The mempty forces to simplify

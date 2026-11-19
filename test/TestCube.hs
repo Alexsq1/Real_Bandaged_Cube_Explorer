@@ -2,6 +2,9 @@ module TestCube (testsCube) where
 
 import Test.QuickCheck
 import Cube
+import Bandaged
+import Data.Set as S
+import Data.Maybe(fromJust)
 import Moves
 import CubeCreator
 import MathematicalNotation
@@ -32,13 +35,13 @@ instance Arbitrary Cube where
         return cLast
 
 -- GENERATOR OF BANDAGED CUBE: take an arbitrary cube with no blocks (useless)
---instance Arbitrary BandagedCube where
---    arbitrary = do
---        --alg <- arbitrary
---        cube <- arbitrary
---        let bcs = BandagedCube {stdCube = cube, 
---            restrictions = S.singleton (S.empty)}
---        return (fromJust (tryToExecuteAlg bcs alg))
+instance Arbitrary BandagedCube where
+    arbitrary = do
+        alg <- arbitrary
+        cube <- arbitrary
+        let bcs = BandagedCube {stdCube = cube, 
+            restrictions = S.singleton (S.empty)}
+        return (fromJust (tryToExecuteAlg bcs alg))
 
 --define properties:
 

@@ -27,30 +27,31 @@ type HVector = (Word8, V8, V8, V8)
 testHeuristics :: IO()
 testHeuristics = do
     -- test of perfect hashes:
-        --quickCheck (perfectHashingPerms)
-        --quickCheck (perfectHashingNPR)
-        --quickCheck perfectHashingCP
-        --quickCheck perfectHashingEP
-        --quickCheck perfectHashingBC
+        quickCheck (perfectHashingPerms)
+        quickCheck (perfectHashingNPR)
+        quickCheck perfectHashingCP
+        quickCheck perfectHashingEP
+        quickCheck perfectHashingBC
     -- test of combinatorics:
-        --quickCheck factInverse1
-        --quickCheck factInverse2
-        --quickCheck nprInverse1
-        --quickCheck nprInverse2
-        --quickCheck coInverse1
-        --quickCheck coInverse2
-        --quickCheck eoInverse1
-        --quickCheck eoInverse2
+        quickCheck factInverse1
+        quickCheck factInverse2
+        quickCheck nprInverse1
+        quickCheck nprInverse2
+        quickCheck coInverse1
+        quickCheck coInverse2
+        quickCheck eoInverse1
+        quickCheck eoInverse2
         quickCheck mathNotationCorrect2
 
     -- test of index heuristics:
         quickCheck calcAndRecompose1
-        --let depth = 7
-        --v <- (loadVectors depth)
-        --quickCheck (admisibleCornerHeuristic v)
-        --quickCheck (admisibleEdgeFstHeuristic v)
-        --quickCheck (admisibleEdgeSndHeuristic v)
-        --quickCheck (korfAdmissible v)
+        quickCheck calcAndRecompose2
+        let depth = 7
+        v <- (loadVectors depth)
+        quickCheck (admisibleCornerHeuristic v)
+        quickCheck (admisibleEdgeFstHeuristic v)
+        quickCheck (admisibleEdgeSndHeuristic v)
+        quickCheck (korfAdmissible v)
 
 -- GENERATORS
 
@@ -197,7 +198,6 @@ eoInverse2 n = n >= 0 && n < 64 ==>
 
 -- TESTING INDEXHEURISTICS
 
--- it is failing now
 calcAndRecompose1 :: Cube -> Property
 calcAndRecompose1 c = keysToCube (ck, e1, e2) === c
     where
@@ -205,6 +205,20 @@ calcAndRecompose1 c = keysToCube (ck, e1, e2) === c
         e1 = edgesKeyFst c
         e2 = edgesKeySnd c
 
+calcAndRecompose2 :: Cube -> Property
+calcAndRecompose2 c = forAll genRealisticIndices $ \(c, e1, e2) -> 
+                        property (cornersKey (keysToCube (c, e1, e2)) == c && 
+                                    edgesKeyFst (keysToCube (c, e1, e2)) == e1 && 
+                                    edgesKeySnd (keysToCube (c, e1, e2)) == e2)
+    where
+        genRealisticIndices :: Gen (Int, Int, Int)
+        genRealisticIndices = do
+                                    --c <- arbitrary :: Cube
+                                    c <- arbitrary
+                                    let ck = cornersKey c
+                                    let e1 = edgesKeyFst c
+                                    let e2 = edgesKeySnd c
+                                    return (ck, e1, e2)
 
 mathNotationCorrect2 :: Property
 mathNotationCorrect2 = forAll genValues $ \(cp, ep, co, eo, c) -> 

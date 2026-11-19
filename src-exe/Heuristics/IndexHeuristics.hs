@@ -54,6 +54,15 @@ keysToCube (ck, e1k, e2k) = mathToCube (cp, co) (ep, eo)
        --Decode perm and orientation, join edges
        cp = factorialDecode cpk
        co = decodeCO cok
-       ep = nprDecode e1pk ++ nprDecode e2pk
-       eo = decodeEO e1ok ++ decodeEO e2ok
+
+
+       -- Quite interestingly, the reordering is autoinverse
+       epPrev = nprDecode e1pk ++ nprDecode e2pk
+       eoPrev = decodeEO e1ok ++ decodeEO e2ok
+
+       allp = zip3 [0..11] epPrev eoPrev
+
+       sortedEdges = sortBy (\(_, p1, _) (_, p2, _) -> compare p1 p2) allp
+
+       (ep, _, eo) = unzip3 sortedEdges
 

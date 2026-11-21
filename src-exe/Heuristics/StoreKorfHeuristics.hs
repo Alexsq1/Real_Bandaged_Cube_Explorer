@@ -5,13 +5,13 @@ import CalculateKorfHeuristics(stdVectors)
 import Data.Word(Word8)
 import qualified Data.Vector.Unboxed as V
 import qualified Data.ByteString as BS
-import System.Directory(doesFileExist, getFileSize)
+import System.Directory(doesFileExist, getFileSize, createDirectoryIfMissing)
 
 -- | Generates PDBs if it does not exists previously. If it existed, nothing happens
 genPDBs :: Word8 -> IO()
 genPDBs (-1) = pure ()
 genPDBs maxDepth = do
-    --generate pdb (n-1) ?? distinguish between 0 ?
+    --generate previous pdb (n-1)
     genPDBs (maxDepth - 1)
 
     -- if files do not exist, create them
@@ -22,6 +22,7 @@ genPDBs maxDepth = do
         then pure () 
         else (
             do
+                createDirectoryIfMissing True root
                 writeFile cornersFile ""
                 writeFile edge1File ""
                 writeFile edge2File ""

@@ -34,6 +34,7 @@ stdVectors currDepth = do
     let e2 = edgesSndVector currDepth e2Prev
     return (currDepth, c, e1, e2)
 
+-- TODO: change into reading the correpsonding file, if exists. Otherwise, keep generating
 -- | Reads the previous vector by accessing a file. If asked for 0, generates empty vector of corresponding length
 loadLastVector :: Word8 -> IO (HVector)
 loadLastVector n
@@ -56,6 +57,7 @@ cornersVector n pv = applyChangesMV 88179840 (n+1) pv ch
     where
         ch = bfsStoreChanges cornersKey n [R .. ] newSolvedCube
         --ch = nextLayer Corner n pv
+        -- todo: change bfs to nextLayer
 
 -- | Generate a pattern database of the first 6 edges from a state to depth n
 edgesFstVector :: Word8                                          -- ^ Current depth
@@ -73,6 +75,7 @@ edgesSndVector n pv = applyChangesMV 42577920 (n+1) pv ch
     where
         ch = bfsStoreChanges edgesKeySnd n [R .. ] newSolvedCube
 
+-- TODO: is it giving +1 for the unreached states? No. Remember that when reading, it is automatically applied when the number is 255
 -- | Make the inmutable vector (with mutable operations) 
 applyChangesMV :: Int                                           -- ^ Size               (unnecesary)
                 -> Word8                                        -- ^ Current depth      (unnecesary)
@@ -108,9 +111,10 @@ data HPiece = Corner | Edge1 | Edge2 deriving (Eq, Show)
 -}
 
 recompose :: HPiece -> Int -> Cube
-recompose Corner n = keysToCube (n,0,0)
-recompose Edge1 n = keysToCube (0,n,0)
+recompose Corner n = keysToCube (n,0,23442432)
+recompose Edge1 n = keysToCube (0,n,23442432)
 recompose Edge2 n = keysToCube (0,0,n)
+-- Careful: can give strange failures because of solved pieces and repeated ones
 {- Future: not recomposing the whole cube, only specific pieces (efficiency) -}
 
 --PENDING TO DELETE ALL FROM HERE

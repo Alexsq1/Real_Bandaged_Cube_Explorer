@@ -7,8 +7,11 @@ import StoreKorfHeuristics
 
 main :: IO ()
 main = do
-    InputAndSolve.inputAndSolve 7
-    --genPDBs 7
+    putStrLn "Wellcome to Real Bandaged Cube Explorer!"
+
+    let d = 7
+    genPDBs d
+    InputAndSolve.inputAndSolve d
     --OneSolve.oneSolve 7
 
     --n <- HeuristicsProfile.prof

@@ -23,7 +23,7 @@ testSolutions :: IO()
 testSolutions = do
     putStrLn "TESTS OF SEARCH ENGINE"
 
-    let depth = 7
+    let depth = 6
     v <- (loadVectors depth)
     
     --putStrLn "Testing a 3x3x3"

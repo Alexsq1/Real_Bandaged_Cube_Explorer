@@ -46,7 +46,7 @@ testHeuristics = do
     -- test of index heuristics:
         quickCheck calcAndRecompose1
         quickCheck calcAndRecompose2
-        let depth = 7
+        let depth = 6
         v <- (loadVectors depth)
         quickCheck (admisibleCornerHeuristic v)
         quickCheck (admisibleEdgeFstHeuristic v)

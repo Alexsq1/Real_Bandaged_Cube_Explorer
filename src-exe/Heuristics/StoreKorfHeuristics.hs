@@ -9,7 +9,7 @@ import System.Directory(doesFileExist, getFileSize, createDirectoryIfMissing)
 
 -- | Generates PDBs if it does not exists previously. If it existed, nothing happens
 genPDBs :: Word8 -> IO()
-genPDBs (-1) = pure ()
+genPDBs 255 = pure ()
 genPDBs maxDepth = do
     --generate previous pdb (n-1)
     genPDBs (maxDepth - 1)

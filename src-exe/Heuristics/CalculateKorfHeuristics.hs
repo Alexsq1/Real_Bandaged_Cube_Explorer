@@ -28,7 +28,7 @@ type HVector = (Word8, Vector8, Vector8, Vector8)
 -- | Calculates a vector with the depths of a pattern database
 stdVectors :: Word8 -> IO (HVector)
 stdVectors currDepth = do
-    (n1, cPrev, e1Prev, e2Prev) <- loadLastVector currDepth
+    (_, cPrev, e1Prev, e2Prev) <- loadLastVector currDepth
     let c = cornersVector   currDepth cPrev
     let e1 = edgesFstVector currDepth e1Prev
     let e2 = edgesSndVector currDepth e2Prev
@@ -53,7 +53,7 @@ emptyVec n = V.fromList (replicate n 255)
 cornersVector :: Word8                                        -- ^ Current depth
                 -> Vector8                                    -- ^ Previous vector
                 -> Vector8
-cornersVector n pv = applyChangesMV 88179840 (n+1) pv ch
+cornersVector n pv = applyChangesMV pv ch
     where
         ch = bfsStoreChanges cornersKey n [R .. ] newSolvedCube
         --ch = nextLayer Corner n pv
@@ -63,7 +63,7 @@ cornersVector n pv = applyChangesMV 88179840 (n+1) pv ch
 edgesFstVector :: Word8                                          -- ^ Current depth
                 -> Vector8                                    -- ^ Previous vector
                 -> Vector8
-edgesFstVector n pv = applyChangesMV 42577920 (n+1) pv ch
+edgesFstVector n pv = applyChangesMV pv ch
     where
         ch = bfsStoreChanges edgesKeyFst n [R .. ] newSolvedCube
 
@@ -71,18 +71,15 @@ edgesFstVector n pv = applyChangesMV 42577920 (n+1) pv ch
 edgesSndVector :: Word8                                        -- ^ Current depth
                 -> Vector8                                    -- ^ Previous vector
                 -> Vector8
-edgesSndVector n pv = applyChangesMV 42577920 (n+1) pv ch
+edgesSndVector n pv = applyChangesMV pv ch
     where
         ch = bfsStoreChanges edgesKeySnd n [R .. ] newSolvedCube
 
--- TODO: is it giving +1 for the unreached states? No. Remember that when reading, it is automatically applied when the number is 255
 -- | Make the inmutable vector (with mutable operations) 
-applyChangesMV :: Int                                           -- ^ Size               (unnecesary)
-                -> Word8                                        -- ^ Current depth      (unnecesary)
-                -> Vector8                                    -- ^ Previous vector
+applyChangesMV :: Vector8                                       -- ^ Previous vector
                 -> [(Int, Word8)]                               -- ^ Changes
                 -> Vector8
-applyChangesMV sizeV defaultDepth v changes = runST $ do
+applyChangesMV v changes = runST $ do
     --mv <- MV.replicate sizeV defaultDepth
     mv <- V.unsafeThaw v
     myUpdate mv changes

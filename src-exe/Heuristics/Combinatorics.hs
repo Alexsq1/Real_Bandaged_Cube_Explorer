@@ -33,13 +33,13 @@ firstOcurrence n xs = (i, xs2)
 
 -- | Assign the number of a permutation (in n = 8). Input must be a permutation of [0..7]
 factorialEncode :: [Int] -> Int
-factorialEncode xs = ((baseToNum fList) . (perm2Lehmer [0 .. 7] )) xs
+factorialEncode = (baseToNum fList) . (perm2Lehmer [0 .. 7])
     where
         fList = [5040,720,120,24,6,2,1,1]
 
 -- | Assign the number of a variation (in n=12, r=6). Input must be 6 numbers of [0..11] without repetitions
 nprEncode :: [Int] -> Int
-nprEncode xs = ((baseToNum fList) . (perm2Lehmer [0 .. 11])) xs
+nprEncode = (baseToNum fList) . (perm2Lehmer [0 .. 11])
     where
         fList = [55440,5040,504,56,7,1]
 
@@ -96,8 +96,9 @@ decodeEO :: Int -> [Int]
 decodeEO = numToBase [32,16,8,4,2,1]
 
 {- MEMOIZED RESULTS:
-take 8 factorials: [5040,720,120,24,6,2,1,1]
-take 6 npr 12 6: [55440,5040,504,56,7,1]
-take 8 (base 3): [2187,729,243,81,27,9,3,1] --careful of not using the first
-take 6 (base 2): [32,16,8,4,2,1]
+first 8 factorials: [7!, 6!, ... 0!] = [5040,720,120,24,6,2,1,1]
+last 6 combinatorics numbers (x 6) : [npr 11 6, npr 10 6, ... , npr 6 6] = [55440,5040,504,56,7,1]
+
+first 8 numbers of base 3: [3 ^ 7, 3 ^ 6, ... 3 ^ 0] = [2187,729,243,81,27,9,3,1] --careful of not using the first
+first 6 binary numbers: [2 ^ 5, 2 ^ 4, ... 2 ^ 0] = [32,16,8,4,2,1]
  -}

@@ -1,35 +1,37 @@
 module InputAndSolve(inputAndSolve) where
 
-import Data.Maybe(fromMaybe, isJust)
+import Data.Maybe(isJust, fromJust)
 
---import Visualizator
+import Visualizator
 import InputCube(bandagedCubeScratchIO)
 
+import Bandaged(BandagedCube(..))
 import Moves(Algorithm(..))
 
 import SolvingStrategies
 import LoadKorfHeuristics(loadVectors)
-import Search(extractAlg, SolutionInfo(..))
+import Search(extractAlg)
 import Data.Word(Word8)
 
 inputAndSolve :: Word8 -> IO ()
 inputAndSolve n = do
 
-    --(bc, scheme) <- bandagedCubeScratchIO
-    (bc, _) <- bandagedCubeScratchIO
+    (bc, scheme) <- bandagedCubeScratchIO
+    --(bc, _) <- bandagedCubeScratchIO
 
     --manimRecomendedVisualizer (stdCube bc) scheme (Algorithm [])
+
     heurVectors <- loadVectors n
-
     let possibleSolution = (smartKorfSolver heurVectors bc)
-    let solutionSS = fromMaybe (SolutionInfo { solutionSI = Algorithm [],
-                                 lAlg = 0, sizeTree = 0, visited = 0, branchingFactor = 0,
-                                  exploredRatio = 0, prunedRatio = 0, exploredDepthsSI  = []})
-                                  possibleSolution
-    --let solutionSS = smartKorfSolver heurVectors bc
 
-    putStrLn ("Exists solution? " ++ show (isJust possibleSolution))
-    putStrLn ("Solution algorithm: " ++ show ((extractAlg)  solutionSS))
-    putStrLn ("\nSolution data: \n" ++ (show solutionSS))
+    putStrLn "Searching for a solution..."
 
---    manimRecomendedVisualizer (stdCube bc) scheme (fromJust solution)
+    let alg = if (isJust possibleSolution) 
+                then (extractAlg (fromJust possibleSolution))
+                else (Algorithm []) 
+
+    if (isJust possibleSolution) 
+        then (putStrLn ("\n" ++ (show (fromJust possibleSolution))))
+        else (putStrLn "The cube is unsolvable. Please, check the input:\n")
+
+    manimRecomendedVisualizer (stdCube bc) scheme alg

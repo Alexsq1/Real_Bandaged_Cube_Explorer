@@ -55,14 +55,14 @@ data SolutionInfo = SolutionInfo{
 
 instance Show SolutionInfo where
     show (SolutionInfo sol la sizeT v bf expl pr depths) = 
-        "algorithm: " ++ show sol ++ "\n" ++
-        "of length: " ++ show la ++ "\n" ++
-        "size of the searching tree: " ++ show sizeT ++ "\n" ++
-        "visited: " ++ show v ++ "\n" ++
-        "estimated branching factor: " ++ show bf ++ "\n" ++
-        "ratio of explored states: " ++ show expl ++ "\n" ++
-        "ratio of pruned states: " ++ show pr ++ "\n" ++
-        "explored depths: " ++ show depths ++ "\n"
+        "Algorithm: \"" ++ show sol ++ "\" \n" ++
+        "Length: " ++ show la ++ "\n" ++
+        "Size of the searching tree: " ++ show sizeT ++ "\n" ++
+        "Visited: " ++ show v ++ "\n" ++
+        "Estimated branching factor: " ++ show bf ++ "\n" ++
+        "Ratio of explored states: " ++ show expl ++ "\n" ++
+        "Ratio of pruned states: " ++ show pr ++ "\n" ++
+        "Explored depths: " ++ show depths ++ "\n"
 
 digestSearch :: SearchingState -> SolutionInfo
 digestSearch (SearchingState (BandagedCube _ blocks) _ listM _ _ _ _ _ sol _ visit _ pr depths) =

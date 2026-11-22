@@ -12,7 +12,3 @@ main = do
     let d = 7
     genPDBs d
     InputAndSolve.inputAndSolve d
-    --OneSolve.oneSolve 7
-
-    --n <- HeuristicsProfile.prof
-    --putStrLn $ show n

@@ -4,6 +4,8 @@ import Cube
 import Bandaged
 import ExpandBlocks(expandBlocks)
 import qualified Data.Set as S
+import Moves(Algorithm)
+import Data.Maybe(fromJust)
 
 -- | Creates a standard cube
 newSolvedCube :: Cube
@@ -42,3 +44,15 @@ genUnions (s0:rest) temp = genUnions rest (S.insert unitedSet notCombining)
         (notCombining, toComb) = S.partition (S.disjoint s0) temp
         unitedSet = S.unions (S.insert s0 toComb)
         --Generates the union of the non-disjoint sets
+
+---- | Applies an algorithm to a solved cube
+--BcubeByAlg :: Algorithm -> Cube
+--BcubeByAlg alg = tryToExecuteAlg s alg
+--    where
+--        s = newSolvedCube
+--
+---- | Applies an algorithm to a solved cube without blocks (useful for debugging)
+--BcubeByAlg :: Algorithm -> BandagedCube
+--BcubeByAlg alg = fromJust (tryToExecuteAlg s alg)
+--    where
+--        s = newSolvedBandagedCube

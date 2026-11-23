@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-cse #-}
+
 module StoreKorfHeuristics(genPDBs) where
 
 import CalculateKorfHeuristics(stdVectors)

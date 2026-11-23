@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-cse #-}
+
 module LoadKorfHeuristics(loadVectors, lookupAll) where
 
 import Cube(Cube(..))

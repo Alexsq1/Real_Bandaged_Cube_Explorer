@@ -19,6 +19,6 @@ main :: IO ()
 main = do
     putStrLn "Wellcome to Real Bandaged Cube Explorer!"
 
-    let d = 0
+    let d = 2
     genPDBs d
     --InputAndSolve.inputAndSolve d

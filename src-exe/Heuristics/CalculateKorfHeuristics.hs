@@ -121,6 +121,7 @@ nextLayer p cd (ppv, pv) = map (\i -> (i , cd)) adjCubesNewI
         indexLL = (V.toList . (V.map fst) . (V.filter (\t -> snd t == cd - 1))) indexPV
         indexCubes = map (recompose p) indexLL
         adjCubes = concat $ map adjacent indexCubes
+        -- missing elimination duplicates?
         adjCubesI = map (properKey p) adjCubes
         --adjCubesNew = filter (\c -> access ppv c && access pv c) adjCubesI
         adjCubesNewI = filter (\i -> access ppv i && access pv i) adjCubesI
@@ -152,8 +153,8 @@ adjacent :: Cube -> [Cube]
 adjacent c = map (applyMove c) possibleTurns
 
 recompose :: HPiece -> Int -> Cube
-recompose Corner n = keysToCube (n,0,0)
-recompose Edge1 n = keysToCube (0,n,0)
+recompose Corner n = keysToCube (n,0,23442432)
+recompose Edge1 n = keysToCube (0,n,23442432)
 recompose Edge2 n = keysToCube (0,0,n)
 -- Careful: can give strange failures because of solved pieces and repeated ones
 {- Future: not recomposing the whole cube, only specific pieces (efficiency) -}

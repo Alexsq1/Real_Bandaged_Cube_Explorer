@@ -1,3 +1,6 @@
+{-# OPTIONS_GHC -fno-cse #-}
+-- This pragma avoids sharing the edges vectors when creation at emtpyVec
+
 module CalculateKorfHeuristics where
 --module CalculateKorfHeuristics(stdVectors) where
 

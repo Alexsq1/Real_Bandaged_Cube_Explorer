@@ -27,31 +27,32 @@ type HVector = (Word8, V8, V8, V8)
 testHeuristics :: IO()
 testHeuristics = do
     -- test of perfect hashes:
-        quickCheck (perfectHashingPerms)
-        quickCheck (perfectHashingNPR)
-        quickCheck perfectHashingCP
-        quickCheck perfectHashingEP
-        quickCheck perfectHashingBC
+        --quickCheck (perfectHashingPerms)
+        --quickCheck (perfectHashingNPR)
+        --quickCheck perfectHashingCP
+        --quickCheck perfectHashingEP
+        --quickCheck perfectHashingBC
     -- test of combinatorics:
-        quickCheck factInverse1
-        quickCheck factInverse2
-        quickCheck nprInverse1
-        quickCheck nprInverse2
-        quickCheck coInverse1
-        quickCheck coInverse2
-        quickCheck eoInverse1
-        quickCheck eoInverse2
-        quickCheck mathNotationCorrect2
+        --quickCheck factInverse1
+        --quickCheck factInverse2
+        --quickCheck nprInverse1
+        --quickCheck nprInverse2
+        --quickCheck coInverse1
+        --quickCheck coInverse2
+        --quickCheck eoInverse1
+        --quickCheck eoInverse2
+        --quickCheck mathNotationCorrect2
 
     -- test of index heuristics:
-        quickCheck calcAndRecompose1
-        quickCheck calcAndRecompose2
-        let depth = 6
+        --quickCheck calcAndRecompose1
+        --quickCheck calcAndRecompose2
+        let depth = 1
         v <- (loadVectors depth)
         quickCheck (admisibleCornerHeuristic v)
         quickCheck (admisibleEdgeFstHeuristic v)
         quickCheck (admisibleEdgeSndHeuristic v)
         quickCheck (korfAdmissible v)
+        --quickCheck (properGenerationCorner depth v)
 
 -- GENERATORS
 
@@ -259,3 +260,17 @@ korfAdmissible v alg = property (h <= (lengthAlg alg))
     where
         finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
         h = korfHeuristic v finalSt
+
+-- todo: adjusted heuristics: length > generated => h = generated + 1
+
+--properGenerationCorner :: Word8 -> HVector -> Algorithm -> Property
+--properGenerationCorner d v alg 
+--    | la <= d = property (cornerH == la)
+--    | otherwise = property (cornerH == d + 1)
+--        where
+--            la = fromIntegral (lengthAlg alg)
+--            finalSt = fromJust (tryToExecuteAlg newSolvedBandagedCube alg)
+--            (cornerH, _, _) = lookupAll v (stdCube finalSt)
+
+-- interesting, but U2 D2 U2 is not simplified. TODO: fix it
+

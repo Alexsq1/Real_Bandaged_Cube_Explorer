@@ -150,6 +150,7 @@ test-suite Bandaged-Cube-TFG-test
     other-modules:  TestCube, 
                     TestMoves,
                     TestHeuristics,
+                    TestIndexHeuristics,
                     --TestSolutions
 
     -- Test dependencies.

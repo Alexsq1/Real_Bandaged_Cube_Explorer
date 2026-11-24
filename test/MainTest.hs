@@ -3,6 +3,7 @@ module Main where
 import TestCube
 import TestMoves
 import TestHeuristics
+import TestIndexHeuristics
 --import TestSolutions
 
 --main-is of cabal test
@@ -15,6 +16,10 @@ main = do
     putStrLn "\n"
     putStrLn "Testing Moves:"
     testsMoves
+
+    putStrLn "\n"
+    putStrLn "Testing index of Heuristics:"
+    testIndexHeuristics
 
     putStrLn "\n"
     putStrLn "Testing Heuristics:"

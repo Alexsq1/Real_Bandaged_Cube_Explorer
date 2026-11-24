@@ -1,19 +1,26 @@
 {-# OPTIONS_GHC -fno-cse #-}
 -- This pragma avoids sharing the edges vectors when creation at emtpyVec
 
-module CalculateKorfHeuristics(stdVectors) where
+--module CalculateKorfHeuristics(stdVectors) where
+module CalculateKorfHeuristics where
 
 import Cube(Cube(..))
-import Moves(Turn(..), Face(..), applyMove, axisOfFace, possibleTurns)
+--import Moves(Turn(..), Face(..), applyMove, axisOfFace, possibleTurns)
+import Moves(applyMove, possibleTurns)
 import CubeCreator(newSolvedCube)
 import IndexHeuristics
 import LoadKorfHeuristics(loadVectors)
 
-import qualified Data.Set as S
-import Data.Maybe(fromJust)
-import Data.Word(Word8)
+--from recompose: (maybe move to IndexHeuristics)
+import MathematicalNotation(mathToCube)
+import Combinatorics(nprDecode, decodeEO)
 
-import Data.PSQueue as PS
+--import qualified Data.Set as S
+--import Data.Maybe(fromJust)
+import Data.Word(Word8)
+import Data.List((\\), nub)
+
+--import Data.PSQueue as PS
 import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Unboxed.Mutable as MV
 import Control.Monad.ST
@@ -75,21 +82,20 @@ edgesFstVector :: Word8                                          -- ^ Current de
                 -> (Vector8, Vector8)                            -- ^ Previous vectors
                 -> Vector8
 --edgesFstVector n (ppv, pv) = applyChangesMV pv ch
-edgesFstVector n (_, pv) = applyChangesMV pv ch
+edgesFstVector n (ppv, pv) = applyChangesMV pv ch
     where
-        ch = bfsStoreChanges edgesKeyFst n [R .. ] newSolvedCube
-        --ch = nextLayer Edge1 n (ppv, pv)
-        -- todo: change bfs to nextLayer
+        --ch = bfsStoreChanges edgesKeyFst n [R .. ] newSolvedCube
+        ch = nextLayer Edge1 n (ppv, pv)
 
 -- | Generate a pattern database of the last 6 edges from a state to depth n
 edgesSndVector :: Word8                                        -- ^ Current depth
                 -> (Vector8, Vector8)                          -- ^ Previous vectors
                 -> Vector8
 --edgesSndVector n (ppv, pv) = applyChangesMV pv ch
-edgesSndVector n (_, pv) = applyChangesMV pv ch
+edgesSndVector n (ppv, pv) = applyChangesMV pv ch
     where
-        ch = bfsStoreChanges edgesKeySnd n [R .. ] newSolvedCube
-        --ch = nextLayer Edge2 n (ppv, pv)
+        --ch = bfsStoreChanges edgesKeySnd n [R .. ] newSolvedCube
+        ch = nextLayer Edge2 n (ppv, pv)
 
 -- | Make the inmutable vector (with mutable operations) 
 applyChangesMV :: Vector8                                       -- ^ Previous vector
@@ -116,17 +122,23 @@ nextLayer :: HPiece                  -- ^ Type of piece that is being calculated
 nextLayer p 0 _ = [(properKey p newSolvedCube, 0)]
 nextLayer p cd (ppv, pv) = map (\i -> (i , cd)) adjCubesNewI
     where
+        -- zip the numbers with their indices
         indexPV = V.zip (V.fromList [0 .. V.length pv - 1]) pv
-        indexLL = (V.toList . (V.map fst) . (V.filter (\t -> snd t == cd - 1))) indexPV
-        indexCubes = map (recompose p) indexLL
-        adjCubes = concat $ map adjacent indexCubes
-        -- missing elimination duplicates?
-        adjCubesI = map (properKey p) adjCubes
-        --adjCubesNew = filter (\c -> access ppv c && access pv c) adjCubesI
-        adjCubesNewI = filter (\i -> access ppv i && access pv i) adjCubesI
 
-        --access :: Vector8 -> Cube -> Bool
-        --access v c = v V.! (properKey p c) == 255
+        -- select indices of the last layer
+        indexLL = (V.toList . (V.map fst) . (V.filter (\t -> snd t == cd - 1))) indexPV
+
+        -- recompose the cubes
+        indexCubes = map (recompose p) indexLL
+
+        -- calculate the adjacent cubes of the corresponding
+        adjCubes = concatMap adjacent indexCubes
+
+        -- calculate the key of the (potentially) new layer, remove duplicates
+        adjCubesI = nub (map (properKey p) adjCubes)
+
+        -- remove the previously visited states
+        adjCubesNewI = filter (\i -> access ppv i && access pv i) adjCubesI
 
         access :: Vector8 -> Int -> Bool
         access v i = v V.! i == 255
@@ -136,108 +148,38 @@ properKey Corner = cornersKey
 properKey Edge1 = edgesKeyFst
 properKey Edge2 = edgesKeySnd
 
-
-{- 
-    1: find indices of value (currD - 1)    (V.filter (\t -> snd t == cd-1) (V.zip (V.fromList[0..]) xs))
-    falta map fst
-    2: recompose cubes of that value (recompose)
-    3: apply all (18) moves to those cubes (concat, map)
-    4: filter to only those that are (== currD)
-    5: calc their key (map)
-    6: store in changes term (zip (repeat currDepth))
--}
-
 -- | Calculate all the adjacent cubes
 adjacent :: Cube -> [Cube]
 adjacent c = map (applyMove c) possibleTurns
 
 recompose :: HPiece -> Int -> Cube
+
+-- recompose for corners: fill with solved edges
 recompose Corner n = keysToCube (n,0,23442432)
---recompose Edge1 n = keysToCube (0,n,23442432)
---recompose Edge2 n = keysToCube (0,0,n)
--- Careful: can give strange failures because of solved pieces and repeated ones
--- NOTE: recompose for edges is wrong
-{- Future: not recomposing the whole cube, only specific pieces (efficiency) -}
 
---PENDING TO DELETE ALL FROM HERE
-
-newtype GenerationState = GenerationState (Int, Face, Cube)
---(Key, LastFace, BCube)
-
-instance Eq GenerationState where 
-    (GenerationState (key1, _, _)) == (GenerationState (key2, _, _)) = key1 == key2
-
-instance Ord GenerationState where
-    compare (GenerationState (key1, _, _)) (GenerationState (key2, _, _)) = compare key1 key2
-
-instance Show GenerationState where
-    show (GenerationState (k, _, _)) = '#' : (show k)
---PQS of genState Word8. Values are of GenState, Word8 are the priorities, depth
-
-
-type SetVisitedKeys = S.Set Int
-
---Change this (important function) to take a previous vector, restore last face elements,
---apply all moves, discard elements of previous layers and assign current depth to them
-bfsStoreChanges :: (Cube -> Int) -> Word8 -> [Face] -> Cube -> [(Int, Word8)]
-bfsStoreChanges kGen maxDepth faces initBC = bfs kGen maxDepth (PS.singleton gs0 0) faces S.empty S.empty []
+-- recompose for edges: fill with solved corners and the remaining edges
+recompose p ek = mathToCube ([0..7], replicate 8 0) (ep, eo)
     where
-        gs0 = GenerationState (kGen initBC, N, initBC)
+        --Separate permutation and orientation of each piece type
+       (epk, eok) = quotRem ek (2 ^ (6 :: Int)) 
 
-bfs ::  (Cube -> Int) -> Word8 
-    -> PS.PSQ GenerationState Word8 -> [Face] 
-    -> SetVisitedKeys -> SetVisitedKeys -> [(Int, Word8)] 
-    -> [(Int, Word8)]
-bfs kGen maxDepth pq faces visited onceEnqueued acc
-    | PS.null pq = 
-        --trace ("Ended the alg, recieved empty pq") $
-        acc                                                      --empty generation, maybe not happening
-    
-    | isRepeated = 
-        --trace ("Visited state: " ++ (show thisKey)) $
-        bfs kGen maxDepth pqNoMin faces visited onceEnqueued acc              --repeated element
-    
-    | currDepth > maxDepth = 
-        --trace ("First surpass: " ++ show thisKey ++ ", at depth " ++ show currDepth) $
-        acc                                            --1st surpass, finished
+       --Decode perm and orientation halves (each list of 6 elements)
+       epHalf = nprDecode epk
+       eoHalf = decodeEO eok
 
-    | currDepth == maxDepth = bfs kGen maxDepth pqNoMin faces nextVSet (S.delete thisKey onceEnqueued) newChanges    --Only check your case, not adding elements
-    | otherwise = 
-        --trace ("Normal, recieved " ++ show thisKey ++ " state at depth " ++ show currDepth ++ ", adding " ++ show nextGS ++ "\n") $
-        bfs kGen maxDepth nextPQ faces nextVSet nextEnq newChanges      --Iterate
+       (epFull, eoFull) = complete p (epHalf, eoHalf)
 
-    where
-        --Comprobations
-        (thisGenState PS.:-> currDepth , pqNoMin) = fromJust (PS.minView pq)
-        GenerationState (thisKey, _, _) = thisGenState
-        isRepeated = S.member thisKey visited
+       --Reorder the edges
+       (ep, eo) = reorderEdges (epFull, eoFull)
 
-        --Generation of next layer
-        infListNextDepth = (repeat (1 + currDepth))
-        nextGS = nextLayerNonRepeating kGen thisGenState faces visited onceEnqueued
-        nextPQ = insertList (zip nextGS infListNextDepth) pqNoMin
+       sixZeros = replicate 6 0
 
-        nextVSet = S.insert thisKey visited
-        newChanges = (thisKey , currDepth) : acc
+       -- adds solved pieces at the begginning/end depending on the piece
+       complete :: HPiece -> ([Int], [Int]) -> ([Int], [Int]) 
+       complete Edge1 (ep', eo') = (ep' ++ ([0..11] \\ ep') , eo' ++ sixZeros)
+       complete Edge2 (ep', eo') = (([0..11] \\ ep') ++ ep' , sixZeros ++ eo')
+       complete _ _ = ([], [])
 
-        keysEnq = map (\(GenerationState(k, _, _)) -> k) nextGS
-        nextEnq = S.union (S.delete thisKey onceEnqueued) (S.fromList keysEnq)
+{- Future: not recomposing the whole cube, only specific pieces (efficiency). 
+ - Not sure if lazy evaluation do that -}
 
-insertList :: (Ord k, Ord p) => [(k , p)] -> PSQ k p -> PSQ k p
-insertList [] pq = pq
-insertList ((k , p):xs) pq = PS.insert k p (insertList xs pq)
-
-nextLayerNonRepeating :: (Cube -> Int)
-                        -> GenerationState -> [Face] 
-                        -> SetVisitedKeys -> SetVisitedKeys -> [GenerationState]
-                        
-nextLayerNonRepeating kGen (GenerationState(_, lastFace, bCube)) faces visited onceEnqueued = newStatesFiltered
-    where
-        moves = [ (f, Turn(f, m)) | f <- faces, m <- [1 .. 3], (axisOfFace f /= axisOfFace lastFace) || (f > lastFace)]
-        --possibleAccesibleStates = [(lf, tryToTurn bCube m) | (lf, m) <- moves, isJust (applyTurn bCube m)]
-        possibleAccesibleStates = [(lf, applyMove bCube m) | (lf, m) <- moves]
-
-        newStatesFiltered = [  GenerationState (kGen bc, lf, bc) | 
-                            (lf, bc) <- possibleAccesibleStates, 
-                            S.notMember (kGen bc) visited, 
-                            S.notMember (kGen bc) onceEnqueued ]

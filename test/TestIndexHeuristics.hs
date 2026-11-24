@@ -9,6 +9,7 @@ import MathematicalNotation
 import Data.List
 import Combinatorics
 import IndexHeuristics
+import CalculateKorfHeuristics
 
 
 testIndexHeuristics :: IO()
@@ -34,6 +35,9 @@ testIndexHeuristics = do
         quickCheck reorderEdgesAutoInverse         
         quickCheck calcAndRecompose1
         quickCheck calcAndRecompose2
+
+    -- test of recompose (calculateKorfHeur)
+        quickCheck recomposeCorrect
 
 -- GENERATORS
 
@@ -220,3 +224,26 @@ mathNotationCorrect2 = forAll genValues $ \(cp, ep, co, eo, c) ->
                         co <- genCO
                         eo <- genEO
                         return (cp, ep, co, eo, mathToCube (cp,co) (ep,eo))
+
+-- after recomposing, the numbers that match are the positions of the pieces of [0..5] or [6..11]
+recomposeCorrect :: Cube -> Property
+recomposeCorrect c = property ( 
+                        -- in positions where ep1 is <= 5, ep1 == realEP , eo1 == realEO
+                        map (\i -> ep1 !! i) interestingIndices1 == map (\i -> realEP !! i) interestingIndices1 &&
+                        map (\i -> eo1 !! i) interestingIndices1 == map (\i -> realEO !! i) interestingIndices1 &&
+
+                        -- in positions where ep2 is > 5, ep2 == realEP , eo2 == realEO
+                        map (\i -> ep2 !! i) interestingIndices2 == map (\i -> realEP !! i) interestingIndices2 &&
+                        map (\i -> eo2 !! i) interestingIndices2 == map (\i -> realEO !! i) interestingIndices2 && 
+                        sort (interestingIndices1 ++ interestingIndices2) == [0..11])
+
+    where
+        (realEP, realEO) = edgesState c
+        (_, k1, k2) = allKeys c
+        c1 = recompose Edge1 k1
+        c2 = recompose Edge2 k2
+        (ep1, eo1) = edgesState c1
+        (ep2, eo2) = edgesState c2
+        interestingIndices1 = findIndices (<= 5) ep1
+        interestingIndices2 = findIndices (> 5) ep2
+

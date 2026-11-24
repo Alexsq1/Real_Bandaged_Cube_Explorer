@@ -2,8 +2,9 @@ module Main where
 
 import InputAndSolve
 import StoreKorfHeuristics
---import OneSolve
+import OneSolve
 --import HeuristicsProfile
+
 
 main :: IO ()
 main = do

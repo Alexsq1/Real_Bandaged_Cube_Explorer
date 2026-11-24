@@ -31,6 +31,7 @@ testIndexHeuristics = do
         quickCheck mathNotationCorrect2
 
     -- test of index heuristics:
+        quickCheck reorderEdgesAutoInverse         
         quickCheck calcAndRecompose1
         quickCheck calcAndRecompose2
 
@@ -178,6 +179,12 @@ eoInverse2 n = n >= 0 && n < 64 ==>
     (encodeEO . decodeEO) n == n
 
 -- TESTING INDEXHEURISTICS
+
+reorderEdgesAutoInverse :: Property
+reorderEdgesAutoInverse = forAll gen1EP $ \ep ->
+                            forAll genEO $ \eo ->
+                            reorderEdges (reorderEdges (ep, eo)) == (ep, eo)
+
 
 calcAndRecompose1 :: Cube -> Property
 calcAndRecompose1 c = keysToCube (ck, e1, e2) === c

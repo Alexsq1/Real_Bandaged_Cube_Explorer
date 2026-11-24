@@ -1,13 +1,10 @@
 {-# OPTIONS_GHC -fno-cse #-}
 -- This pragma avoids sharing the edges vectors when creation at emtpyVec
 
-module CalculateKorfHeuristics where
---module CalculateKorfHeuristics(stdVectors) where
+module CalculateKorfHeuristics(stdVectors) where
 
---import Bandaged
 import Cube(Cube(..))
 import Moves(Turn(..), Face(..), applyMove, axisOfFace, possibleTurns)
---import Moves(applyMove, possibleTurns)
 import CubeCreator(newSolvedCube)
 import IndexHeuristics
 import LoadKorfHeuristics(loadVectors)

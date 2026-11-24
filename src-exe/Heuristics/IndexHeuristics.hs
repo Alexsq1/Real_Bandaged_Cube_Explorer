@@ -1,4 +1,4 @@
-module IndexHeuristics(allKeys, cornersKey, edgesKey, edgesKeyFst, edgesKeySnd, keysToCube) where
+module IndexHeuristics(allKeys, cornersKey, edgesKey, edgesKeyFst, edgesKeySnd, keysToCube, reorderEdges) where
 
 import Cube(Cube(..))
 import Combinatorics(factorialEncode, nprEncode, factorialDecode, nprDecode, encodeCO, encodeEO, decodeCO, decodeEO)
@@ -33,14 +33,17 @@ edgesKey :: Cube -> (Int, Int)
 edgesKey bc = (keyFst, keySnd)
     where
         (perm, ori) = edgesState bc
+        (epReorder, eoReorder) = reorderEdges (perm, ori)
+        keyFst = indexHalfE (take 6 epReorder) (take 6 eoReorder)
+        keySnd = indexHalfE (drop 6 epReorder) (drop 6 eoReorder)
+
+-- | Reorders the 12 edges (EP, EO). This function is autoinverse, can be used either in encoding or decoding functions.
+reorderEdges :: ([Int], [Int]) -> ([Int], [Int])
+reorderEdges (perm, ori) = (epReorder, eoReorder)
+    where
         allp = zip3 [0..11] perm ori
-
         sortedEdges = sortBy (\(_, p1, _) (_, p2, _) -> compare p1 p2) allp
-
-        (iReorder, _, oReorder) = unzip3 sortedEdges
-
-        keyFst = indexHalfE (take 6 iReorder) (take 6 oReorder)
-        keySnd = indexHalfE (drop 6 iReorder) (drop 6 oReorder)
+        (epReorder, _, eoReorder) = unzip3 sortedEdges
 
 indexHalfE :: [Int] -> [Int] -> Int
 indexHalfE perm0 ori0 = (permKey * 2 ^ (6 :: Int)) + orKey
@@ -56,18 +59,12 @@ keysToCube (ck, e1k, e2k) = mathToCube (cp, co) (ep, eo)
        (cpk, cok) = quotRem ck (3 ^ (7 :: Int)) 
        (e1pk, e1ok) = quotRem e1k (2 ^ (6 :: Int)) 
        (e2pk, e2ok) = quotRem e2k (2 ^ (6 :: Int)) 
+
        --Decode perm and orientation, join edges
        cp = factorialDecode cpk
        co = decodeCO cok
-
-
-       -- Quite interestingly, the reordering is autoinverse
        epPrev = nprDecode e1pk ++ nprDecode e2pk
        eoPrev = decodeEO e1ok ++ decodeEO e2ok
 
-       allp = zip3 [0..11] epPrev eoPrev
-
-       sortedEdges = sortBy (\(_, p1, _) (_, p2, _) -> compare p1 p2) allp
-
-       (ep, _, eo) = unzip3 sortedEdges
-
+       --Reorder the edges
+       (ep, eo) = reorderEdges (epPrev, eoPrev)

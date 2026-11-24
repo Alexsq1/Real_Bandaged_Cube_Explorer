@@ -4,8 +4,6 @@ import Cube
 import Bandaged
 import ExpandBlocks(expandBlocks)
 import qualified Data.Set as S
-import Moves(Algorithm)
-import Data.Maybe(fromJust)
 
 -- | Creates a standard cube
 newSolvedCube :: Cube

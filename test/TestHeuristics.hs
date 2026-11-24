@@ -28,26 +28,26 @@ type HVector = (Word8, V8, V8, V8)
 testHeuristics :: IO()
 testHeuristics = do
     -- test of perfect hashes:
-        --quickCheck (perfectHashingPerms)
-        --quickCheck (perfectHashingNPR)
-        --quickCheck perfectHashingCP
-        --quickCheck perfectHashingEP
-        --quickCheck perfectHashingBC
+        quickCheck (perfectHashingPerms)
+        quickCheck (perfectHashingNPR)
+        quickCheck perfectHashingCP
+        quickCheck perfectHashingEP
+        quickCheck perfectHashingBC
     -- test of combinatorics:
-        --quickCheck factInverse1
-        --quickCheck factInverse2
-        --quickCheck nprInverse1
-        --quickCheck nprInverse2
-        --quickCheck coInverse1
-        --quickCheck coInverse2
-        --quickCheck eoInverse1
-        --quickCheck eoInverse2
-        --quickCheck mathNotationCorrect2
+        quickCheck factInverse1
+        quickCheck factInverse2
+        quickCheck nprInverse1
+        quickCheck nprInverse2
+        quickCheck coInverse1
+        quickCheck coInverse2
+        quickCheck eoInverse1
+        quickCheck eoInverse2
+        quickCheck mathNotationCorrect2
 
     -- test of index heuristics:
-        --quickCheck calcAndRecompose1
-        --quickCheck calcAndRecompose2
-        let depth = 2
+        quickCheck calcAndRecompose1
+        quickCheck calcAndRecompose2
+        let depth = 7
         v <- (loadVectors depth)
         --quickCheck (sharing depth)
         --quickCheck (sharingCorners depth 1)
@@ -56,7 +56,7 @@ testHeuristics = do
         quickCheck (admisibleCornerHeuristic v)
         quickCheck (admisibleEdgeFstHeuristic v)
         quickCheck (admisibleEdgeSndHeuristic v)
-        --quickCheck (korfAdmissible v)
+        quickCheck (korfAdmissible v)
         --quickCheck (properGenerationCorner depth v)
 
 -- GENERATORS

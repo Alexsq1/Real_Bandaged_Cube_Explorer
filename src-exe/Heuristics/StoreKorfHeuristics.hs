@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fno-cse #-}
 
-module StoreKorfHeuristics(genPDBs) where
+module StoreKorfHeuristics(genPDBsIfMissing) where
 
 import CalculateKorfHeuristics(stdVectors)
 
@@ -10,11 +10,11 @@ import qualified Data.ByteString as BS
 import System.Directory(doesFileExist, getFileSize, createDirectoryIfMissing)
 
 -- | Generates PDBs if it does not exists previously. If it existed, nothing happens
-genPDBs :: Word8 -> IO()
-genPDBs 255 = pure ()
-genPDBs maxDepth = do
+genPDBsIfMissing :: Word8 -> IO()
+genPDBsIfMissing 255 = pure ()
+genPDBsIfMissing maxDepth = do
     --generate previous pdb (n-1)
-    genPDBs (maxDepth - 1)
+    genPDBsIfMissing (maxDepth - 1)
 
     -- if files do not exist, create them
     exists1 <- doesFileExist (cornersFile)
@@ -40,7 +40,7 @@ genPDBs maxDepth = do
                do 
                putStrLn ("Pattern databases must be generated ONLY for the first time. Generating at depth "++ 
                    (show maxDepth) ++ ". This process can take some minutes. Please, be patient.")
-               genPDBsFromScratch maxDepth
+               genPDBs maxDepth
             ) else pure ()
     where
         root = "src-exe/Heuristics/pdb/" ++ (show maxDepth) ++ "/" 
@@ -49,8 +49,8 @@ genPDBs maxDepth = do
         edge2File = root ++ "e2.pdb"
 
 -- | Generates PDBs from scratch until a maximum depth
-genPDBsFromScratch :: Word8 -> IO()
-genPDBsFromScratch maxDepth = do
+genPDBs :: Word8 -> IO()
+genPDBs maxDepth = do
     (_,c,e1,e2) <- stdVectors maxDepth
     let cBS = BS.pack (V.toList c)
     let e1BS = BS.pack (V.toList e1)

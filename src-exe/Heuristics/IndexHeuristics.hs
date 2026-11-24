@@ -1,4 +1,4 @@
-module IndexHeuristics(cornersKey, edgesKey, edgesKeyFst, edgesKeySnd, keysToCube) where
+module IndexHeuristics(allKeys, cornersKey, edgesKey, edgesKeyFst, edgesKeySnd, keysToCube) where
 
 import Cube(Cube(..))
 import Combinatorics(factorialEncode, nprEncode, factorialDecode, nprDecode, encodeCO, encodeEO, decodeCO, decodeEO)
@@ -6,6 +6,11 @@ import MathematicalNotation(cornerState, edgesState, mathToCube)
 import Data.List(sortBy)
 
 --Max. Int: 2 ^63 -1 = 9.223.372.036.854.775.807. Keys are in range
+
+-- | Returns all keys in order (Corners, Edges1, Edges2)
+allKeys :: Cube -> (Int, Int, Int)
+allKeys c = (cornersKey c, edgesKeyFst c, edgesKeySnd c)
+-- useful for debugging
 
 -- | Returns the key of the corners of a BCube (in range [0, 88179839])
 cornersKey :: Cube -> Int

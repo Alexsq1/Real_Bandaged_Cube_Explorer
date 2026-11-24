@@ -1,8 +1,13 @@
-module CalculateKorfHeuristics(stdVectors) where
+{-# OPTIONS_GHC -fno-cse #-}
+-- This pragma avoids sharing the edges vectors when creation at emtpyVec
+
+module CalculateKorfHeuristics where
+--module CalculateKorfHeuristics(stdVectors) where
 
 --import Bandaged
 import Cube(Cube(..))
-import Moves(Turn(..), Face(..), applyMove, axisOfFace)
+import Moves(Turn(..), Face(..), applyMove, axisOfFace, possibleTurns)
+--import Moves(applyMove, possibleTurns)
 import CubeCreator(newSolvedCube)
 import IndexHeuristics
 import LoadKorfHeuristics(loadVectors)
@@ -28,18 +33,28 @@ type HVector = (Word8, Vector8, Vector8, Vector8)
 -- | Calculates a vector with the depths of a pattern database
 stdVectors :: Word8 -> IO (HVector)
 stdVectors currDepth = do
-    (_, cPrev, e1Prev, e2Prev) <- loadLastVector currDepth
-    let c = cornersVector   currDepth cPrev
-    let e1 = edgesFstVector currDepth e1Prev
-    let e2 = edgesSndVector currDepth e2Prev
+    --(_, cPrev, e1Prev, e2Prev) <- loadLastVector currDepth
+    ((_, cPrevPrev, e1PrevPrev, e2PrevPrev), (_, cPrev, e1Prev, e2Prev)) <- loadLastVectors currDepth
+    let c = cornersVector   currDepth (cPrevPrev , cPrev)
+    let e1 = edgesFstVector currDepth (e1PrevPrev, e1Prev)
+    let e2 = edgesSndVector currDepth (e2PrevPrev, e2Prev)
     return (currDepth, c, e1, e2)
 
--- TODO: change into reading the correpsonding file, if exists. Otherwise, keep generating
--- | Reads the previous vector by accessing a file. If asked for 0, generates empty vector of corresponding length
-loadLastVector :: Word8 -> IO (HVector)
-loadLastVector n
-    | n == 0 = pure (0, emptyVec 88179840, emptyVec 42577920, emptyVec 42577920)
-    | otherwise = loadVectors (n-1)
+-- | Reads the previous two vector by accessing files. If asked for 0, generates empty vector of corresponding length
+loadLastVectors :: Word8 -> IO (HVector, HVector)
+loadLastVectors n
+    | n == 0 = pure ((0, emptyVec 88179840, emptyVec 42577920, emptyVec 42577920), 
+                     (0, emptyVec 88179840, emptyVec 42577920, emptyVec 42577920))
+    | n == 1 = do
+                    v <- loadVectors 0
+                    return (v, v)
+    | otherwise = do
+                    ppv <- loadVectors (n-2) 
+                    pv <- loadVectors (n-1)
+                    return (ppv, pv)
+
+-- the file exists if called from genPDB -> genPDBFromScratch -> stdVectors
+-- genPDB ensures that the pdbs are generated from 0 in increasing order
 
 -- | Generates empty vectors (all values are 255) of a given length
 emptyVec :: Int -> Vector8
@@ -51,29 +66,33 @@ emptyVec n = V.fromList (replicate n 255)
 
 -- | Generate a pattern database of corners from a state to depth n
 cornersVector :: Word8                                        -- ^ Current depth
-                -> Vector8                                    -- ^ Previous vector
+                -> (Vector8, Vector8)                         -- ^ Previous vectors
                 -> Vector8
-cornersVector n pv = applyChangesMV pv ch
+cornersVector n (ppv, pv) = applyChangesMV pv ch
     where
-        ch = bfsStoreChanges cornersKey n [R .. ] newSolvedCube
-        --ch = nextLayer Corner n pv
-        -- todo: change bfs to nextLayer
+        --ch = bfsStoreChanges cornersKey n [R .. ] newSolvedCube
+        ch = nextLayer Corner n (ppv, pv)
 
 -- | Generate a pattern database of the first 6 edges from a state to depth n
 edgesFstVector :: Word8                                          -- ^ Current depth
-                -> Vector8                                    -- ^ Previous vector
+                -> (Vector8, Vector8)                            -- ^ Previous vectors
                 -> Vector8
-edgesFstVector n pv = applyChangesMV pv ch
+--edgesFstVector n (ppv, pv) = applyChangesMV pv ch
+edgesFstVector n (_, pv) = applyChangesMV pv ch
     where
         ch = bfsStoreChanges edgesKeyFst n [R .. ] newSolvedCube
+        --ch = nextLayer Edge1 n (ppv, pv)
+        -- todo: change bfs to nextLayer
 
 -- | Generate a pattern database of the last 6 edges from a state to depth n
 edgesSndVector :: Word8                                        -- ^ Current depth
-                -> Vector8                                    -- ^ Previous vector
+                -> (Vector8, Vector8)                          -- ^ Previous vectors
                 -> Vector8
-edgesSndVector n pv = applyChangesMV pv ch
+--edgesSndVector n (ppv, pv) = applyChangesMV pv ch
+edgesSndVector n (_, pv) = applyChangesMV pv ch
     where
         ch = bfsStoreChanges edgesKeySnd n [R .. ] newSolvedCube
+        --ch = nextLayer Edge2 n (ppv, pv)
 
 -- | Make the inmutable vector (with mutable operations) 
 applyChangesMV :: Vector8                                       -- ^ Previous vector
@@ -93,13 +112,37 @@ myUpdate v changes = forM_ changes $ (\(i, value) -> MV.write v i value)
 
 data HPiece = Corner | Edge1 | Edge2 deriving (Eq, Show)
 
-{- nextLayer :: HPiece                  -- ^ Type of piece that is being calculated
+nextLayer :: HPiece                  -- ^ Type of piece that is being calculated
             -> Word8                 -- ^ Current depth
-            -> Vector8               -- ^ Previous vector
-            -> [(Int, Word8)] -}
+            -> (Vector8, Vector8)    -- ^ Previous two vector
+            -> [(Int, Word8)]
+nextLayer p 0 _ = [(properKey p newSolvedCube, 0)]
+nextLayer p cd (ppv, pv) = map (\i -> (i , cd)) adjCubesNewI
+    where
+        indexPV = V.zip (V.fromList [0 .. V.length pv - 1]) pv
+        indexLL = (V.toList . (V.map fst) . (V.filter (\t -> snd t == cd - 1))) indexPV
+        indexCubes = map (recompose p) indexLL
+        adjCubes = concat $ map adjacent indexCubes
+        -- missing elimination duplicates?
+        adjCubesI = map (properKey p) adjCubes
+        --adjCubesNew = filter (\c -> access ppv c && access pv c) adjCubesI
+        adjCubesNewI = filter (\i -> access ppv i && access pv i) adjCubesI
+
+        --access :: Vector8 -> Cube -> Bool
+        --access v c = v V.! (properKey p c) == 255
+
+        access :: Vector8 -> Int -> Bool
+        access v i = v V.! i == 255
+
+properKey :: HPiece -> Cube -> Int
+properKey Corner = cornersKey
+properKey Edge1 = edgesKeyFst
+properKey Edge2 = edgesKeySnd
+
 
 {- 
     1: find indices of value (currD - 1)    (V.filter (\t -> snd t == cd-1) (V.zip (V.fromList[0..]) xs))
+    falta map fst
     2: recompose cubes of that value (recompose)
     3: apply all (18) moves to those cubes (concat, map)
     4: filter to only those that are (== currD)
@@ -107,11 +150,16 @@ data HPiece = Corner | Edge1 | Edge2 deriving (Eq, Show)
     6: store in changes term (zip (repeat currDepth))
 -}
 
+-- | Calculate all the adjacent cubes
+adjacent :: Cube -> [Cube]
+adjacent c = map (applyMove c) possibleTurns
+
 recompose :: HPiece -> Int -> Cube
 recompose Corner n = keysToCube (n,0,23442432)
-recompose Edge1 n = keysToCube (0,n,23442432)
-recompose Edge2 n = keysToCube (0,0,n)
+--recompose Edge1 n = keysToCube (0,n,23442432)
+--recompose Edge2 n = keysToCube (0,0,n)
 -- Careful: can give strange failures because of solved pieces and repeated ones
+-- NOTE: recompose for edges is wrong
 {- Future: not recomposing the whole cube, only specific pieces (efficiency) -}
 
 --PENDING TO DELETE ALL FROM HERE

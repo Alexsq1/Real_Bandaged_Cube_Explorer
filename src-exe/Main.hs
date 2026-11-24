@@ -10,5 +10,5 @@ main = do
     putStrLn "Wellcome to Real Bandaged Cube Explorer!"
 
     let d = 7
-    genPDBs d
+    genPDBsIfMissing d
     InputAndSolve.inputAndSolve d

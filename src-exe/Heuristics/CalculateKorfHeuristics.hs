@@ -49,8 +49,8 @@ loadLastVectors n
                     v <- loadVectors 0
                     return (v, v)
     | otherwise = do
-                    pv <- loadVectors (n-2) 
-                    ppv <- loadVectors (n-1)
+                    ppv <- loadVectors (n-2) 
+                    pv <- loadVectors (n-1)
                     return (ppv, pv)
 
 -- the file exists if called from genPDB -> genPDBFromScratch -> stdVectors

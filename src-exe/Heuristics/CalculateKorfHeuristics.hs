@@ -167,7 +167,7 @@ recompose p ek = mathToCube ([0..7], replicate 8 0) (ep, eo)
        --Decode perm and orientation, join edges
        --epPrev = nprDecode e1pk ++ nprDecode e2pk
        epHalf = nprDecode epk
-       eoHalf = decodeEO epk
+       eoHalf = decodeEO eok
 
        (epFull, eoFull) = complete p (epHalf, eoHalf)
 

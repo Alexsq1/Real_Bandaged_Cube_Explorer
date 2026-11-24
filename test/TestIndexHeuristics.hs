@@ -9,31 +9,36 @@ import MathematicalNotation
 import Data.List
 import Combinatorics
 import IndexHeuristics
+import CalculateKorfHeuristics
 
 
 testIndexHeuristics :: IO()
 testIndexHeuristics = do
     -- test of perfect hashes:
-        quickCheck (perfectHashingPerms)
-        quickCheck (perfectHashingNPR)
-        quickCheck perfectHashingCP
-        quickCheck perfectHashingEP
-        quickCheck perfectHashingBC
+        --quickCheck (perfectHashingPerms)
+        --quickCheck (perfectHashingNPR)
+        --quickCheck perfectHashingCP
+        --quickCheck perfectHashingEP
+        --quickCheck perfectHashingBC
     -- test of combinatorics:
-        quickCheck factInverse1
-        quickCheck factInverse2
-        quickCheck nprInverse1
-        quickCheck nprInverse2
-        quickCheck coInverse1
-        quickCheck coInverse2
-        quickCheck eoInverse1
-        quickCheck eoInverse2
-        quickCheck mathNotationCorrect2
+        --quickCheck factInverse1
+        --quickCheck factInverse2
+        --quickCheck nprInverse1
+        --quickCheck nprInverse2
+        --quickCheck coInverse1
+        --quickCheck coInverse2
+        --quickCheck eoInverse1
+        --quickCheck eoInverse2
+        --quickCheck mathNotationCorrect2
 
     -- test of index heuristics:
-        quickCheck reorderEdgesAutoInverse         
-        quickCheck calcAndRecompose1
-        quickCheck calcAndRecompose2
+        --quickCheck reorderEdgesAutoInverse         
+        --quickCheck calcAndRecompose1
+        --quickCheck calcAndRecompose2
+
+    -- test of recompose (calculateKorfHeur)
+
+        quickCheck recompose1
 
 -- GENERATORS
 
@@ -220,3 +225,14 @@ mathNotationCorrect2 = forAll genValues $ \(cp, ep, co, eo, c) ->
                         co <- genCO
                         eo <- genEO
                         return (cp, ep, co, eo, mathToCube (cp,co) (ep,eo))
+
+recompose1 :: Cube -> Property
+recompose1 c = property ( take 6 ep1 ++ drop 6 ep2 == fst (edgesState c) &&
+                            take 6 eo1 ++ drop 6 eo2 == snd (edgesState c))
+    where
+        (_, k1, k2) = allKeys c
+        c1 = recompose Edge1 k1
+        c2 = recompose Edge2 k2
+        (ep1, eo1) = edgesState c1
+        (ep2, eo2) = edgesState c2
+

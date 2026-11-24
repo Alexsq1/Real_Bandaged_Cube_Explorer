@@ -1,7 +1,14 @@
-module MathematicalNotation(cornerState, edgesState, edgesSplittedState, mathToCube) where
+module MathematicalNotation(state, cornerState, edgesState, edgesSplittedState, mathToCube) where
 
 import Cube(Cube(..), corners, edges, newCubeFromList)
 --import Bandaged(BandagedCube(..))
+
+-- | Returns the state in "mathematical" notation (CP, CO, EP, EO)
+state :: Cube -> ( [Int], [Int], [Int], [Int])
+state cube = (cp, co, ep, eo)
+    where
+        (cp, co) = cornerState cube
+        (ep, eo) = edgesState cube
 
 -- | Returns the state of corners in "mathematical" notation (CP, CO)
 cornerState :: Cube -> ([Int], [Int])

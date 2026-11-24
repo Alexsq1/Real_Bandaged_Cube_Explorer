@@ -23,7 +23,7 @@ testHeuristics :: IO()
 testHeuristics = do
 
         -- test of Korf heuristics (admissible)
-        let depth = 3
+        let depth = 7
         v <- (loadVectors depth)
         --quickCheck (sharing depth)
         --quickCheck (sharingCorners depth 1)

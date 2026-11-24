@@ -15,30 +15,29 @@ import CalculateKorfHeuristics
 testIndexHeuristics :: IO()
 testIndexHeuristics = do
     -- test of perfect hashes:
-        --quickCheck (perfectHashingPerms)
-        --quickCheck (perfectHashingNPR)
-        --quickCheck perfectHashingCP
-        --quickCheck perfectHashingEP
-        --quickCheck perfectHashingBC
+        quickCheck (perfectHashingPerms)
+        quickCheck (perfectHashingNPR)
+        quickCheck perfectHashingCP
+        quickCheck perfectHashingEP
+        quickCheck perfectHashingBC
     -- test of combinatorics:
-        --quickCheck factInverse1
-        --quickCheck factInverse2
-        --quickCheck nprInverse1
-        --quickCheck nprInverse2
-        --quickCheck coInverse1
-        --quickCheck coInverse2
-        --quickCheck eoInverse1
-        --quickCheck eoInverse2
-        --quickCheck mathNotationCorrect2
+        quickCheck factInverse1
+        quickCheck factInverse2
+        quickCheck nprInverse1
+        quickCheck nprInverse2
+        quickCheck coInverse1
+        quickCheck coInverse2
+        quickCheck eoInverse1
+        quickCheck eoInverse2
+        quickCheck mathNotationCorrect2
 
     -- test of index heuristics:
-        --quickCheck reorderEdgesAutoInverse         
-        --quickCheck calcAndRecompose1
-        --quickCheck calcAndRecompose2
+        quickCheck reorderEdgesAutoInverse         
+        quickCheck calcAndRecompose1
+        quickCheck calcAndRecompose2
 
     -- test of recompose (calculateKorfHeur)
-
-        quickCheck recompose1
+        quickCheck recomposeCorrect
 
 -- GENERATORS
 
@@ -227,8 +226,8 @@ mathNotationCorrect2 = forAll genValues $ \(cp, ep, co, eo, c) ->
                         return (cp, ep, co, eo, mathToCube (cp,co) (ep,eo))
 
 -- after recomposing, the numbers that match are the positions of the pieces of [0..5] or [6..11]
-recompose1 :: Cube -> Property
-recompose1 c = property ( 
+recomposeCorrect :: Cube -> Property
+recomposeCorrect c = property ( 
                         -- in positions where ep1 is <= 5, ep1 == realEP , eo1 == realEO
                         map (\i -> ep1 !! i) interestingIndices1 == map (\i -> realEP !! i) interestingIndices1 &&
                         map (\i -> eo1 !! i) interestingIndices1 == map (\i -> realEO !! i) interestingIndices1 &&

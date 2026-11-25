@@ -44,7 +44,7 @@ extra-doc-files:    CHANGELOG.md
 -- extra-source-files:
 
 common warnings
-    ghc-options: -Wall  -O2
+    ghc-options: -Wall  -O2 
     -- -prof -fprof-auto
     --(prof needed for time)
 
@@ -151,7 +151,7 @@ test-suite Bandaged-Cube-TFG-test
                     TestMoves,
                     TestHeuristics,
                     TestIndexHeuristics,
-                    --TestSolutions
+                    TestSolutions
 
     -- Test dependencies.
     build-depends:

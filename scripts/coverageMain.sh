@@ -1,3 +1,5 @@
+# requires -fhpc
+
 cabal clean && \
 cabal build --enable-profiling && \
 cabal run && \

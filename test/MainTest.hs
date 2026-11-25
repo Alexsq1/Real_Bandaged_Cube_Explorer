@@ -4,7 +4,7 @@ import TestCube
 import TestMoves
 import TestHeuristics
 import TestIndexHeuristics
---import TestSolutions
+import TestSolutions
 
 --main-is of cabal test
 main :: IO()
@@ -25,9 +25,9 @@ main = do
     putStrLn "Testing Heuristics:"
     testHeuristics
 
-    --putStrLn "\n"
-    --putStrLn "Testing Solutions:"
-    --testSolutions
+    putStrLn "\n"
+    putStrLn "Testing Solutions:"
+    testSolutions
 
     putStrLn "\n"
 

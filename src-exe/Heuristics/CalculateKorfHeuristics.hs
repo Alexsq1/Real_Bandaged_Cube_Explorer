@@ -18,7 +18,7 @@ import Combinatorics(nprDecode, decodeEO)
 --import qualified Data.Set as S
 --import Data.Maybe(fromJust)
 import Data.Word(Word8)
-import Data.List((\\), nub)
+import Data.List((\\))
 
 --import Data.PSQueue as PS
 import qualified Data.Vector.Unboxed as V
@@ -134,8 +134,9 @@ nextLayer p cd (ppv, pv) = map (\i -> (i , cd)) adjCubesNewI
         -- calculate the adjacent cubes of the corresponding
         adjCubes = concatMap adjacent indexCubes
 
-        -- calculate the key of the (potentially) new layer, remove duplicates
-        adjCubesI = nub (map (properKey p) adjCubes)
+        -- calculate the key of the (potentially) new layer, remove duplicates -> nub slows down the program a lot, better to write multiple times in the vector
+        --adjCubesI = nub (map (properKey p) adjCubes)
+        adjCubesI = map (properKey p) adjCubes
 
         -- remove the previously visited states
         adjCubesNewI = filter (\i -> access ppv i && access pv i) adjCubesI

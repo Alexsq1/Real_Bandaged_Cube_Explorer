@@ -17,13 +17,13 @@ import Data.Word(Word8)
 import qualified Data.Vector.Unboxed as V
 
 type V8 = V.Vector (Word8)
-type HVector = (V8,V8,V8)
+type HVector = (Word8,V8,V8,V8)
 
 testSolutions :: IO()
 testSolutions = do
     putStrLn "TESTS OF SEARCH ENGINE"
 
-    let depth = 6
+    let depth = 8
     v <- (loadVectors depth)
     
     --putStrLn "Testing a 3x3x3"
@@ -47,8 +47,8 @@ testSolutions = do
     --putStrLn "Testing a BiCube"
     --quickCheck (biCube v 30)
 
-    --putStrLn "Testing an alcatraz"
-    --quickCheck (alcatraz v 200)
+    putStrLn "Testing an alcatraz"
+    quickCheck (alcatraz v 200)
 
     --putStrLn "Testing a TheMaoiSha-252"
     --quickCheck (theMaoisha252 v 300)
